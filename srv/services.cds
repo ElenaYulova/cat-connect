@@ -1,19 +1,25 @@
 using {sap.capire.gameshop as my} from '../db/schema';
 
 /**
- * Service used by support personell.
+ * Service used by support personell to manage orders
  */
 service ProcessorService {
-    entity Products  as projection on my.Products;
+    entity Orders     as projection on my.Orders;
+    entity OrderItems as projection on my.OrderItems;
+    entity Customers  as projection on my.Customers;
 
     @readonly
-    entity Customers as projection on my.Customers;
+    entity Products   as projection on my.Products;
 }
 
 /**
- * Service used by administrators to manage customers and products.
+ * Service used by administrators to manage data.
  */
 service AdminService {
-    entity Customers as projection on my.Customers;
-    entity Products  as projection on my.Products;
+    entity Customers  as projection on my.Customers;
+    entity Products   as projection on my.Products;
+    entity Categories as projection on my.Categories;
+    entity Producers  as projection on my.Producers;
+    entity Orders     as projection on my.Orders;
+    entity OrderItems as projection on my.OrderItems;
 }
