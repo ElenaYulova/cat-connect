@@ -33,7 +33,7 @@ entity Products : cuid, managed {
 
 entity Producers : cuid, managed, Address {
     name     : String(111) @mandatory;
-    existing : Boolean;
+    existing : Boolean default 1;
     products : Association to many Products
                    on products.producer = $self;
 }

@@ -11,15 +11,3 @@ service ProcessorService {
     @readonly
     entity Products   as projection on my.Products;
 }
-
-/**
- * Service used by administrators to manage data.
- */
-service AdminService {
-    entity Customers  as projection on my.Customers;
-    entity Products   as projection on my.Products;
-    entity Categories as projection on my.Categories;
-    entity Producers  as projection on my.Producers;
-    entity Orders     as projection on my.Orders;
-    entity OrderItems as projection on my.OrderItems;
-}
