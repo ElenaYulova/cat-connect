@@ -1,5 +1,5 @@
 using {
-    sap,
+    sap.common.CodeList,
     Currency,
     cuid,
     managed
@@ -18,7 +18,7 @@ aspect Address : {
 // Entities
 
 /**
-* Goods and Producers.
+* Products and Producers.
 */
 entity Products : cuid, managed {
     title    : localized String(111)    @mandatory;
@@ -38,7 +38,7 @@ entity Producers : cuid, managed, Address {
                    on products.producer = $self;
 }
 
-entity Categories : sap.common.CodeList {
+entity Categories : CodeList {
     key ID       : UUID;
         parent   : Association to Categories;
         children : Composition of many Categories
@@ -66,6 +66,7 @@ entity Orders : cuid, managed {
     customer    : Association to Customers;
     totalAmount : Price      @readonly;
     currency    : Currency;
+    status      : Association to Status default 'N';
     items       : Composition of many OrderItems
                       on items.parent = $self;
 }
@@ -77,6 +78,14 @@ entity OrderItems : cuid {
         1,
         99
     ];
+}
+
+entity Status : CodeList {
+    key code : String enum {
+            new = 'N';
+            in_process = 'P';
+            completed = 'C';
+        };
 }
 
 // Types
