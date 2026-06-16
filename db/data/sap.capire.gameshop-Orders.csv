@@ -1,0 +1,4 @@
+ID,orderNumber,customer_ID,totalAmount,currency_code,status_code,createdAt,createdBy,modifiedAt,modifiedBy
+f3b1a4c2-7d8e-4a1b-9c3f-5e6d7a8b9c01,2026-001,b4d7b17e-39a0-45ef-bf73-13bd18a017cf,294,USD,P
+da8e2c1b-4f5a-463d-82c1-93e4f5a6b7c8,2026-002,ba46e0f8-f10c-4065-a6d2-29595b84f62c,147,USD,N
+a1b2c3d4-e5f6-47a8-b9c0-1d2e3f4a5b6c,2026-003,12fa7731-b782-4078-bb3f-588869eb5fe0,69,USD,F
