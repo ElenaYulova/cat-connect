@@ -5,7 +5,17 @@ using {sap.capire.gameshop as my} from '../db/schema';
  */
 service UserService {
     @readonly
-    entity Products as projection on my.Products;
+    entity Products   as
+        projection on my.Products {
+            title,
+            image,
+            descr,
+            producer,
+            genre,
+            price,
+            currency
+        };
+
     @readonly
     entity Categories as projection on my.Categories;
 }

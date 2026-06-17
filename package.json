@@ -1,14 +1,23 @@
 {
   "name": "cat-connect",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "@sap/cds": "^9"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2.4"
+    "@cap-js/sqlite": "^2.4",
+    "cds-plugin-ui5": "^0.17.0"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "watch-gameshop": "cds watch --open ns.gameshop/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
-  "private": true
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/gameshop"
+  ]
 }
