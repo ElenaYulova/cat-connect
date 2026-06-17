@@ -7,7 +7,9 @@ using {
 
 namespace sap.capire.gameshop;
 
+// ==========================================
 // Aspects
+// ==========================================
 
 aspect Address : {
     city          : String;
@@ -15,7 +17,9 @@ aspect Address : {
     streetAddress : String;
 }
 
+// ==========================================
 // Entities
+// ==========================================
 
 /**
 * Products and Producers.
@@ -81,20 +85,20 @@ entity OrderItems : cuid {
 }
 
 entity Status : CodeList {
-    key code : String enum {
+    key code        : String enum {
             new = 'N';
             in_process = 'P';
             completed = 'C';
         };
+        criticality : Integer;
 }
 
+// ==========================================
 // Types
+// ==========================================
 
 type Price        : Decimal(9, 2);
 type EMailAddress : String(255) @assert.format: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
 type PhoneNumber  : String(30) @assert.format: '^\+?[0-9\s\-()]{7,20}$';
 type CardNumber   : String(16) @assert.format: '^[1-9]\d{15}$';
-
-@IsURL
-@Core.MediaType: 'image/jpeg'
-type Image        : String;
+type Image        : LargeBinary @Core.MediaType: 'image/jpeg'

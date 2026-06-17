@@ -103,6 +103,7 @@
             "settings": {
               "contextPath": "/Products",
               "variantManagement": "Page",
+              "initialLoad": "Enabled",
               "navigation": {
                 "Products": {
                   "detail": {
@@ -127,7 +128,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/Products"
+              "contextPath": "/Products",
+              "enableLazyLoading": true
             }
           }
         }

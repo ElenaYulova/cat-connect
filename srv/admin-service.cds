@@ -11,3 +11,5 @@ service AdminService {
     entity Orders     as projection on my.Orders;
     entity OrderItems as projection on my.OrderItems;
 }
+
+annotate AdminService.Products with @odata.draft.enabled;
