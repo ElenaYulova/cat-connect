@@ -94,4 +94,7 @@ type Price        : Decimal(9, 2);
 type EMailAddress : String(255) @assert.format: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
 type PhoneNumber  : String(30) @assert.format: '^\+?[0-9\s\-()]{7,20}$';
 type CardNumber   : String(16) @assert.format: '^[1-9]\d{15}$';
-type Image        : LargeBinary @Core.MediaType: 'image/png'
+
+@IsURL
+@Core.MediaType: 'image/jpeg'
+type Image        : String;

@@ -46,17 +46,17 @@ annotate service.Products with @(
     UI.LineItem : [
         {
             $Type : 'UI.DataField',
-            Label : 'Title',
+            Label : '{i18n>Title}',
             Value : title,
         },
         {
             $Type : 'UI.DataField',
             Value : image,
-            Label : 'Image',
+            Label : '{i18n>Image}',
         },
         {
             $Type : 'UI.DataField',
-            Label : 'Descr',
+            Label : '{i18n>Descript}',
             Value : descr,
         },
         {
@@ -69,12 +69,12 @@ annotate service.Products with @(
         },
         {
             $Type : 'UI.DataField',
-            Label : 'Price',
+            Label : '{i18n>Price}',
             Value : price,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'Currency',
+            Label : '{i18n>Currency}',
             Value : currency_code,
         },
     ],
@@ -119,12 +119,38 @@ annotate service.Products with {
 };
 
 annotate service.Producers with {
-    name @Common.Label : 'Producer'
+    name @(
+        Common.Label : '{i18n>Producer}',
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Producers',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : name,
+                    ValueListProperty : 'name',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    )
 };
 
 annotate service.Categories with {
     name @(
-        Common.Label : 'Genre',
+        Common.Label : '{i18n>Genre}',
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Categories',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : name,
+                    ValueListProperty : 'name',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
         )
 };
 
