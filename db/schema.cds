@@ -57,7 +57,7 @@ context salesorder {
         customer    : Association to crm.Customers;
         totalAmount : Price      @readonly;
         currency    : Currency;
-        status      : Association to OrderStatus default 'N';
+        status      : Association to OrderStatusCode default 'N';
         items       : Composition of many OrderItems
                           on items.parent = $self;
     }
@@ -71,7 +71,7 @@ context salesorder {
         ];
     }
 
-    entity OrderStatus : CodeList {
+    entity OrderStatusCode : CodeList {
         key code        : String enum {
                 new = 'N';
                 in_process = 'P';
