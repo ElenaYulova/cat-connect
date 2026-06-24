@@ -1,7 +1,6 @@
 {
   "name": "cat-connect",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "@sap/cds": "^9"
   },
