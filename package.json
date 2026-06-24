@@ -10,13 +10,14 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-gameshop": "cds watch --open ns.gameshop/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "private": true,
   "workspaces": [
     "app/*"
   ],
   "sapux": [
-    "app/gameshop"
+    "app/gameshop",
+    "app/crm_customers"
   ]
 }
