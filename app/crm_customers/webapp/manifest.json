@@ -103,6 +103,7 @@
             "settings": {
               "contextPath": "/Customers",
               "variantManagement": "Page",
+              "initialLoad": "Enabled",
               "navigation": {
                 "Customers": {
                   "detail": {
@@ -114,6 +115,26 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
+                  },
+                  "columns": {
+                    "DataField::name": {
+                      "width": "12rem"
+                    },
+                    "DataField::email": {
+                      "width": "12rem"
+                    },
+                    "DataField::phone": {
+                      "width": "12rem"
+                    },
+                    "DataField::categoryGroup": {
+                      "width": "10rem"
+                    },
+                    "DataField::averageRating": {
+                      "width": "10rem"
+                    },
+                    "DataField::statusCode_code": {
+                      "width": "15rem"
+                    }
                   }
                 }
               }
