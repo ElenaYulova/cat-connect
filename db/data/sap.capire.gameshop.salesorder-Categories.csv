@@ -1,1 +1,12 @@
 ID,parent_ID,name,descr
+fc3e48ed-f200-46b0-b2ec-ae2560ca7924,,Casual
+74b83228-e81c-4501-a3e4-e48df955ae29,,Shooter
+392ea785-c231-48ad-8190-e467b61f7962,,RPG
+18c06e1d-6455-4004-b72b-6170041ab0d9,,Race
+0b3bef6c-ae89-46b9-b74b-5362603f25d8,,Strategy
+8964a698-6f1f-4ef4-99bf-69ecae56517a,,Horror
+c1bab3a5-c28a-4a74-866f-4932e733150e,,Sports
+945c6829-eaa5-43fe-bccb-cc030549e4e6,8964a698-6f1f-4ef4-99bf-69ecae56517a,Co-op Horror
+9dcd124d-2dd8-4fa1-9fd6-03f3e8f9826d,74b83228-e81c-4501-a3e4-e48df955ae29,Co-op Shooter
+ebd59efe-cecd-400e-a83a-2b1743d7f07b,c1bab3a5-c28a-4a74-866f-4932e733150e,Co-op Sports
+bbe94fc0-2568-4112-a21c-074a44da1bb7,392ea785-c231-48ad-8190-e467b61f7962,Action RPG

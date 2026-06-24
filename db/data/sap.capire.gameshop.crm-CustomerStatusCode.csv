@@ -1,1 +1,4 @@
 code,criticality,name,descr
+A,3,Active,Client is actively buying
+I,1,Inactive,Client has no recent activity
+R,2,At Risk,Client is likely to churn

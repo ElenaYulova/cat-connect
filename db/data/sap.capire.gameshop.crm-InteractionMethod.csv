@@ -1,1 +1,4 @@
 code,criticality,name,descr
+O,3,Order,Interaction via making an order
+F,2,Feedback,Interaction via submitting a review
+S,1,Support,Interaction via opening a support ticket
