@@ -1,8 +1,13 @@
 using CrmService as service from '../../srv/crm-service';
 
+// =========================================================================
+// List Report Annotations
+// =========================================================================
+
 annotate service.Customers with @(
     // Smart Filter Bar:
     UI.SelectionFields: [statusCode_code],
+    // Table:
     UI.LineItem       : [
         {
             $Type: 'UI.DataField',
@@ -41,7 +46,157 @@ annotate service.Customers with @(
 
 annotate service.Customers with {
     statusCode @(
-        Common.Text : statusCode.descr,
-        Common.Label: '{i18n>CustomerStatus}',
+        Common.Text                    : statusCode.descr,
+        Common.Label                   : '{i18n>CustomerStatus}',
+        Common.Text.@UI.TextArrangement: #TextOnly,
+    )
+};
+
+// =========================================================================
+// Object Page Annotations
+// =========================================================================
+
+annotate service.Customers with @(
+    // Header
+    UI.HeaderInfo                   : {
+        TypeName      : 'Customer',
+        TypeNamePlural: 'Customers',
+        Title         : {
+            $Type: 'UI.DataField',
+            Value: name
+        },
+        Description   : {
+            $Type: 'UI.DataField',
+            Value: categoryGroup
+        }
+    },
+
+    UI.HeaderFacets                 : [{
+        $Type : 'UI.ReferenceFacet',
+        ID    : 'StatusHeaderFacet',
+        Label : '{i18n>CustomerStatus1}',
+        Target: '@UI.FieldGroup#HeaderStatusGroup'
+    }],
+
+    UI.FieldGroup #HeaderStatusGroup: {Data: [{
+        $Type      : 'UI.DataField',
+        Value      : statusCode_code,
+        Criticality: statusCode.criticality,
+        Label      : '',
+    }]},
+
+    // Tabs
+    UI.Facets                       : [
+
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'GeneralInfoFacet',
+            Label : '{i18n>GeneralInformation}',
+            Target: '@UI.FieldGroup#GeneralInfo'
+        },
+
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'PreferencesFacet',
+            Label : '{i18n>CustomerPreferences}',
+            Target: 'preferences/@UI.LineItem'
+        },
+
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'InteractionsFacet',
+            Label : '{i18n>InteractionHistory}',
+            Target: 'interactions/@UI.LineItem'
+        }
+    ],
+
+    // Field Groups
+    UI.FieldGroup #GeneralInfo      : {Data: [
+        {
+            $Type: 'UI.DataField',
+            Value: firstName
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: lastName
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: email
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: phone
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: creditCardNo,
+            Label: '{i18n>CreditCard}',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: averageRating,
+            Label: '{i18n>Rating}',
+        }
+    ]}
+);
+
+// Preferences in the Object Page of Service.Customers
+
+annotate service.CustomersToPreferences with @(UI.LineItem: [
+    {
+        $Type: 'UI.DataField',
+        Value: preference.productCategory_ID,
+        Label: 'Product Category'
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: preference.notes,
+        Label: '{i18n>Notes}'
+    }
+
+]);
+
+// Service.Interactions in the Object Page of Service.Customers
+annotate service.Interactions with @(UI.LineItem: [
+    {
+        $Type: 'UI.DataField',
+        Value: date,
+        Label: '{i18n>DateTime}'
+    },
+    {
+        $Type      : 'UI.DataField',
+        Value      : method_code,
+        Label      : '{i18n>Type}',
+        Criticality: method.criticality
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: summary,
+        Label: '{i18n>SummaryDescription}'
+    }
+]);
+
+annotate service.Interactions with {
+    method @(
+        Common.ValueList               : {
+            $Type         : 'Common.ValueListType',
+            CollectionPath: 'InteractionMethod',
+            Parameters    : [{
+                $Type            : 'Common.ValueListParameterInOut',
+                LocalDataProperty: method_code,
+                ValueListProperty: 'name',
+            }, ],
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.Text                    : method.name,
+        Common.Text.@UI.TextArrangement: #TextOnly,
+    )
+};
+
+annotate service.Preferences with {
+    productCategory @(
+        Common.Text                    : productCategory.name,
+        Common.Text.@UI.TextArrangement: #TextOnly,
     )
 };
