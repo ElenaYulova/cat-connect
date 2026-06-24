@@ -93,7 +93,7 @@ context crm {
         name          : String = trim(firstName || ' ' || lastName);
         email         : EMailAddress;
         phone         : PhoneNumber;
-        orders        : Association to many Orders
+        orders        : Association to many salesorder.Orders
                             on orders.customer = $self;
         creditCardNo  : CardNumber;
         categoryGroup : String(50);

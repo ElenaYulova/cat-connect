@@ -1,6 +1,0 @@
-code,name,descr
-N,New,"Newly ordered"
-P,In_Process,"Order is being processied"
-F,Finished,"Order is finished"
-C,Cancelled,"Order is cancelled"
-

@@ -1,5 +1,0 @@
-ID,firstName,lastName,email,phone,creditCardNo,createdAt,createdBy,modifiedAt,modifiedBy,city,postCode,streetAddress
-b4d7b17e-39a0-45ef-bf73-13bd18a017cf,John,Doe,john.doe@gmail.com,+1-234-267,1111222233334444,16.06,E.Y,16.06,E.Y,Krakow,123456,1st Str
-ba46e0f8-f10c-4065-a6d2-29595b84f62c,Jane,Doe,jane@gmail.com,+1-345-678,1111555533334444,16.06,E.Y,16.06,E.Y,Warsaw,9853456,2st Str
-12fa7731-b782-4078-bb3f-588869eb5fe0,Max,Smith,max.smith@test.com,+1-874-257,1111222266664444,16.06,E.Y,16.06,E.Y,Krakow,123456,3st Str
-bb4ad893-a6ca-4416-a50c-a8daccccae32,Ann,First,ann.first@test.com,+2-234-267,8888222233337777,16.06,E.Y,16.06,E.Y,Paris,154456,4st Str
