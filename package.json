@@ -1,0 +1,42 @@
+{
+  "name": "cat-connect",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sap/cds": "^9"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.4",
+    "cds-plugin-ui5": "^0.17.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/gameshop",
+    "app/crm_customers"
+  ],
+  "cds": {
+  "auth": {
+    "passport": { "username": "email" },
+    "mock": {
+      "users": {
+        "admin": {
+          "roles": ["CRMAdmin"]
+        },
+        "manager": {
+          "roles": ["SalesManager"]
+        },
+        "agent": {
+          "roles": ["SupportAgent"]
+        }
+      }
+    }
+  }
+}
+
+}
