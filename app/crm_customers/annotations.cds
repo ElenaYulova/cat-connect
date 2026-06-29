@@ -52,6 +52,21 @@ annotate service.Customers with {
     )
 };
 
+annotate service.CustomerNotes with @(UI.LineItem: [
+    {
+        Value : createdBy,
+        @title: 'Author'
+    },
+    {
+        Value : createdAt,
+        @title: 'Date'
+    },
+    {
+        Value : content,
+        @title: 'Internal Note'
+    }
+]);
+
 // =========================================================================
 // Object Page Annotations
 // =========================================================================
@@ -69,6 +84,7 @@ annotate service.Customers with @(
             $Type: 'UI.DataField',
             Value: categoryGroup
         }
+
     },
 
     UI.HeaderFacets                 : [{
@@ -107,6 +123,12 @@ annotate service.Customers with @(
             ID    : 'InteractionsFacet',
             Label : '{i18n>InteractionHistory}',
             Target: 'interactions/@UI.LineItem'
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : '{i18n>NotesFacet}',
+            ID    : 'CustomerNotes',
+            Target: 'customerNotes/@UI.LineItem'
         }
     ],
 
