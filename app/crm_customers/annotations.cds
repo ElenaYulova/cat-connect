@@ -87,10 +87,9 @@ annotate service.Customers with @(
     },
 
     UI.Identification               : [{
-        $Type             : 'UI.DataFieldForAction',
-        Label             : 'Clear All Notes',
-        Action            : 'CrmService.clearNotes',
-        InvocationGrouping: #Isolated
+        $Type : 'UI.DataFieldForAction',
+        Label : 'Clear All Notes',
+        Action: 'CrmService.clearNotes'
     }],
 
     UI.HeaderFacets                 : [{

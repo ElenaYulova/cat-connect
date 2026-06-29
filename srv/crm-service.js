@@ -28,14 +28,20 @@ module.exports = cds.service.impl(async function () {
     * Custom Action: Clear Notes
     */
 
-    this.on('clearNotes', 'Customers', async (req) => {
-        const customerId = req.params[0]?.ID || req.params[0];
+    this.on('clearNotes', ['Customers', 'Customers.drafts'], async (req) => {
+        // Button is problematic and requires additional ID check
+        const paramsObj = Array.isArray(req.params) ? req.params[0] : req.params;
+        const customerId = req.data?.ID || paramsObj?.ID || req.params;
+
+        if (!customerId || typeof customerId !== 'string') {
+            return req.error(400, 'Cannot extract valid Customer UUID.');
+        }
 
         const { CustomerNotes } = this.entities;
 
-        await cds.run(
-            DELETE.from(CustomerNotes).where({ customer_ID: customerId })
-        );
+        // Delete both in draft and physically
+        await cds.run(DELETE.from(CustomerNotes).where({ customer_ID: customerId }));
+        await cds.run(DELETE.from(CustomerNotes.drafts).where({ customer_ID: customerId }));
 
         return req.reply({ message: 'All internal notes for this customer have been successfully cleared.' });
     });
