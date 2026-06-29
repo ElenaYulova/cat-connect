@@ -5,12 +5,16 @@
     "@sap/cds": "^9"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2.4",
-    "cds-plugin-ui5": "^0.17.0"
+    "@cap-js/cds-test": "^1",
+    "@cap-js/sqlite": "^2.4.0",
+    "cds-plugin-ui5": "^0.17.0",
+    "supertest": "^7.2.2"
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "test": "node --test",
+    "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand"
   },
   "private": true,
   "workspaces": [
@@ -26,13 +30,21 @@
         "strategy": "mock",
         "users": {
           "admin": {
-            "roles": ["CRMAdmin", "SalesManager", "SupportAgent"]
+            "roles": [
+              "CRMAdmin",
+              "SalesManager",
+              "SupportAgent"
+            ]
           },
           "manager": {
-            "roles": ["SalesManager"]
+            "roles": [
+              "SalesManager"
+            ]
           },
           "agent": {
-            "roles": ["SupportAgent"]
+            "roles": [
+              "SupportAgent"
+            ]
           }
         }
       }
