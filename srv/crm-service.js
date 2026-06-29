@@ -1,6 +1,6 @@
 const cds = require('@sap/cds');
 module.exports = cds.service.impl(async function () {
-    const { Customers, Feedbacks, Interactions, Orders, OrderItems } = this.entities;
+    const { Customers, Feedbacks, Interactions, Orders, OrderItems, UserCategories } = this.entities;
 
     /**
     * Average Rating Calculation and "At Risk" Status Auto-Update
@@ -81,23 +81,20 @@ module.exports = cds.service.impl(async function () {
         if (!each) return;
 
         const customers = Array.isArray(each) ? each : [each]; // CAP fix: framework can return object or array
-
         for (const customer of customers) {
+            let favoriteCode = 'NEW_PLAYER'; // Default category
+
             const boughtCategories = await cds.run(
                 SELECT.from(OrderItems)
-                    .columns('game.genre.userType_code as typeGroup')
+                    .columns('game.genre.userType_code')
                     .where({ 'parent.customer_ID': customer.ID })
             );
 
-            if (!boughtCategories || boughtCategories.length === 0) {
-                let favoriteCode = 'NEW_PLAYER'; // Default for new Customer
-                continue;
-            }
-
             if (boughtCategories && boughtCategories.length > 0) {
                 const stats = boughtCategories.reduce((acc, item) => {
-                    if (item.typeCode) {
-                        acc[item.typeCode] = (acc[item.typeCode] || 0) + 1;
+                    const code = item.userType_code || item.game_genre_userType_code || Object.values(item)[0];
+                    if (code) {
+                        acc[code] = (acc[code] || 0) + 1;
                     }
                     return acc;
                 }, {});
@@ -115,7 +112,7 @@ module.exports = cds.service.impl(async function () {
                 SELECT.one.from(UserCategories).columns('name').where({ code: favoriteCode })
             );
 
-             customer.categoryGroup = categoryObj ? categoryObj.name : favoriteCode;
+            customer.categoryGroup = categoryObj ? categoryObj.name : favoriteCode;
         }
     });
 })

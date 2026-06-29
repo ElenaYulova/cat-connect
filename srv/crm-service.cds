@@ -1,10 +1,6 @@
 using {sap.capire.gameshop as myApp} from '../db/schema';
 
-service CrmService @(requires: [
-    'CRMAdmin',
-    'SalesManager',
-    'SupportAgent'
-]) {
+service CrmService @(requires: 'authenticated-user') {
 
     // Main editable entity
     @odata.draft.enabled
@@ -50,10 +46,7 @@ service CrmService @(requires: [
             to   : 'CRMAdmin'
         },
         {
-            grant: [
-                'READ',
-                'UPDATE'
-            ],
+            grant: '*',
             to   : 'SalesManager'
         },
         {

@@ -51,6 +51,7 @@ context salesorder {
         children : Composition of many Categories
                        on children.parent = $self;
         userType : Association to UserCategories;
+        descr    : String(1111);
     }
 
     entity Orders : cuid, managed {
@@ -104,7 +105,7 @@ context crm {
         categoryGroup : String(50);
         averageRating : Decimal(3, 2);
         statusCode    : Association to CustomerStatusCode;
-        interactions  : Composition of many Interactions
+        interactions  : Association to many Interactions
                             on interactions.customer = $self;
         preferences   : Association to many CustomersToPreferences
                             on preferences.customer = $self;

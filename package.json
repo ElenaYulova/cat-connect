@@ -21,22 +21,21 @@
     "app/crm_customers"
   ],
   "cds": {
-  "auth": {
-    "passport": { "username": "email" },
-    "mock": {
-      "users": {
-        "admin": {
-          "roles": ["CRMAdmin"]
-        },
-        "manager": {
-          "roles": ["SalesManager"]
-        },
-        "agent": {
-          "roles": ["SupportAgent"]
+    "requires": {
+      "auth": {
+        "strategy": "mock",
+        "users": {
+          "admin": {
+            "roles": ["CRMAdmin", "SalesManager", "SupportAgent"]
+          },
+          "manager": {
+            "roles": ["SalesManager"]
+          },
+          "agent": {
+            "roles": ["SupportAgent"]
+          }
         }
       }
     }
   }
-}
-
 }
