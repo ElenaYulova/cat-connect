@@ -1,6 +1,44 @@
 const cds = require('@sap/cds');
 module.exports = cds.service.impl(async function () {
-    const { Customers, Feedbacks, Interactions, Orders, OrderItems, UserCategories } = this.entities;
+    const { Customers, Feedbacks, Interactions, Orders, OrderItems, UserCategories, CustomerNotes } = this.entities;
+    /**
+    * Validation of Customer Notes Length
+    */
+
+    this.before('SAVE', 'Customers', async (req) => {
+        const customerId = req.data.ID;
+
+        const { CustomerNotes } = this.entities;
+
+        const draftNotes = await cds.run(
+            SELECT.from(CustomerNotes.drafts)
+                .where({ customer_ID: customerId })
+        );
+
+        if (draftNotes && draftNotes.length > 0) {
+            for (const note of draftNotes) {
+                if (!note.content || note.content.trim().length < 5) {
+                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes'); [1.4]
+                }
+            }
+        }
+    });
+
+    /**
+    * Custom Action: Clear Notes
+    */
+
+    this.on('clearNotes', 'Customers', async (req) => {
+        const customerId = req.params[0]?.ID || req.params[0];
+
+        const { CustomerNotes } = this.entities;
+
+        await cds.run(
+            DELETE.from(CustomerNotes).where({ customer_ID: customerId })
+        );
+
+        return req.reply({ message: 'All internal notes for this customer have been successfully cleared.' });
+    });
 
     /**
     * Average Rating Calculation and "At Risk" Status Auto-Update

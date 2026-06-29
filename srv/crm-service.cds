@@ -4,7 +4,12 @@ service CrmService @(requires: 'authenticated-user') {
 
     // Main editable entity
     @odata.draft.enabled
-    entity Customers              as projection on myApp.crm.Customers;
+    entity Customers              as projection on myApp.crm.Customers
+        actions {
+            action clearNotes() returns {
+                message : String
+            };
+        };
 
     // CRM Entities
     entity Interactions           as projection on myApp.crm.Interactions;
