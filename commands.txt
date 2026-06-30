@@ -1,0 +1,8 @@
+cds add mta
+cds compile srv/crm-service.cds --to xsuaa > xs-security.json
+mbt build
+cf target || cf login
+cf deploy mta_archives/cat-connect_1.0.0.mtar
+
+`cf login -a <endpoint> -u <user> -o <org> -s <space>`
+cf target --cf
