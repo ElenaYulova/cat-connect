@@ -1,0 +1,43 @@
+{
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.CRMAdmin",
+      "description": "CRMAdmin"
+    },
+    {
+      "name": "$XSAPPNAME.SalesManager",
+      "description": "SalesManager"
+    },
+    {
+      "name": "$XSAPPNAME.SupportAgent",
+      "description": "SupportAgent"
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "CRMAdmin",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.CRMAdmin"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "SalesManager",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.SalesManager"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "SupportAgent",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.SupportAgent"
+      ],
+      "attribute-references": []
+    }
+  ]
+}
