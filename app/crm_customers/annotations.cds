@@ -55,10 +55,12 @@ annotate service.Customers with {
 annotate service.CustomerNotes with @(UI.LineItem: [
     {
         Value : createdBy,
+        Label : '{i18n>UserID}',
         @title: 'Author'
     },
     {
         Value : createdAt,
+        Label : '{i18n>CreatedAt}',
         @title: 'Date'
     },
     {
@@ -74,8 +76,8 @@ annotate service.CustomerNotes with @(UI.LineItem: [
 annotate service.Customers with @(
     // Header
     UI.HeaderInfo                   : {
-        TypeName      : 'Customer',
-        TypeNamePlural: 'Customers',
+        TypeName      : '{i18n>Customer}',
+        TypeNamePlural: '{i18n>Customers}',
         Title         : {
             $Type: 'UI.DataField',
             Value: name
@@ -88,8 +90,8 @@ annotate service.Customers with @(
 
     UI.Identification               : [{
         $Type : 'UI.DataFieldForAction',
-        Label : 'Clear All Notes',
-        Action: 'CrmService.clearNotes'
+        Label : '{i18n>ClearAllNotes}',
+        Action: 'service.clearNotes'
     }],
 
     UI.HeaderFacets                 : [{
@@ -174,7 +176,7 @@ annotate service.CustomersToPreferences with @(UI.LineItem: [
     {
         $Type: 'UI.DataField',
         Value: preference.productCategory_ID,
-        Label: 'Product Category'
+        Label: '{i18n>ProductCategory}'
     },
     {
         $Type: 'UI.DataField',
@@ -227,3 +229,8 @@ annotate service.Preferences with {
         Common.Text.@UI.TextArrangement: #TextOnly,
     )
 };
+
+annotate service.Customers with @(Common.SideEffects #AfterClearNotes: {
+    SourceActions : ['service.clearNotes'],
+    TargetEntities: [сustomerNotes]
+});

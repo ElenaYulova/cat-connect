@@ -6,9 +6,8 @@ service CrmService @(requires: 'authenticated-user') {
     @odata.draft.enabled
     entity Customers              as projection on myApp.crm.Customers
         actions {
-            action clearNotes() returns {
-                message : String
-            };
+            @cds.odata.bindingparameter.name: '_it'
+            action clearNotes() returns Customers;
         };
 
     // CRM Entities
@@ -16,6 +15,7 @@ service CrmService @(requires: 'authenticated-user') {
     entity Feedbacks              as projection on myApp.crm.Feedbacks;
     entity CustomersToPreferences as projection on myApp.crm.CustomersToPreferences;
     entity Preferences            as projection on myApp.crm.Preferences;
+    entity CustomerNotes          as projection on myApp.crm.CustomerNotes;
 
     // Sales Order Entities
     @readonly

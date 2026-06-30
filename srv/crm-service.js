@@ -18,7 +18,7 @@ module.exports = cds.service.impl(async function () {
         if (draftNotes && draftNotes.length > 0) {
             for (const note of draftNotes) {
                 if (!note.content || note.content.trim().length < 5) {
-                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes'); [1.4]
+                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes');[1.4]
                 }
             }
         }
@@ -28,22 +28,25 @@ module.exports = cds.service.impl(async function () {
     * Custom Action: Clear Notes
     */
 
-    this.on('clearNotes', ['Customers', 'Customers.drafts'], async (req) => {
-        // Button is problematic and requires additional ID check
-        const paramsObj = Array.isArray(req.params) ? req.params[0] : req.params;
-        const customerId = req.data?.ID || paramsObj?.ID || req.params;
+    this.on('clearNotes', 'Customers', async (req) => {
+        const customerId = req.params[0]?.ID || req.data?.ID;
 
         if (!customerId || typeof customerId !== 'string') {
-            return req.error(400, 'Cannot extract valid Customer UUID.');
+            return req.error(400, 'Cannot identify target Customer UUID for clearing notes.');
         }
 
         const { CustomerNotes } = this.entities;
 
-        // Delete both in draft and physically
+
         await cds.run(DELETE.from(CustomerNotes).where({ customer_ID: customerId }));
         await cds.run(DELETE.from(CustomerNotes.drafts).where({ customer_ID: customerId }));
 
-        return req.reply({ message: 'All internal notes for this customer have been successfully cleared.' });
+
+        const currentCustomer = await cds.run(
+            SELECT.one.from(req.target).where({ ID: customerId })
+        );
+
+        return req.reply(currentCustomer);
     });
 
     /**
