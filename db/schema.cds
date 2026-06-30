@@ -40,7 +40,7 @@ context salesorder {
 
     entity Producers : cuid, managed, Address {
         name     : String(111) @mandatory;
-        existing : Boolean default 1;
+        existing : Boolean     @title: 'Existing';
         products : Association to many Products
                        on products.producer = $self;
     }

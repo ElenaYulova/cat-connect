@@ -1,0 +1,45 @@
+### Переменные для удобства тестирования
+@baseUrl = http://localhost:4004
+@crmService = {{baseUrl}}/odata/v4/crm
+# ⚠️ ПОДСТАВЬ СЮДА РЕАЛЬНЫЙ ID КЛИЕНТА ИЗ ТВОЕГО CSV-ФАЙЛА (Customers.csv)
+@customerUUID = ba46e0f8-f10c-4065-a6d2-29595b84f62c
+
+
+### 1. Получить список всех клиентов (Проверяем начальное состояние)
+GET {{crmService}}/Customers
+Authorization: Basic admin:
+Content-Type: application/json
+
+
+### 2. Получить конкретного клиента по ID (Добавляем IsActiveEntity=true)
+GET {{crmService}}/Customers(ID={{customerUUID}},IsActiveEntity=true)
+Authorization: Basic admin:
+Content-Type: application/json
+
+### 3. ОТПРАВЛЯЕМ ТЕСТОВЫЙ ПЛОХОЙ ОТЗЫВ (Тестируем Бизнес-Логику)
+# Этот запрос должен запустить наши обработчики событий:
+# 1. Пересчитать averageRating у клиента
+# 2. Сменить его статус на 'at_risk'
+# 3. Автоматически создать запись в Interactions
+POST {{crmService}}/Feedbacks
+Authorization: Basic admin:
+Content-Type: application/json
+
+{
+    "customer_ID": "{{customerUUID}}",
+    "rating": 1,
+    "comments": "Game is laggy and support is unresponsive! Unacceptable.",
+    "feedbackDate": "2026-06-24"
+}
+
+
+### 4. Проверяем карточку клиента ПОСЛЕ отправки отзыва
+GET {{crmService}}/Customers(ID={{customerUUID}},IsActiveEntity=true)
+Authorization: Basic admin:
+Content-Type: application/json
+
+
+### 5. Проверяем историю взаимодействий (Interactions) через навигацию
+GET {{crmService}}/Customers(ID={{customerUUID}},IsActiveEntity=true)/interactions
+Authorization: Basic admin:
+Content-Type: application/json

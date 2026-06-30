@@ -230,7 +230,4 @@ annotate service.Preferences with {
     )
 };
 
-annotate service.Customers with @(Common.SideEffects #AfterClearNotes: {
-    SourceActions : ['service.clearNotes'],
-    TargetEntities: [сustomerNotes]
-});
+annotate service.Customers with @(Common.SideEffects #AfterClearNotes: {TargetEntities: [сustomerNotes]});

@@ -1,8 +1,19 @@
 cds add mta
 cds compile srv/crm-service.cds --to xsuaa > xs-security.json
-mbt build
+mbt build // Aftar any significant changes
+
 cf target || cf login
-cf deploy mta_archives/cat-connect_1.0.0.mtar
+cf deploy mta_archives/cat-connect_1.0.0.mtar //!
 
 `cf login -a <endpoint> -u <user> -o <org> -s <space>`
 cf target --cf
+
+cf create-service xsuaa application cat-connect-auth -c xs-security.json // Forcely runs cat-connect-auth in space
+
+
+Deploy restart: change version
+cf deploy -i <ID> -a abort
+rm -rf mta_archives/ gen/
+mbt build
+cf deploy mta_archives/cat-connect_1.0.Version.mtar
+

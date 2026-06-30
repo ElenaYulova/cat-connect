@@ -1,8 +1,10 @@
 {
   "name": "cat-connect",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "dependencies": {
-    "@sap/cds": "^9"
+    "@cap-js/hana": "^3.0.1",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4.13.0"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1",
@@ -27,6 +29,15 @@
   ],
   "cds": {
     "requires": {
+      "db": {
+        "kind": "sql"
+      },
+      "folders": {
+        "data": "db/test"
+      },
+      "production": {
+        "db": "hana"
+      },
       "auth": {
         "strategy": "mock",
         "users": {
