@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.0.15",
+  "version": "1.0.21",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/approuter": "^22.0.3",
@@ -59,13 +59,16 @@
         "data": "db/test"
       },
       "[production]": {
-        "requires": {
-          "db": "hana",
-          "auth": {
-            "kind": "xsuaa"
-          }
+        "db": {
+          "kind": "hana"
+        },
+        "auth": {
+          "kind": "xsuaa"
         }
       }
-    }
+    },
+    "profiles": [
+      "production"
+    ]
   }
 }

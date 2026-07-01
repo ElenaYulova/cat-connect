@@ -18,3 +18,12 @@ rm -rf mta_archives/ gen/
 mbt build
 cf deploy mta_archives/cat-connect_1.0.Version.mtar
 
+
+npx cds build --production
+mkdir -p gen/db
+npx cds compile db to hana > gen/db/schema.cdsnpx cds build --production
+mkdir -p gen/db
+npx cds compile db to hana > gen/db/schema.cds
+
+npx cds deploy --to hana --staging
+

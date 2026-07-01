@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.15
+version: 1.0.21
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -10,7 +10,7 @@ build-parameters:
     - builder: custom
       commands:
         - npm install --omit=dev --legacy-peer-deps
-        - npx cds build --production --profile production
+        - npx cds build --production
 
 modules:
   # Node.js CAP Backend
@@ -28,7 +28,7 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: cat-connect-db
-      - name: cat-connect-auth
+      - name: cat-connect-xsuaa
 
   # HANA Cloud Schema Deployer
   - name: cat-connect-db-deployer
@@ -60,7 +60,7 @@ modules:
           name: srv-api
           url: ~{srv-url}
           forwardAuthToken: true
-      - name: cat-connect-auth
+      - name: cat-connect-xsuaa
 
 resources:
   # SAP HANA Cloud
@@ -71,7 +71,7 @@ resources:
       service-plan: hdi-shared
 
   # XSUAA
-  - name: cat-connect-auth
+  - name: cat-connect-xsuaa
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
