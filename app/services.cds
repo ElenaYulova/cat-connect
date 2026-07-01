@@ -1,2 +1,1 @@
-
-using from './crm_customers/annotations';
+using from './router/crm_customers/annotations';

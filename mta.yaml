@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.4
+version: 1.0.5
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -9,7 +9,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install --production --legacy-peer-deps
+        - npm install --omit=dev --legacy-peer-deps
         - npx cds build --production
 
 modules:
@@ -38,6 +38,26 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: cat-connect-db
+  # Node.js Application Router
+  - name: cat-connect
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api # must be used in xs-app.json as well
+          url: ~{srv-url}
+          forwardAuthToken: true
+    provides:
+      - name: app-api
+        properties:
+          app-protocol: ${protocol}
+          app-uri: ${default-uri}
 
 resources:
   # SAP HANA Cloud

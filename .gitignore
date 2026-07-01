@@ -20,3 +20,6 @@ mta_archives/
 
 # outdated files
 *_outdated/
+
+# auto generated wildcard
+.env

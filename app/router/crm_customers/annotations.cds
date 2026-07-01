@@ -1,4 +1,4 @@
-using CrmService as service from '../../srv/crm-service';
+using CrmService as service from '../../../srv/crm-service';
 
 // =========================================================================
 // List Report Annotations
