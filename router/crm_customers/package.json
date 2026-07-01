@@ -1,0 +1,7 @@
+{
+    "name": "cat-connect-ui",
+    "version": "1.0.0",
+    "scripts": {
+        "build": "echo Static content ready for deployment"
+    }
+}

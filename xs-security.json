@@ -1,6 +1,6 @@
 {
   "xsappname": "cat-connect",
-  "tenant-mode": "dedicated",
+  "tenant-mode": "shared",
   "scopes": [
     {
       "name": "$XSAPPNAME.CRMAdmin",
@@ -41,5 +41,11 @@
       ],
       "attribute-references": []
     }
-  ]
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://*://**",
+      "https://*.applicationstudio.cloud.sap/**"
+    ]
+  }
 }

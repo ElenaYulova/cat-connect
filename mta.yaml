@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.5
+version: 1.0.15
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -10,7 +10,7 @@ build-parameters:
     - builder: custom
       commands:
         - npm install --omit=dev --legacy-peer-deps
-        - npx cds build --production
+        - npx cds build --production --profile production
 
 modules:
   # Node.js CAP Backend
@@ -27,10 +27,10 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: cat-connect-db # HANA Cloud
-      - name: cat-connect-auth # XSUAA
+      - name: cat-connect-db
+      - name: cat-connect-auth
 
-  # HANA Cloud Deployer
+  # HANA Cloud Schema Deployer
   - name: cat-connect-db-deployer
     type: hdb
     path: gen/db
@@ -38,26 +38,29 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: cat-connect-db
-  # Node.js Application Router
+
+  # SAP AppRouter + FIORI ELEMENTS
   - name: cat-connect
     type: approuter.nodejs
-    path: app/router
+    path: router
     parameters:
       keep-existing-routes: true
       disk-quota: 256M
       memory: 256M
+    properties:
+      TENANT_HOST_PATTERN: "^(.*).cfapps.us10-001.hana.ondemand.com"
+    build-parameters:
+      before-builder:
+        - mkdir -p crm_customers
+        - cp -r ../app/crm_customers/* ./crm_customers/
     requires:
       - name: srv-api
         group: destinations
         properties:
-          name: srv-api # must be used in xs-app.json as well
+          name: srv-api
           url: ~{srv-url}
           forwardAuthToken: true
-    provides:
-      - name: app-api
-        properties:
-          app-protocol: ${protocol}
-          app-uri: ${default-uri}
+      - name: cat-connect-auth
 
 resources:
   # SAP HANA Cloud

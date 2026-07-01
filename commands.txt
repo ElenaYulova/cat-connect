@@ -9,7 +9,8 @@ cf deploy mta_archives/cat-connect_1.0.0.mtar //!
 cf target --cf
 
 cf create-service xsuaa application cat-connect-auth -c xs-security.json // Forcely runs cat-connect-auth in space
-
+cf bind-service cat-connect cat-connect-auth // Forcely binds router with xsuaa
+cf restage cat-connect //restart cloud app without full deploy!
 
 Deploy restart: change version
 cf deploy -i <ID> -a abort
