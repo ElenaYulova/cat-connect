@@ -1,0 +1,56 @@
+name: SAP BTP Continuous Deployment
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run CRM Integration Tests 🧪
+        run: npm run test:crm
+
+      - name: Configure Git for Versioning
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Automatically Bump Project Version 🏷️
+        # Version setter
+        run: 'npm version patch -m "Build: bump version to %s" --no-git-tag-version'
+
+      - name: Install SAP MTA Build Tool (MBT)
+        run: npm install -g mbt
+
+      - name: Compile CAP Framework and Build MTA Archive 🧱
+        run: mbt build
+
+      - name: Install Cloud Foundry CLI & MTA Plugin
+        run: |
+          curl -v -L "https://cloudfoundry.org" | tar -zx
+          sudo mv cf8 /usr/local/bin/cf
+          cf install-plugin -r CF-Community "multiapps" -f
+
+      - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
+        env:
+          CF_API: "https://ondemand.com"
+          CF_USER: ${{ secrets.BTP_USER }}
+          CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
+          CF_ORG: "7ac3bc9btrial"
+          CF_SPACE: "dev"
+        run: |
+          cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
+          cf deploy mta_archives/cat-connect_*.mtar --delete-services -f
