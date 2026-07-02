@@ -38,22 +38,19 @@ jobs:
       - name: Compile CAP Framework and Build MTA Archive 🧱
         run: mbt build
 
-      - name: Install Cloud Foundry CLI & MTA Plugin 🛠️
-        uses: cloudfoundry/cli-action@v2
-        with:
-          cf_api: "https://api.cf.us10-001.hana.ondemand.com"
-          cf_username: ${{ secrets.BTP_USER }}
-          cf_password: ${{ secrets.BTP_PASSWORD }}
-          cf_org: "7ac3bc9btrial"
-          cf_space: "dev"
+      - name: Install Cloud Foundry CLI & MTA Plugin
+        run: |
+          curl -v -L "https://cloudfoundry.org" | tar -zx
+          sudo mv cf8 /usr/local/bin/cf
+          cf install-plugin -r CF-Community "multiapps" -f
 
       - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
         env:
-          CF_API: "https://api.cf.us10-001.hana.ondemand.com"
+          CF_API: "https://ondemand.com"
           CF_USER: ${{ secrets.BTP_USER }}
           CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
           CF_ORG: "7ac3bc9btrial"
           CF_SPACE: "dev"
         run: |
-          # 🔮 Авторизация уже выполнена плагином выше, просто накатываем деплой собранного архива!
+          cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
           cf deploy mta_archives/cat-connect_*.mtar --delete-services -f
