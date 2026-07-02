@@ -19,7 +19,8 @@
     "start-dev": "cds watch --in-memory",
     "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false",
     "test": "node --test",
-    "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand"
+    "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand",
+    "build": "cds build --production"
   },
   "private": true,
   "workspaces": [
@@ -30,6 +31,7 @@
     "app/crm_customers"
   ],
   "cds": {
+    "build": "cds build --production",
     "requires": {
       "db": {
         "kind": "sqlite"
