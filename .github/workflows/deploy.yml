@@ -40,13 +40,15 @@ jobs:
 
       - name: Install Cloud Foundry CLI & MTA Plugin
         run: |
-          curl -v -L "https://cloudfoundry.org" | tar -zx
-          sudo mv cf8 /usr/local/bin/cf
+          wget -q -O - https://cloudfoundry.org | sudo apt-key add -
+          echo "deb https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          sudo apt-get update
+          sudo apt-get install cf8-cli -y
           cf install-plugin -r CF-Community "multiapps" -f
 
       - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
         env:
-          CF_API: "https://ondemand.com"
+          CF_API: "https://api.cf.us10-001.hana.ondemand.com"
           CF_USER: ${{ secrets.BTP_USER }}
           CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
           CF_ORG: "7ac3bc9btrial"
