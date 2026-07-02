@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.0.21",
+  "version": "1.0.24",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/approuter": "^22.0.3",
@@ -63,7 +63,7 @@
           "kind": "hana"
         },
         "auth": {
-          "kind": "xsuaa"
+          "kind": "dummy"
         }
       }
     },

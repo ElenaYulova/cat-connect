@@ -1,6 +1,6 @@
 {
-  "xsappname": "cat-connect-v20",
-  "tenant-mode": "shared",
+  "xsappname": "cat-connect-v22",
+  "tenant-mode": "dedicated",
   "scopes": [
     {
       "name": "$XSAPPNAME.CRMAdmin",
@@ -46,7 +46,9 @@
     "redirect-uris": [
       "https://ondemand.com",
       "https://ondemand.com**",
-      "https://*.applicationstudio.cloud.sap/**"
+      "https://*.applicationstudio.cloud.sap/**",
+      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/",
+      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/**"
     ]
   }
 }
