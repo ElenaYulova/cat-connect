@@ -28,23 +28,23 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
 
-      - name: Automatically Bump Project Version 🏷️
+      - name: Automatically Bump Project Version 
         # Version setter
         run: 'npm version patch -m "Build: bump version to %s" --no-git-tag-version'
 
       - name: Install SAP MTA Build Tool (MBT)
         run: npm install -g mbt
 
-      - name: Compile CAP Framework and Build MTA Archive 🧱
+      - name: Compile CAP Framework and Build MTA Archive 
         run: mbt build
 
-      - name: Install Cloud Foundry CLI & MTA Plugin
-        run: |
-          curl -s https://cloudfoundry.org | gpg --dearmor | sudo tee /usr/share/keyrings/cloudfoundry-cli.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudfoundry-cli.gpg] https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-          sudo apt-get update
-          sudo apt-get install cf8-cli -y
-          cf install-plugin -r CF-Community "multiapps" -f
+      - name: Install Cloud Foundry CLI 
+        uses: SAP/sap-btp-github-actions/.github/actions/setup-cli@main
+        with:
+          api_url: "https://ondemand.com"
+
+      - name: Install Multiapps MTA Plugin
+        run: cf install-plugin -r CF-Community "multiapps" -f
 
       - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
         env:
