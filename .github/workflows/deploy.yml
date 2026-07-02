@@ -41,14 +41,14 @@ jobs:
       - name: Install Cloud Foundry CLI 
         uses: SAP/sap-btp-github-actions/.github/actions/setup-cli@main
         with:
-          api_url: "https://ondemand.com"
+          api_url: "https://api.cf.us10-001.hana.ondemand.com"
 
       - name: Install Multiapps MTA Plugin
         run: cf install-plugin -r CF-Community "multiapps" -f
 
       - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
         env:
-          CF_API: "https://ondemand.com"
+          CF_API: "https://api.cf.us10-001.hana.ondemand.com"
           CF_USER: ${{ secrets.BTP_USER }}
           CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
           CF_ORG: "7ac3bc9btrial"
