@@ -23,3 +23,4 @@ npx cds build --production
 
 cf deploy mta_archives/cat-connect_1.0.Version.mtar --delete-services
 
+cds watch --in-memory

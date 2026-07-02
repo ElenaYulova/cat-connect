@@ -1,4 +1,4 @@
-ID,parent_ID,name,userType_code,descr
+ID,name,parent_ID,userType_code,descr
 fc3e48ed-f200-46b0-b2ec-ae2560ca7924,,Casual,CASUAL,Casual and family games
 74b83228-e81c-4501-a3e4-e48df955ae29,,Shooter,CYBERSPORT,Shooters and action games
 392ea785-c231-48ad-8190-e467b61f7962,,RPG,LORE_SEEKER,Role-playing games
