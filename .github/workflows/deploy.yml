@@ -39,9 +39,9 @@ jobs:
 
       - name: Install Cloud Foundry CLI
         run: |
-          wget -q -O - https://cloudfoundry.org | sudo gpg --dearmor -o /usr/share/keyrings/cli.cloudfoundry.org.gpg
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo gpg --dearmor -o /usr/share/keyrings/cli.cloudfoundry.org.gpg
           
-          echo "deb [signed-by=/usr/share/keyrings/cli.cloudfoundry.org.gpg] https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          echo "deb [signed-by=/usr/share/keyrings/cli.cloudfoundry.org.gpg] https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
           
           sudo apt-get update
           sudo apt-get install cf8-cli
@@ -60,5 +60,5 @@ jobs:
           cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
           
           MTAR_FILE=$(ls mta_archives/cat-connect_*.mtar | head -n 1)
-          
+           BTP
           cf deploy "$MTAR_FILE" --delete-services -f
