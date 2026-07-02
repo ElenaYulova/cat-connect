@@ -37,11 +37,12 @@ jobs:
       - name: Compile CAP Framework and Build MTA Archive 
         run: mbt build
 
-      # ИСПРАВЛЕНО: Установка официального CF CLI напрямую через менеджер пакетов apt
       - name: Install Cloud Foundry CLI
         run: |
-          wget -q -O - https://cloudfoundry.org | sudo apt-key add -
-          echo "deb https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          wget -q -O - https://cloudfoundry.org | sudo gpg --dearmor -o /usr/share/keyrings/cli.cloudfoundry.org.gpg
+          
+          echo "deb [signed-by=/usr/share/keyrings/cli.cloudfoundry.org.gpg] https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          
           sudo apt-get update
           sudo apt-get install cf8-cli
 
@@ -57,5 +58,9 @@ jobs:
           CF_SPACE: "dev"
         run: |
           cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
+          
+
           MTAR_FILE=$(ls mta_archives/cat-connect_*.mtar | head -n 1)
+          
+          # Запускаем деплой найденного файла в SAP BTP
           cf deploy "$MTAR_FILE" --delete-services -f
