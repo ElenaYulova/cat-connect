@@ -51,7 +51,7 @@ jobs:
 
       - name: Authenticate and Deploy to SAP BTP Cloud Foundry 🚀
         env:
-          CF_API: "https://api.cf.us10-001.hana.ondemand.com"
+          CF_API: "https://ondemand.com"
           CF_USER: ${{ secrets.BTP_USER }}
           CF_PASSWORD: ${{ secrets.BTP_PASSWORD }}
           CF_ORG: "7ac3bc9btrial"
@@ -59,8 +59,6 @@ jobs:
         run: |
           cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
           
-
           MTAR_FILE=$(ls mta_archives/cat-connect_*.mtar | head -n 1)
           
-          # Запускаем деплой найденного файла в SAP BTP
           cf deploy "$MTAR_FILE" --delete-services -f
