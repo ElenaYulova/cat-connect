@@ -40,8 +40,8 @@ jobs:
 
       - name: Install Cloud Foundry CLI & MTA Plugin
         run: |
-          wget -q -O - https://cloudfoundry.org | sudo apt-key add -
-          echo "deb https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          curl -s https://cloudfoundry.org | gpg --dearmor | sudo tee /usr/share/keyrings/cloudfoundry-cli.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/cloudfoundry-cli.gpg] https://cloudfoundry.org stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
           sudo apt-get update
           sudo apt-get install cf8-cli -y
           cf install-plugin -r CF-Community "multiapps" -f
