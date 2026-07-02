@@ -45,9 +45,15 @@ annotate service.Customers with @(
 );
 
 annotate service.Customers with {
-    statusCode @(
+    firstName      @Common.Label: '{i18n>FirstName}';
+    lastName       @Common.Label: '{i18n>LastName}';
+    email          @Common.Label: '{i18n>Email}';
+    phone          @Common.Label: '{i18n>Phone}';
+
+    averageRating  @Common.Label: '{i18n>Rating}'  @Core.Computed;
+    statusCode     @Core.Computed                  @(
         Common.Text                    : statusCode.descr,
-        Common.Label                   : '{i18n>CustomerStatus}',
+        Common.Label                   : '{i18n>Status}',
         Common.Text.@UI.TextArrangement: #TextOnly,
     )
 };
