@@ -21,7 +21,9 @@ modules:
       instances: 1
       buildpack: nodejs_buildpack
     build-parameters:
-      builder: npm-ci
+      builder: custom
+      commands:
+        - npm ci --production --legacy-peer-deps
     provides:
       - name: srv-api
         properties:
