@@ -57,8 +57,10 @@ jobs:
           CF_ORG: "7ac3bc9btrial"
           CF_SPACE: "dev"
         run: |
-          cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
+          cf api "$CF_API"
+          
+          cf login -u "$CF_USER" -p "$CF_PASSWORD" -o "$CF_ORG" -s "$CF_SPACE"
           
           MTAR_FILE=$(ls mta_archives/cat-connect_*.mtar | head -n 1)
-           BTP
+          
           cf deploy "$MTAR_FILE" --delete-services -f
