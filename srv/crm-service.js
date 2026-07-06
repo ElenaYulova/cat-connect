@@ -2,14 +2,31 @@ const cds = require('@sap/cds');
 module.exports = cds.service.impl(async function () {
     const { Customers, Feedbacks, Interactions, Orders, OrderItems, UserCategories, CustomerNotes } = this.entities;
     /**
-    * Validation of Customer Notes Length
+    * Integrated empty inputs validator
     */
 
-    this.before('SAVE', 'Customers', async (req) => {
+   this.before(['CREATE', 'UPDATE'], [Customers, Customers.drafts], async (req) => {
         const customerId = req.data.ID;
+        const { firstName, lastName, customerNotes } = req.data;
 
-        const { CustomerNotes } = this.entities;
+        // 1. First & Last Names
+        if (firstName !== undefined && (!firstName || !firstName.trim())) {
+            return req.error(400, 'Customer first name cannot be empty or consist only of spaces.', 'firstName');
+        }
+        if (lastName !== undefined && (!lastName || !lastName.trim())) {
+            return req.error(400, 'Customer last name cannot be empty or consist only of spaces.', 'lastName');
+        }
 
+        // 2. Customer Notes
+        if (customerNotes && customerNotes.length > 0) {
+            for (const note of customerNotes) {
+                if (!note.content || note.content.trim().length < 5) {
+                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes');
+                }
+            }
+        }
+
+        // 3. Notes in Drafts
         const draftNotes = await cds.run(
             SELECT.from(CustomerNotes.drafts)
                 .where({ customer_ID: customerId })
@@ -18,7 +35,7 @@ module.exports = cds.service.impl(async function () {
         if (draftNotes && draftNotes.length > 0) {
             for (const note of draftNotes) {
                 if (!note.content || note.content.trim().length < 5) {
-                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes');[1.4]
+                    return req.error(400, 'A corporate internal note cannot be empty and must contain at least 5 characters.', 'customerNotes');
                 }
             }
         }
@@ -62,17 +79,12 @@ module.exports = cds.service.impl(async function () {
             return req.error(400, 'Cannot identify target Customer UUID for clearing notes.');
         }
 
-        const { CustomerNotes } = this.entities;
-
+        const { CustomerNotes, Customers } = this.entities;
 
         await cds.run(DELETE.from(CustomerNotes).where({ customer_ID: customerId }));
         await cds.run(DELETE.from(CustomerNotes.drafts).where({ customer_ID: customerId }));
 
-
-        const currentCustomer = await cds.run(
-            SELECT.one.from(req.target).where({ ID: customerId })
-        );
-
+        const currentCustomer = await this.read(Customers, customerId);
         return req.reply(currentCustomer);
     });
 
