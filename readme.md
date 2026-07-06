@@ -137,3 +137,94 @@ The project leverages a robust GitHub Actions deployment pipeline (representing 
 - Upon successful verification, the code compiles into a deployment-ready `.mtar` package.
 - The Cloud Foundry CLI establishes a pipeline hook to push the droplet directly to the SAP BTP space.
 - The automated system handles live data migrations inside SAP HANA Cloud and restarts the primary Node.js application process.
+
+### 📊 Database ER-Diagram (Core Schema & Context Relations)
+
+```mermaid
+erDiagram
+    %% Context: salesorder
+    PRODUCTS {
+        UUID ID PK
+        String title
+        String descr
+        Integer stock
+        Decimal price
+    }
+    PRODUCERS {
+        UUID ID PK
+        String name
+        Boolean existing
+        String city
+        String postCode
+        String streetAddress
+    }
+    CATEGORIES {
+        UUID ID PK
+        String name
+        String descr
+    }
+    ORDERS {
+        UUID ID PK
+        String orderNumber
+        Decimal totalAmount
+    }
+    ORDER_ITEMS {
+        UUID ID PK
+        Integer quantity
+    }
+
+    %% Context: crm
+    CUSTOMERS {
+        UUID ID PK
+        String firstName
+        String lastName
+        String name
+        String email
+        String phone
+        String creditCardNo
+        String categoryGroup
+        Decimal averageRating
+        String city
+        String postCode
+        String streetAddress
+    }
+    CUSTOMER_NOTES {
+        UUID ID PK
+        LargeString content
+    }
+    FEEDBACKS {
+        UUID ID PK
+        Integer rating
+        String comments
+        Date feedbackDate
+    }
+    INTERACTIONS {
+        UUID ID PK
+        DateTime date
+        String summary
+    }
+    PREFERENCES {
+        UUID ID PK
+        String notes
+    }
+    CUSTOMERS_TO_PREFERENCES {
+        UUID ID PK
+    }
+
+    %% Relationships & Compositions (Core Engine)
+    PRODUCERS ||--o{ PRODUCTS : "hosts (Association)"
+    CATEGORIES ||--o{ PRODUCTS : "classifies (Association)"
+    CATEGORIES ||--o{ CATEGORIES : "parent_children (Composition)"
+    CUSTOMERS ||--o{ ORDERS : "places (Association)"
+    ORDERS ||--o{ ORDER_ITEMS : "strictly_owns (Composition)"
+    PRODUCTS ||--o{ ORDER_ITEMS : "included_in (Association)"
+
+    CUSTOMERS ||--o{ CUSTOMER_NOTES : "strictly_owns (Composition)"
+    CUSTOMERS ||--o{ INTERACTIONS : "logs_history (Association)"
+    CUSTOMERS ||--o{ FEEDBACKS : "submits (Association)"
+    PRODUCTS ||--o{ FEEDBACKS : "receives (Association)"
+
+    CUSTOMERS ||--o{ CUSTOMERS_TO_PREFERENCES : "linked_to (Association)"
+    PREFERENCES ||--o{ CUSTOMERS_TO_PREFERENCES : "maps_to (Association)"
+    CATEGORIES ||--|| PREFERENCES : "defines_genre (Association)"
+```
