@@ -91,6 +91,19 @@ service CrmService @(requires: 'authenticated-user') {
         }
     ];
 
+    annotate CrmService.Interactions with @(UI.PresentationVariant: {
+        SortOrder     : [{
+            $Type     : 'Common.SortOrderType',
+            Property  : date,
+            Descending: true
+        }],
+        MaxItems      : 5,
+        // Only 5 interactions
+        VisualEntities: ['Interactions']
+    });
+
+    // Actions
+
     annotate CrmService.Customers actions {
         clearNotes @Common.SideEffects: {
             TargetProperties: ['customerNotes'],

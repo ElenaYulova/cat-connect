@@ -151,4 +151,25 @@ describe('CRM Service Integration & Business Logic Tests', () => {
 
         expect(interactionsResponse.status).toBe(200);
     });
+
+    /**
+     * TEST 6: Quick Insights Metadata & Sort Presentation Gate
+     * Purpose: Verify that the service correctly exposes top-5 item restrictions
+     *          and default presentation variants to satisfy the CRM UI specification.
+     * Expected Outcome: Verification of MaxItems property directly from the CDS model structure.
+     */
+    test('6. Should expose UI presentation variant metadata with MaxItems limit of 5', async () => {
+        const model = await cds.load('srv/crm-service.cds');
+        const entity = model.definitions['CrmService.Interactions'];
+
+        expect('@UI.PresentationVariant.MaxItems' in entity).toBe(true);
+        expect(entity['@UI.PresentationVariant.MaxItems']).toBe(5);
+
+        expect('@UI.PresentationVariant.SortOrder' in entity).toBe(true);
+        const sortOrder = entity['@UI.PresentationVariant.SortOrder'][0];
+
+        expect(sortOrder.Property['=']).toBe('date');
+        expect(sortOrder.Descending).toBe(true);
+    });
+
 });
