@@ -236,4 +236,9 @@ annotate service.Preferences with {
     )
 };
 
-annotate service.Customers with @(Common.SideEffects #AfterClearNotes: {TargetEntities: [сustomerNotes]});
+annotate CrmService.Customers actions {
+    clearNotes @Common.SideEffects: {
+        TargetProperties: ['customerNotes'],
+        TargetEntities  : ['customerNotes']
+    }
+};

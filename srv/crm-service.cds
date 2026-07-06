@@ -55,7 +55,8 @@ service CrmService @(requires: 'authenticated-user') {
                 'READ',
                 'CREATE',
                 'UPDATE',
-                'WRITE'
+                'WRITE',
+                'clearNotes'
             ],
             to   : 'SalesManager'
         },
@@ -89,4 +90,11 @@ service CrmService @(requires: 'authenticated-user') {
             to   : 'SupportAgent'
         }
     ];
+
+    annotate CrmService.Customers actions {
+        clearNotes @Common.SideEffects: {
+            TargetProperties: ['customerNotes'],
+            TargetEntities  : ['customerNotes']
+        }
+    };
 }
