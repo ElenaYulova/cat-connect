@@ -51,12 +51,24 @@ service CrmService @(requires: 'authenticated-user') {
             to   : 'CRMAdmin'
         },
         {
-            grant: '*',
+            grant: [
+                'READ',
+                'CREATE',
+                'UPDATE',
+                'WRITE'
+            ],
             to   : 'SalesManager'
         },
         {
             grant: 'READ',
             to   : 'SupportAgent'
+        },
+        {
+            grant: [
+                'READ',
+                'draftPrepare'
+            ],
+            to   : 'authenticated-user'
         }
     ];
 
@@ -75,20 +87,6 @@ service CrmService @(requires: 'authenticated-user') {
         {
             grant: 'READ',
             to   : 'SupportAgent'
-        }
-    ];
-
-    annotate CrmService.Feedbacks with @restrict: [
-        {
-            grant: '*',
-            to   : 'CRMAdmin'
-        },
-        {
-            grant: 'READ',
-            to   : [
-                'SalesManager',
-                'SupportAgent'
-            ]
         }
     ];
 }

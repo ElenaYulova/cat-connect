@@ -25,6 +25,33 @@ module.exports = cds.service.impl(async function () {
     });
 
     /**
+    * Check for mock roles on localhost
+    */
+
+    this.before(['READ', 'CREATE', 'UPDATE', 'DELETE', 'draftEdit', 'draftActivate', 'draftPrepare'], 'Customers', async (req) => {
+        const user = req.user;
+
+        const isAdmin   = user.has('CRMAdmin');
+        const isManager = user.has('SalesManager');
+        const isAgent   = user.has('SupportAgent');
+
+        if (isAdmin) return;
+
+        if (user.is('SupportAgent') && req.event !== 'READ') {
+            return req.error(403, 'Access Denied: Support Agents are restricted to Read-Only mode. Changes cannot be saved.');
+        }
+
+        if (isManager && req.event === 'DELETE') {
+            return req.error(403, 'Forbidden: Sales Managers cannot delete customers.');
+        }
+
+        const hasValidRole = isAdmin || isManager || isAgent;
+        if (!hasValidRole) {
+            return req.error(403, 'Forbidden: Invalid or missing CRM role.');
+        }
+    });
+
+    /**
     * Custom Action: Clear Notes
     */
 
