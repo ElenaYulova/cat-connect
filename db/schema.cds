@@ -26,16 +26,20 @@ aspect Address : {
 */
 context salesorder {
     entity Products : cuid, managed {
-        title     : localized String(111)    @mandatory;
-        descr     : localized String(1111);
-        producer  : Association to Producers @mandatory;
-        genre     : Association to Categories;
-        stock     : Integer;
-        price     : Price;
-        currency  : Currency;
-        image     : Image;
-        feedbacks : Association to many crm.Feedbacks
-                        on feedbacks.product = $self;
+        title          : localized String(111)    @mandatory;
+        descr          : localized String(1111);
+        productType    : ProductType              @mandatory;
+
+
+        producer       : Association to Producers @mandatory;
+        genre          : Association to Categories;
+        stock          : Integer; //
+        price          : Price                    @mandatory; // Customer & manager see this price
+        wholesalePrice : Price; // Price for Supplier
+        currency       : Currency;
+        image          : Image;
+        feedbacks      : Association to many crm.Feedbacks
+                             on feedbacks.product = $self;
     }
 
     entity Producers : cuid, managed, Address {
@@ -55,17 +59,34 @@ context salesorder {
     }
 
     entity Orders : cuid, managed {
-        orderNumber : String(20) @title: 'Order Number';
-        customer    : Association to crm.Customers;
-        totalAmount : Price      @readonly;
-        currency    : Currency;
-        status      : Association to OrderStatusCode default 'N';
-        items       : Composition of many OrderItems
-                          on items.parent = $self;
+        orderNumber   : String(20) @title: 'Order Number';
+        customer      : Association to crm.Customers;
+        totalAmount   : Price      @readonly;
+        discountValue : Price      @readonly; // Calculates in CRM
+        netAmount     : Price      @readonly; // totalAmount after discount
+        currency      : Currency;
+        status        : Association to OrderStatusCode default 'N';
+        items         : Composition of many OrderItems
+                            on items.parent = $self;
     }
 
     entity OrderItems : cuid {
         parent   : Association to Orders;
+        game     : Association to Products;
+        quantity : Integer @assert.range: [
+            1,
+            99
+        ];
+    }
+
+    entity Carts : cuid, managed {
+        customer : Association to crm.Customers;
+        items    : Composition of many CartItems
+                       on items.parent = $self;
+    }
+
+    entity CartItems : cuid {
+        parent   : Association to Carts;
         game     : Association to Products;
         quantity : Integer @assert.range: [
             1,
@@ -78,6 +99,8 @@ context salesorder {
                 new = 'N';
                 in_process = 'P';
                 completed = 'C';
+                cancelled = 'X';
+                refunded = 'R'; // TODO: For refund functionality
             };
             criticality : Integer;
     }
@@ -91,7 +114,6 @@ context salesorder {
 /**
 * Context: CRM
 */
-
 context crm {
     entity Customers : cuid, managed, Address {
         firstName     : String;
@@ -101,6 +123,8 @@ context crm {
         phone         : PhoneNumber;
         orders        : Association to many salesorder.Orders
                             on orders.customer = $self;
+        cart          : Association to salesorder.Carts
+                            on cart.customer = $self; // Connects customer with cart
         creditCardNo  : CardNumber;
         categoryGroup : String(50);
         averageRating : Decimal(3, 2);
@@ -113,7 +137,6 @@ context crm {
                             on feedbacks.customer = $self;
         customerNotes : Composition of many CustomerNotes
                             on customerNotes.customer = $self;
-
     }
 
     entity Preferences : cuid {
@@ -129,7 +152,10 @@ context crm {
     entity Feedbacks : cuid, managed {
         customer     : Association to Customers;
         product      : Association to salesorder.Products;
-        rating       : Integer;
+        rating       : Integer @assert.range: [
+            1,
+            5
+        ];
         comments     : String(1000);
         feedbackDate : Date;
     }
@@ -169,6 +195,12 @@ context crm {
 // ==========================================
 // Types
 // ==========================================
+
+type ProductType  : String enum {
+    digital = 'digital';
+    physical = 'physical';
+    merch = 'merch';
+};
 
 type Price        : Decimal(9, 2);
 type EMailAddress : String(255) @assert.format: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
