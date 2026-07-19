@@ -10,9 +10,14 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1",
+    "@cap-js/cds-typer": ">=0.1",
+    "@cap-js/cds-types": "^0.18.0",
     "@cap-js/sqlite": "^2.4.0",
     "cds-plugin-ui5": "^0.9.1",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "start": "cds-serve",
@@ -30,7 +35,7 @@
     "app/gameshop",
     "app/crm_customers"
   ],
-    "cds": {
+  "cds": {
     "requires": {
       "db": {
         "kind": "sqlite"
@@ -42,9 +47,26 @@
         "[development]": {
           "kind": "mocked",
           "users": {
-            "admin": { "roles": ["authenticated-user", "CRMAdmin", "SalesManager", "SupportAgent"] },
-            "manager": { "roles": ["authenticated-user", "SalesManager"] },
-            "agent": { "roles": ["authenticated-user", "SupportAgent"] }
+            "admin": {
+              "roles": [
+                "authenticated-user",
+                "CRMAdmin",
+                "SalesManager",
+                "SupportAgent"
+              ]
+            },
+            "manager": {
+              "roles": [
+                "authenticated-user",
+                "SalesManager"
+              ]
+            },
+            "agent": {
+              "roles": [
+                "authenticated-user",
+                "SupportAgent"
+              ]
+            }
           }
         },
         "[production]": {
@@ -57,5 +79,8 @@
         }
       }
     }
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
   }
 }

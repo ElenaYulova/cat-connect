@@ -23,3 +23,4 @@ mta_archives/
 
 # auto generated wildcard
 .env
+@cds-models
