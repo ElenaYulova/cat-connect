@@ -1,0 +1,69 @@
+_schema-version: 3.3.0
+ID: cat-connect
+version: 1.0.24
+description: "Gamer CRM Application built with SAP CAP."
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install --omit=dev --legacy-peer-deps
+        - npx cds build --production
+
+modules:
+  # Node.js CAP Backend
+  - name: cat-connect-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      instances: 1
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: custom
+      commands:
+        - npm ci --production --legacy-peer-deps
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: cat-connect-db
+
+  # HANA Cloud Schema Deployer
+  - name: cat-connect-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: cat-connect-db
+
+  # SAP AppRouter + FIORI ELEMENTS
+  - name: cat-connect
+    type: approuter.nodejs
+    path: router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    build-parameters:
+      before-builder:
+        - mkdir -p crm_customers
+        - cp -r ../app/crm_customers/* ./crm_customers/
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: false
+
+resources:
+  # SAP HANA Cloud
+  - name: cat-connect-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared

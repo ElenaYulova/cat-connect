@@ -1,0 +1,54 @@
+{
+  "xsappname": "cat-connect-v22",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.CRMAdmin",
+      "description": "CRMAdmin"
+    },
+    {
+      "name": "$XSAPPNAME.SalesManager",
+      "description": "SalesManager"
+    },
+    {
+      "name": "$XSAPPNAME.SupportAgent",
+      "description": "SupportAgent"
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "CRMAdmin",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.CRMAdmin"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "SalesManager",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.SalesManager"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "SupportAgent",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.SupportAgent"
+      ],
+      "attribute-references": []
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://ondemand.com",
+      "https://ondemand.com**",
+      "https://*.applicationstudio.cloud.sap/**",
+      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/",
+      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/**"
+    ]
+  }
+}

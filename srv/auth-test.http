@@ -1,0 +1,57 @@
+
+@baseUrl = http://localhost:4004/odata/v4/crm
+
+### ==================================================================
+### Test 1: Check Admin role
+### ==================================================================
+
+# @name getCustomersByAdmin
+GET {{baseUrl}}/Customers
+Authorization: Basic admin:
+### Result: 200 OK. categoryGroup is counted
+
+
+### ==================================================================
+### 👤Test 2: Check Sales Manager role
+### ==================================================================
+
+# @name getCustomersByManager
+GET {{baseUrl}}/Customers
+Authorization: Basic manager:
+### Result: 200 OK.
+
+### Add interactions by manager
+# @name createInteractionByManager
+POST {{baseUrl}}/Interactions
+Authorization: Basic manager:
+Content-Type: application/json
+
+{
+    "customer_ID": "12fa7731-b782-4078-bb3f-588869eb5fe0",
+    "method_code": "O",
+    "summary": "Customer purchased a new RPG game in the shop"
+}
+### Result: 201 Created.
+
+
+### ==================================================================
+### 👤 Test 3: Check Support agent Read-Only role
+### ==================================================================
+
+# @name getCustomersByAgent
+GET {{baseUrl}}/Customers
+Authorization: Basic agent:
+### Result: 200 OK.
+
+### Add interactions
+# @name createInteractionByAgent
+POST {{baseUrl}}/Interactions
+Authorization: Basic agent:
+Content-Type: application/json
+
+{
+    "customer_ID": "12fa7731-b782-4078-bb3f-588869eb5fe0",
+    "method_code": "O",
+    "summary": "Agent attempts to break the rules"
+}
+### Result: 403 Forbidden.

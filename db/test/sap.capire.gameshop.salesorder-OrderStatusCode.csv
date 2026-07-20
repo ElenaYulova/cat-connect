@@ -1,0 +1,5 @@
+code,criticality,name,descr
+N,1,New,"Newly ordered"
+P,2,In_Process,"Order is being processied"
+F,3,Finished,"Order is finished"
+C,2,Cancelled,"Order is cancelled"

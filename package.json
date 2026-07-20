@@ -1,14 +1,86 @@
 {
   "name": "cat-connect",
-  "version": "1.0.0",
+  "version": "1.0.24",
   "dependencies": {
-    "@sap/cds": "^9"
+    "@cap-js/hana": "^3.0.1",
+    "@sap/approuter": "^22.0.3",
+    "@sap/cds": "^9",
+    "@sap/cds-dk": "^9",
+    "@sap/xssec": "^4.13.0"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2.4"
+    "@cap-js/cds-test": "^1",
+    "@cap-js/cds-typer": ">=0.1",
+    "@cap-js/cds-types": "^0.18.0",
+    "@cap-js/sqlite": "^2.4.0",
+    "cds-plugin-ui5": "^0.9.1",
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "start-dev": "cds watch --in-memory",
+    "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "test": "node --test",
+    "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand",
+    "build": "cds build --production"
   },
-  "private": true
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/gameshop",
+    "app/crm_customers"
+  ],
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite"
+      },
+      "folders": {
+        "data": "db/test"
+      },
+      "auth": {
+        "[development]": {
+          "kind": "mocked",
+          "users": {
+            "admin": {
+              "roles": [
+                "authenticated-user",
+                "CRMAdmin",
+                "SalesManager",
+                "SupportAgent"
+              ]
+            },
+            "manager": {
+              "roles": [
+                "authenticated-user",
+                "SalesManager"
+              ]
+            },
+            "agent": {
+              "roles": [
+                "authenticated-user",
+                "SupportAgent"
+              ]
+            }
+          }
+        },
+        "[production]": {
+          "kind": "dummy"
+        }
+      },
+      "[production]": {
+        "db": {
+          "kind": "hana"
+        }
+      }
+    }
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
+  }
 }

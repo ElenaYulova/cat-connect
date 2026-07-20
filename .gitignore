@@ -17,3 +17,10 @@ mta_archives/
 
 # @cap-js/cds-typer
 @cds-models
+
+# outdated files
+*_outdated/
+
+# auto generated wildcard
+.env
+@cds-models
