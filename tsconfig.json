@@ -21,6 +21,10 @@
       ],
       "@sap/cds": [
         "./node_modules/@cap-js/cds-types"
+      ],
+      // 🎨 ВОЗВРАЩАЕМ ПРЕСЕТЫ SAPUI5: Мапим виртуальные пути типов для фронтенда
+      "sap/*": [
+        "./node_modules/@sapui5/types/types/sap/*"
       ]
     }
   },
@@ -30,6 +34,7 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "webapp" // Exclude webapp from compilation, as it is a frontend project
   ]
 }

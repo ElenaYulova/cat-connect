@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/approuter": "^22.0.3",
@@ -13,11 +13,19 @@
     "@cap-js/cds-typer": ">=0.1",
     "@cap-js/cds-types": "^0.18.0",
     "@cap-js/sqlite": "^2.4.0",
+    "@openui5/sap.f": "^1.150.0",
+    "@openui5/sap.m": "^1.150.0",
+    "@openui5/sap.ui.core": "^1.150.0",
+    "@openui5/sap.ui.layout": "^1.150.0",
+    "@sapui5/types": "^1.150.0",
+    "@ui5/cli": "^4.0.57",
     "cds-plugin-ui5": "^0.9.1",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.1",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "ui5-middleware-serveframework": "^3.8.2",
+    "ui5-tooling-transpile": "^3.12.0"
   },
   "scripts": {
     "start": "cds-serve",
@@ -25,7 +33,8 @@
     "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false",
     "test": "node --test",
     "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand",
-    "build": "cds build --production"
+    "build": "cds build --production",
+    "start-so": "ui5 serve --config ui5.yaml --port 8082"
   },
   "private": true,
   "workspaces": [
@@ -82,5 +91,8 @@
   },
   "imports": {
     "#cds-models/*": "./@cds-models/*/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

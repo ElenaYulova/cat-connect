@@ -1,0 +1,48 @@
+{
+    "_version": "1.58.0",
+    "sap.app": {
+        "id": "sap.capire.gameshop",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "title": "Game Shop Management",
+        "description": "Freestyle SAPUI5 Application for Sales Order Management"
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexibilityRootPredicate": "",
+        "rootView": {
+            "viewName": "sap.capire.gameshop.view.SalesOrder",
+            "type": "XML",
+            "async": true,
+            "id": "SalesOrder"
+        },
+        "dependencies": {
+            "minUI5Version": "1.120.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.f": {},
+                "sap.ui.layout": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "sap.capire.gameshop.i18n.i18n"
+                }
+            }
+        }
+    }
+}

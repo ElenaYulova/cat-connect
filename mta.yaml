@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.24
+version: 1.0.25
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -20,6 +20,7 @@ modules:
     parameters:
       instances: 1
       buildpack: nodejs_buildpack
+      stack: cflinuxfs4
     build-parameters:
       builder: custom
       commands:
@@ -37,6 +38,7 @@ modules:
     path: gen/db
     parameters:
       buildpack: nodejs_buildpack
+      stack: cflinuxfs4
     requires:
       - name: cat-connect-db
 
