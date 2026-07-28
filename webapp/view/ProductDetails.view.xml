@@ -1,0 +1,88 @@
+<mvc:View
+    controllerName="sap.capire.gameshop.controller.ProductDetails"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:uxap="sap.uxap"
+    xmlns:f="sap.ui.layout.form"
+    displayBlock="true">
+
+    <Page id="productDetailsPage" showHeader="false">
+        <content>
+
+            <uxap:ObjectPageLayout
+                id="objectPageLayout"
+                showTitleInHeaderContent="false"
+                alwaysShowContentHeader="false"
+                preserveHeaderStateOnScroll="true"
+                headerContentPinnable="true">
+
+                <!-- Dynamic Object page header -->
+                <uxap:headerTitle>
+                    <uxap:ObjectPageHeader
+                        objectTitle="{title}"
+                        objectSubtitle="Category: {genre/name}">
+                        <uxap:actions>
+                            <Button
+                                text="Edit Product"
+                                type="Emphasized"
+                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"
+                                press=".onEditProduct"/>
+                        </uxap:actions>
+                    </uxap:ObjectPageHeader>
+                </uxap:headerTitle>
+
+                <!-- Header -->
+                <uxap:headerContent>
+                    <FlexBox wrap="Wrap" alignItems="Center" class="sapUiSmallMarginEnd">
+
+                        <!-- Picture -->
+                        <Image
+                            src="{path: 'image', mode: 'OneWay'}"
+                            width="5rem"
+                            height="5rem"
+                            class="sapUiSmallMarginEnd sapUiCornerRadius4"
+                            error=".onImageLoadError" />
+
+                    </FlexBox>
+                </uxap:headerContent>
+
+                <!-- Tabs -->
+                <uxap:sections>
+                    <uxap:ObjectPageSection title="General Information">
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection>
+                                <uxap:blocks>
+                                    <f:SimpleForm editable="false" layout="ColumnLayout">
+                                        <f:content>
+                                            <core:Title text="Product Pricing &amp; Specs" xmlns:core="sap.ui.core"/>
+
+                                            <Label text="Description" />
+                                            <Text text="{descr}" />
+
+                                            <Label text="Retail Price" />
+                                            <ObjectNumber number="{price}" unit="USD" />
+
+                                            <Label text="Stock Availability" />
+                                            <ObjectStatus
+                                                text="{path: 'stock', formatter: '.formatStock'} Pcs"
+                                                state="{= ${stock} > 0 ? 'Success' : 'Error' }" />
+
+                                            <Label
+                                                text="Wholesale Price (Supplier Only)"
+                                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"/>
+                                            <ObjectNumber
+                                                number="{wholesalePrice}"
+                                                unit="USD"
+                                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"/>
+                                        </f:content>
+                                    </f:SimpleForm>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+                </uxap:sections>
+            </uxap:ObjectPageLayout>
+
+        </content>
+    </Page>
+</mvc:View>

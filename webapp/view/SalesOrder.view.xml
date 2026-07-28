@@ -6,52 +6,62 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
-    <f:DynamicPage
-        id="gamesPage"
-        toggleHeaderOnTitleClick="false"
-        headerExpanded="true">
-        <f:title>
-            <f:DynamicPageTitle>
-                <f:heading>
-                    <Title text="Game Shop Overview" />
-                </f:heading>
-            </f:DynamicPageTitle>
-        </f:title>
+    <Page id="salesOrderPage" showHeader="false">
+        <content>
 
-        <f:header>
-            <f:DynamicPageHeader>
-                <core:Fragment
-                    id="filterFragment"
-                    fragmentName="sap.capire.gameshop.view.fragments.GamesFilter"
-                    type="XML" />
-            </f:DynamicPageHeader>
-        </f:header>
+            <f:DynamicPage
+                id="gamesPage"
+                preserveHeaderStateOnScroll="true"
+                toggleHeaderOnTitleClick="false"
+                headerExpanded="true">
 
-        <f:content>
-            <Table
-                id="gamesTable"
-                growing="true"
-                growingThreshold="10"
-                items="{
-                    path: '/Products',
-                    parameters: {
-                        $$updateGroupId: 'gamesUpdateGroup'
-                    }
-                }">
+                <f:title>
+                    <f:DynamicPageTitle>
+                        <f:heading>
+                            <Title text="Game Shop Overview" />
+                        </f:heading>
+                    </f:DynamicPageTitle>
+                </f:title>
 
-                <columns>
-                    <Column><Text text="Title" /></Column>
-                    <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Genre" /></Column>
-                    <Column hAlign="End"><Text text="Price" /></Column>
-                </columns>
+                <f:header>
+                    <f:DynamicPageHeader>
+                        <core:Fragment
+                            id="filterFragment"
+                            fragmentName="sap.capire.gameshop.view.fragments.GamesFilter"
+                            type="XML" />
+                    </f:DynamicPageHeader>
+                </f:header>
 
-                <items>
-                    <core:Fragment
-                        id="rowFragment"
-                        fragmentName="sap.capire.gameshop.view.fragments.GameRow"
-                        type="XML" />
-                </items>
-            </Table>
-        </f:content>
-    </f:DynamicPage>
+                <f:content>
+                    <Table
+                        id="gamesTable"
+                        growing="true"
+                        growingThreshold="10"
+                        sticky="ColumnHeaders,HeaderToolbar"
+                        items="{
+                            path: '/Products',
+                            parameters: {
+                                $$updateGroupId: 'gamesUpdateGroup',
+                                $expand: { genre: { $select: ['name'] } }
+                            }
+                        }">
+
+                        <columns>
+                            <Column><Text text="Title" /></Column>
+                            <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Genre" /></Column>
+                            <Column hAlign="End"><Text text="Price" /></Column>
+                        </columns>
+
+                        <items>
+                            <core:Fragment
+                                id="rowFragment"
+                                fragmentName="sap.capire.gameshop.view.fragments.GameRow"
+                                type="XML" />
+                        </items>
+                    </Table>
+                </f:content>
+            </f:DynamicPage>
+
+        </content>
+    </Page>
 </mvc:View>

@@ -1,0 +1,10 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+    <Shell id="salesOrderShell" appWidthLimited="false">
+        <App id="salesOrderApp" />
+    </Shell>
+
+</mvc:View>

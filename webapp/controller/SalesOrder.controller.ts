@@ -5,7 +5,8 @@ import FilterOperator from "sap/ui/model/FilterOperator";
 import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
 import UIComponent from "sap/ui/core/UIComponent";
 import { SearchField$SearchEvent } from "sap/m/SearchField";
-
+import Event from "sap/ui/base/Event";
+import ColumnListItem from "sap/m/ColumnListItem";
 /**
  * @namespace sap.capire.gameshop.controller
  */
@@ -37,19 +38,28 @@ export default class SalesOrder extends Controller {
     /**
      * Navigation method
      */
-    public onNavToDetails(oEvent: any): void {
-        const oItem = oEvent.getSource() as Control;
-        const oCtx = oItem.getBindingContext();
+    public onNavToGenericDetails(oEvent: Event): void {
+        const oControl = oEvent.getSource() as ColumnListItem;
+        const sTargetRoute = oControl.data("targetRoute") as string;
+        const oCtx = oControl.getBindingContext();
+        if (!sTargetRoute) {
+            console.error("Architectural error: customData:targetRoute was forgotten in the fragment!");
+            return;
+        }
 
         if (oCtx) {
-            const sGameId = oCtx.getProperty("ID") as string;
+            const sEntityId = oCtx.getProperty("ID") as string;
+            const sPath = oCtx.getPath(); // Returns "/Item(UUID)"
 
-            const oOwnerComponent = this.getOwnerComponent() as UIComponent;
-            if (oOwnerComponent) {
-                oOwnerComponent.getRouter().navTo("gameDetails", {
-                    gameId: sGameId
-                });
-            }
+            const sCleanPath = sPath.startsWith("/") ? sPath.substring(1) : sPath;
+            const sEntityName = sCleanPath.split("(")[0];
+
+            const oRouteParams: Record<string, string> = {};
+            const sParamName = sEntityName.toLowerCase().replace(/s$/, "") + "Id";
+            oRouteParams[sParamName] = sEntityId;
+
+            const oRouter = UIComponent.getRouterFor(this);
+            oRouter.navTo(sTargetRoute, oRouteParams);
         }
     }
 }

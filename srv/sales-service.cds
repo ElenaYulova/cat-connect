@@ -14,13 +14,8 @@ service SalesOrderService @(requires: 'authenticated-user') {
     entity Carts            as projection on myApp.salesorder.Carts;
     entity CartItems        as projection on myApp.salesorder.CartItems;
 
-    entity Products         as
-        projection on myApp.salesorder.Products
-        excluding {
-            wholesalePrice
-        };
+    entity Products         as projection on myApp.salesorder.Products;
 
-    entity SupplierProducts as projection on myApp.salesorder.Products; // wholesalePrice included
     entity Producers        as projection on myApp.salesorder.Producers;
     entity Categories       as projection on myApp.salesorder.Categories;
 
@@ -77,13 +72,6 @@ annotate SalesOrderService.Orders with @restrict: [
     }
 ];
 
-annotate SalesOrderService.SupplierProducts with @restrict: [{
-    grant: '*',
-    to   : [
-        'Supplier',
-        'CRMAdmin'
-    ]
-}];
 
 annotate SalesOrderService.Products with @restrict: [
     {
@@ -129,4 +117,9 @@ annotate SalesOrderService.Orders actions {
             'SalesManager'
         ]
     }]
+};
+
+// Annotations
+annotate SalesOrderService.Products with {
+    genre  @Common.Text: genre.name  @Common.TextArrangement: #TextOnly
 };

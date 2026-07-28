@@ -1,10 +1,13 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
-    <ColumnListItem type="Navigation" press=".onNavToDetails">
+    <ColumnListItem type="Navigation" press=".onNavToGenericDetails">
+        <customData>
+            <core:CustomData key="targetRoute" value="ProductDetails" />
+        </customData>
         <cells>
             <ObjectIdentifier title="{title}" />
-            <Text text="{genre}" />
+            <Text text="{genre/name}" />
             <ObjectNumber number="{parts: [{path: 'price'}, {value: 'USD'}], type: 'sap.ui.model.type.Currency'}" />
         </cells>
     </ColumnListItem>

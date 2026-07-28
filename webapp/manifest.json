@@ -18,12 +18,15 @@
     "sap.ui5": {
         "flexibilityRootPredicate": "",
         "handleValidation": true,
+        "fullWidth": true,
+
         "rootView": {
-            "viewName": "sap.capire.gameshop.view.SalesOrder",
+            "viewName": "sap.capire.gameshop.view.App",
             "type": "XML",
             "async": true,
-            "id": "SalesOrder"
+            "id": "App"
         },
+
         "dependencies": {
             "minUI5Version": "1.120.0",
             "libs": {
@@ -58,6 +61,45 @@
                     }
                 }
             }
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "async": true,
+                "viewPath": "sap.capire.gameshop.view",
+                "rootControl": "container-gameshop---App",
+                "controlId": "salesOrderApp",
+                "controlAggregation": "pages",
+                "transition": "slide"
+            },
+            "routes": [
+                {
+                    "name": "SalesOrder",
+                    "pattern": "",
+                    "target": ["TargetSalesOrder"]
+                },
+                {
+                    "name": "ProductDetails",
+                    "pattern": "Products/{productId}",
+                    "target": ["TargetProductDetails"]
+                }
+            ],
+            "targets": {
+                "TargetSalesOrder": {
+                    "viewName": "SalesOrder",
+                    "viewLevel": 1,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
+                },
+                "TargetProductDetails": {
+                    "viewName": "ProductDetails",
+                    "viewLevel": 2,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
+                }
+            }
         }
+
     }
 }
