@@ -1,27 +1,55 @@
 import Controller from "sap/ui/core/mvc/Controller";
-import formatter from "../model/formatter";
+import Control from "sap/ui/core/Control";
+import Filter from "sap/ui/model/Filter";
+import FilterOperator from "sap/ui/model/FilterOperator";
+import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
+import UIComponent from "sap/ui/core/UIComponent";
+import { SearchField$SearchEvent } from "sap/m/SearchField";
 
 /**
  * @namespace sap.capire.gameshop.controller
  */
 export default class SalesOrder extends Controller {
-    public formatter = formatter;
 
     public onInit(): void {
-        console.log("Controller SalesOrder successfully initialized!");
-        
-        // Test for colors
-        const oComponent = this.getOwnerComponent();
-        if (oComponent) {
-            const oUiModel = oComponent.getModel("ui") as any;
-            if (oUiModel) {
-                oUiModel.setProperty("/orderCriticality", 2);
-            }
+
+    }
+
+    /**
+     * Game filtration
+     */
+    public onSearch(oEvent: SearchField$SearchEvent): void {
+        const sQuery = oEvent.getParameter("query") || "";
+        const aFilters: Filter[] = [];
+
+        if (sQuery) {
+            aFilters.push(new Filter("title", FilterOperator.Contains, sQuery));
+        }
+
+        const oTable = this.byId("gamesTable") as Control;
+        const oBinding = oTable.getBinding("items") as ODataListBinding;
+
+        if (oBinding) {
+            oBinding.filter(aFilters);
         }
     }
 
-    public onTabSelect(oEvent: any): void {
-        const sSelectedKey = oEvent.getParameter("key");
-        console.log(`Selected tab: ${sSelectedKey}`);
+    /**
+     * Navigation method
+     */
+    public onNavToDetails(oEvent: any): void {
+        const oItem = oEvent.getSource() as Control;
+        const oCtx = oItem.getBindingContext();
+
+        if (oCtx) {
+            const sGameId = oCtx.getProperty("ID") as string;
+
+            const oOwnerComponent = this.getOwnerComponent() as UIComponent;
+            if (oOwnerComponent) {
+                oOwnerComponent.getRouter().navTo("gameDetails", {
+                    gameId: sGameId
+                });
+            }
+        }
     }
 }

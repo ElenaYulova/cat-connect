@@ -17,6 +17,7 @@
     },
     "sap.ui5": {
         "flexibilityRootPredicate": "",
+        "handleValidation": true,
         "rootView": {
             "viewName": "sap.capire.gameshop.view.SalesOrder",
             "type": "XML",
@@ -40,7 +41,21 @@
             "i18n": {
                 "type": "sap.ui.model.resource.ResourceModel",
                 "settings": {
-                    "bundleName": "sap.capire.gameshop.i18n.i18n"
+                    "bundleName": "sap.capire.gameshop.i18n.i18n",
+                    "supportedLocales": ["", "ru"],
+                    "fallbackLocale": ""
+                }
+            },
+            "": {
+                "type": "sap.ui.model.odata.v4.ODataModel",
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "serviceUrl": "http://localhost:4004/odata/v4/sales-order/",
+                    "httpHeaders": {
+                        "Authorization": "Basic YWRtaW46"
+                    }
                 }
             }
         }

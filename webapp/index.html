@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Shop Management</title>
 
-    <!-- 🚀 ПОЛНОСТЬЮ АВТОНОМНЫЙ БУТСТРАП: Все ресурсы берутся локально с диска -->
     <script id="sap-ui-bootstrap"
-        src="./resources/sap-ui-core.js" 
-        data-sap-ui-theme="sap_horizon"
-        data-sap-ui-libs="sap.m, sap.f, sap.ui.layout"
-        data-sap-ui-resource-roots='{"sap.capire.gameshop": "./"}'
-        data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
-        data-sap-ui-compat-version="edge"
-        data-sap-ui-async="true">
-    </script>
+			src="resources/sap-ui-core.js"
+			data-sap-ui-theme="sap_fiori_3"
+			data-sap-ui-libs="sap.m, sap.f, sap.ui.layout"
+			data-sap-ui-compat-version="edge"
+            data-sap-ui-preload="none"
+			data-sap-ui-async="true"
+			data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
+			data-sap-ui-resourceroots='{"sap.capire.gameshop": "./"}'>
+	</script>
 </head>
 <body class="sapUiBody" id="content">
 
-    <!-- Точка монтирования с валидными кавычками -->
-    <div data-sap-ui-component 
-         data-name="sap.capire.gameshop" 
-         data-id="container" 
+    <!-- Project initialization -->
+    <div data-sap-ui-component
+         data-name="sap.capire.gameshop"
+         data-id="container"
          data-settings='{"id" : "gameshop"}'>
     </div>
 

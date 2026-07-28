@@ -6,25 +6,27 @@
     "@sap/approuter": "^22.0.3",
     "@sap/cds": "^9",
     "@sap/cds-dk": "^9",
-    "@sap/xssec": "^4.13.0"
+    "@sap/xssec": "^4.13.0",
+    "openui5-runtime": "^1.50.5"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1",
     "@cap-js/cds-typer": ">=0.1",
     "@cap-js/cds-types": "^0.18.0",
     "@cap-js/sqlite": "^2.4.0",
-    "@openui5/sap.f": "^1.150.0",
-    "@openui5/sap.m": "^1.150.0",
-    "@openui5/sap.ui.core": "^1.150.0",
-    "@openui5/sap.ui.layout": "^1.150.0",
+    "@openui5/ts-types": "^1.150.0",
     "@sapui5/types": "^1.150.0",
+    "@types/express": "^5.0.6",
     "@ui5/cli": "^4.0.57",
     "cds-plugin-ui5": "^0.9.1",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
+    "ui5-middleware-index": "^3.1.4",
+    "ui5-middleware-route-proxy": "^1.0.10",
     "ui5-middleware-serveframework": "^3.8.2",
+    "ui5-middleware-simpleproxy": "^3.8.0",
     "ui5-tooling-transpile": "^3.12.0"
   },
   "scripts": {
@@ -51,6 +53,11 @@
       },
       "folders": {
         "data": "db/test"
+      },
+      "watch": {
+        "exclude": [
+          "webapp"
+        ]
       },
       "auth": {
         "[development]": {

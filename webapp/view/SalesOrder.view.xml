@@ -3,72 +3,55 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:form="sap.ui.layout.form"
     xmlns:core="sap.ui.core"
-    height="100%">
-    
-    <f:DynamicPage id="salesOrderPage" toggleHeaderOnTitleClick="true">
-        <!-- Page Header-->
+    displayBlock="true">
+
+    <f:DynamicPage
+        id="gamesPage"
+        toggleHeaderOnTitleClick="false"
+        headerExpanded="true">
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
-                    <Title text="Order Specifications"/>
+                    <Title text="Game Shop Overview" />
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- Tabs -->
+        <f:header>
+            <f:DynamicPageHeader>
+                <core:Fragment
+                    id="filterFragment"
+                    fragmentName="sap.capire.gameshop.view.fragments.GamesFilter"
+                    type="XML" />
+            </f:DynamicPageHeader>
+        </f:header>
+
         <f:content>
-            <IconTabBar id="idIconTabBar" select="onTabSelect" stretchContentHeight="true" class="sapUiResponsiveContentPadding">
+            <Table
+                id="gamesTable"
+                growing="true"
+                growingThreshold="10"
+                items="{
+                    path: '/Products',
+                    parameters: {
+                        $$updateGroupId: 'gamesUpdateGroup'
+                    }
+                }">
+
+                <columns>
+                    <Column><Text text="Title" /></Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Genre" /></Column>
+                    <Column hAlign="End"><Text text="Price" /></Column>
+                </columns>
+
                 <items>
-                    
-                    <!-- Main, status -->
-                    <IconTabFilter id="tabMain" icon="sap-icon://document" text="General &amp; Status" key="main">
-                        <content>
-                            <form:SimpleForm id="mainForm" editable="false" layout="ResponsiveGridLayout">
-                                <form:content>
-                                    <core:Title text="Order Data" />
-                                    
-                                    <Label text="Order Status" />
-                                    <!-- Color coding is bound to the formatter -->
-                                    <ObjectStatus 
-                                        text="In Process" 
-                                        state="{path: 'ui>/orderCriticality', formatter: '.formatter.statusState'}"
-                                        icon="{path: 'ui>/orderCriticality', formatter: '.formatter.statusIcon'}" />
-
-                                    <Label text="Gross Total" />
-                                    <ObjectNumber number="120.00" numberUnit="EUR" />
-
-                                    <Label text="Net Amount to Pay" />
-                                    <ObjectNumber number="102.00" numberUnit="EUR" state="Success" class="sapMObjectNumberLarge" />
-                                </form:content>
-                            </form:SimpleForm>
-                        </content>
-                    </IconTabFilter>
-
-                    <!-- Shopping Cart -->
-                    <IconTabFilter id="tabCart" icon="sap-icon://cart" text="Shopping Cart" key="cart">
-                        <content>
-                            <Text text="Shopping Cart Data Binding is ready for Wednesday!" />
-                        </content>
-                    </IconTabFilter>
-
-                    <!-- Customer Profile -->
-                    <IconTabFilter id="tabCustomer" icon="sap-icon://employee" text="Customer Profile" key="customer">
-                        <content>
-                            <Text text="CRM Customer Insights profile tab." />
-                        </content>
-                    </IconTabFilter>
-
-                    <!-- Product Feedbacks -->
-                    <IconTabFilter id="tabFeedback" icon="sap-icon://comment" text="Product Feedbacks" key="feedback">
-                        <content>
-                            <Text text="Product feedbacks and rating indicator form." />
-                        </content>
-                    </IconTabFilter>
-
+                    <core:Fragment
+                        id="rowFragment"
+                        fragmentName="sap.capire.gameshop.view.fragments.GameRow"
+                        type="XML" />
                 </items>
-            </IconTabBar>
+            </Table>
         </f:content>
     </f:DynamicPage>
 </mvc:View>

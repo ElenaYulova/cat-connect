@@ -1,0 +1,11 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <ColumnListItem type="Navigation" press=".onNavToDetails">
+        <cells>
+            <ObjectIdentifier title="{title}" />
+            <Text text="{genre}" />
+            <ObjectNumber number="{parts: [{path: 'price'}, {value: 'USD'}], type: 'sap.ui.model.type.Currency'}" />
+        </cells>
+    </ColumnListItem>
+</core:FragmentDefinition>
