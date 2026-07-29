@@ -40,7 +40,7 @@
                             src="{path: 'image', mode: 'OneWay'}"
                             width="5rem"
                             height="5rem"
-                            class="sapUiSmallMarginEnd sapUiCornerRadius4"
+                            class="sapUiSmallMarginEnd productImage"
                             error=".onImageLoadError" />
 
                     </FlexBox>

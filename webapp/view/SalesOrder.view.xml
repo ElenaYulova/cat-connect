@@ -4,64 +4,99 @@
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:core="sap.ui.core"
+    xmlns:app="http://sap.com"
     displayBlock="true">
 
-    <Page id="salesOrderPage" showHeader="false">
-        <content>
+    <f:DynamicPage id="salesOrderPage" headerExpanded="true">
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="Games Showcase" titleStyle="H5" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
 
-            <f:DynamicPage
-                id="gamesPage"
-                preserveHeaderStateOnScroll="true"
-                toggleHeaderOnTitleClick="false"
-                headerExpanded="true">
+        <f:content>
+            <VBox>
+                <OverflowToolbar class="sapUiSmallMarginBottom">
+                    <SearchField 
+                        id="searchTitleField"
+                        placeholder="Search by title..."
+                        width="250px"
+                        search=".onSearch" />
 
-                <f:title>
-                    <f:DynamicPageTitle>
-                        <f:heading>
-                            <Title text="Game Shop Overview" />
-                        </f:heading>
-                    </f:DynamicPageTitle>
-                </f:title>
+                    <ToolbarSeparator />
+                    <ComboBox
+                        id="categorySelect"
+                        placeholder="Select Category..."
+                        showClearIcon="true"
+                        change=".onCategoryChange"
+                        width="240px" />
+                    <CheckBox
+                        id="parentCategoryCheckBox"
+                        text="Include Child Categories"
+                        select=".onCategoryChange"
+                        enabled="true" />
+                </OverflowToolbar>
 
-                <f:header>
-                    <f:DynamicPageHeader>
-                        <core:Fragment
-                            id="filterFragment"
-                            fragmentName="sap.capire.gameshop.view.fragments.GamesFilter"
-                            type="XML" />
-                    </f:DynamicPageHeader>
-                </f:header>
+                <Table
+                    id="gamesTable"
+                    growing="true"
+                    growingThreshold="10"
+                    sticky="ColumnHeaders"
+                    items="{
+                        path: '/Products',
+                        parameters: {
+                            $expand: 'genre',
+                            $filter: 'stock gt 0'
+                        }
+                    }">
+                    <columns>
+                        <Column width="4rem" hAlign="Center">
+                            <Text text="Cover" />
+                        </Column>
+                        <Column>
+                            <Button text="Game Title" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTitle" />
+                        </Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true">
+                            <Text text="Category" />
+                        </Column>
+                        <Column hAlign="End">
+                            <Button text="Retail Price" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortPrice" />
+                        </Column>
+                        <Column hAlign="Center" width="6rem">
+                            <Text text="Buy" />
+                        </Column>
+                    </columns>
 
-                <f:content>
-                    <Table
-                        id="gamesTable"
-                        growing="true"
-                        growingThreshold="10"
-                        sticky="ColumnHeaders,HeaderToolbar"
-                        items="{
-                            path: '/Products',
-                            parameters: {
-                                $$updateGroupId: 'gamesUpdateGroup',
-                                $expand: { genre: { $select: ['name'] } }
-                            }
-                        }">
+                    <items>
+                        <ColumnListItem
+                            type="Navigation"
+                            press=".onNavToGenericDetails"
+                            app:targetRoute="ProductDetails">
+                            <cells>
+                                <Image
+                                    src="{image}"
+                                    width="2.5rem"
+                                    height="2.5rem"
+                                    class="productImage"
+                                    error=".onImageLoadError" />
 
-                        <columns>
-                            <Column><Text text="Title" /></Column>
-                            <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Genre" /></Column>
-                            <Column hAlign="End"><Text text="Price" /></Column>
-                        </columns>
+                                <ObjectIdentifier title="{title}" />
+                                <Text text="{genre/name}" />
+                                <ObjectNumber number="{price}" unit="USD" />
 
-                        <items>
-                            <core:Fragment
-                                id="rowFragment"
-                                fragmentName="sap.capire.gameshop.view.fragments.GameRow"
-                                type="XML" />
-                        </items>
-                    </Table>
-                </f:content>
-            </f:DynamicPage>
-
-        </content>
-    </Page>
+                                <Button
+                                    icon="sap-icon://add-product"
+                                    type="Transparent"
+                                    tooltip="Quick Add to Cart"
+                                    enabled="{userRoles>/isLoggedIn}"
+                                    press=".onQuickAddToCart" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </f:content>
+    </f:DynamicPage>
 </mvc:View>

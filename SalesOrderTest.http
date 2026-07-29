@@ -1,0 +1,8 @@
+### 1. All products without filter
+GET http://localhost:4004/odata/v4/sales-order/Products
+Authorization: Basic YWRtaW46
+
+
+### 2. Filtered by stock
+GET http://localhost:4004/odata/v4/sales-order/Products?$filter=stock+gt+0&$expand=genre($select=name)
+Authorization: Basic YWRtaW46

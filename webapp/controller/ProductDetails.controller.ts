@@ -11,12 +11,12 @@ export default class ProductDetails extends Controller {
         const oRouter = UIComponent.getRouterFor(this);
         oRouter.getRoute("ProductDetails")?.attachPatternMatched(this._onObjectMatched, this);
 
-        const oRoleModel = new JSONModel({
-            isCRMAdmin: true,
+        this.getView()?.setModel(new JSONModel({
+            isLoggedIn: false, // true for testing
+            isCRMAdmin: false,
             isSupplier: false
-        });
+        }), "userRoles");
 
-        this.getView()?.setModel(oRoleModel, "userRoles");
     }
 
     private _onObjectMatched(oEvent: Event): void {

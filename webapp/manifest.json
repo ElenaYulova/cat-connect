@@ -19,6 +19,13 @@
         "flexibilityRootPredicate": "",
         "handleValidation": true,
         "fullWidth": true,
+        "resources": {
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
+        },
 
         "rootView": {
             "viewName": "sap.capire.gameshop.view.App",

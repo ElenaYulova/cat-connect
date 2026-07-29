@@ -1,10 +1,54 @@
 <mvc:View
+    controllerName="sap.capire.gameshop.controller.App"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     displayBlock="true">
 
-    <Shell id="salesOrderShell" appWidthLimited="false">
-        <App id="salesOrderApp" />
-    </Shell>
+    <Page id="appMasterContainer" showHeader="true">
+        <customHeader>
+            <OverflowToolbar>
+                <Avatar
+                    src="./assets/img/logo.png"
+                    displayShape="Circle"
+                    displaySize="XS"
+                    class="sapUiSmallMarginBegin" />
 
+                <Title text="Cat-Connect Shop" titleStyle="H4" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+
+                <!-- Guest Session -->
+                <Text
+                    text="Guest Session"
+                    visible="{= !${userRoles>/isLoggedIn} }"
+                    class="sapUiSmallMarginEnd" />
+
+                <!-- User Session -->
+                <Text
+                    text="{userRoles>/welcomeText}"
+                    visible="{userRoles>/isLoggedIn}"
+                    class="sapUiSmallMarginEnd" />
+
+                <!-- Login button -->
+                <Button
+                    icon="sap-icon://signin"
+                    text="Log In"
+                    type="Emphasized"
+                    visible="{= !${userRoles>/isLoggedIn} }"
+                    press="onLoginPress" />
+
+                <!-- Cart button -->
+                <Button
+                    icon="sap-icon://cart"
+                    text="{= ${cart>/totalItems} > 0 ? 'To Cart (' + ${cart>/totalItems} + ')' : 'To Cart' }"
+                    tooltip="To Cart"
+                    type="Transparent"
+                    visible="{userRoles>/isLoggedIn}"
+                    press="onNavToCart" />
+            </OverflowToolbar>
+        </customHeader>
+
+        <content>
+            <App id="salesOrderApp" />
+        </content>
+    </Page>
 </mvc:View>
