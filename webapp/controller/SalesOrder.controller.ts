@@ -12,10 +12,11 @@ import Image from "sap/m/Image";
 import Select from "sap/m/Select";
 import CheckBox from "sap/m/CheckBox";
 import Button from "sap/m/Button";
-import MessageToast from "sap/m/MessageToast";
+import JSONModel from "sap/ui/model/json/JSONModel";
 import SearchField from "sap/m/SearchField";
 import ComboBox from "sap/m/ComboBox";
 import CategorySorter from "../utils/CategorySorter";
+import CartManager from "../utils/CartManager";
 
 /**
  * @namespace sap.capire.gameshop.controller
@@ -31,7 +32,7 @@ export default class SalesOrder extends Controller {
     }
 
 
-    // Image placeolder for the game list
+    // Image placeholder for the game list
     public onImageLoadError(oEvent: Event): void {
         const oImageCtrl = oEvent.getSource() as Image;
         if (oImageCtrl) {
@@ -146,7 +147,7 @@ export default class SalesOrder extends Controller {
 
     public onNavToGenericDetails(oEvent: Event): void {
         const oControl = oEvent.getSource() as ColumnListItem;
-        const sTargetRoute = oControl.data("targetRoute") as string;
+        const sTargetRoute = (oControl.data("targetRoute") as string) || "ProductDetails";
         const oCtx = oControl.getBindingContext();
 
         if (!sTargetRoute) {
@@ -159,9 +160,11 @@ export default class SalesOrder extends Controller {
             const sPath = oCtx.getPath();
 
             const sCleanPath = sPath.startsWith("/") ? sPath.substring(1) : sPath;
+
             const sEntityName = sCleanPath.split("(")[0];
 
             const oRouteParams: Record<string, string> = {};
+
             const sParamName = sEntityName.toLowerCase().replace(/s$/, "") + "Id";
             oRouteParams[sParamName] = sEntityId;
 
@@ -174,8 +177,15 @@ export default class SalesOrder extends Controller {
     public onQuickAddToCart(oEvent: Event): void {
         const oButton = oEvent.getSource() as Button;
         const oContext = oButton.getBindingContext();
-        const sProductTitle = oContext?.getProperty("title") as string;
+        if (!oContext) return;
 
-        MessageToast.show(`Quick add triggered for: ${sProductTitle}`);
+        const sId = oContext.getProperty("ID") as string;
+        const sTitle = oContext.getProperty("title") as string;
+        const fPrice = oContext.getProperty("price") as number;
+
+        const oCartModel = this.getOwnerComponent()?.getModel("cart") as JSONModel;
+
+        CategorySorter.initAndLoad;
+        CartManager.addToCart(oCartModel, sId, sTitle, fPrice, 1);
     }
 }

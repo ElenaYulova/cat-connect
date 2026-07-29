@@ -17,7 +17,7 @@
                 headerContentPinnable="true">
 
                 <!-- Dynamic Object page header -->
-                <uxap:headerTitle>
+                                <uxap:headerTitle>
                     <uxap:ObjectPageHeader
                         objectTitle="{title}"
                         objectSubtitle="Category: {genre/name}">
@@ -31,26 +31,31 @@
                     </uxap:ObjectPageHeader>
                 </uxap:headerTitle>
 
-                <!-- Header -->
-                <uxap:headerContent>
-                    <FlexBox wrap="Wrap" alignItems="Center" class="sapUiSmallMarginEnd">
+                <!-- Header Content -->
+                    <uxap:headerContent>
+                        <HBox alignItems="Center" class="sapUiSmallMarginEnd">
 
-                        <!-- Picture -->
-                        <Image
-                            src="{path: 'image', mode: 'OneWay'}"
-                            width="5rem"
-                            height="5rem"
-                            class="sapUiSmallMarginEnd productImage"
-                            error=".onImageLoadError" />
+                            <Image
+                                src="{path: 'image', mode: 'OneWay'}"
+                                width="5rem"
+                                height="5rem"
+                                class="sapUiSmallMarginEnd productImage"
+                                error=".onImageLoadError" />
 
-                    </FlexBox>
-                </uxap:headerContent>
+                            <Fragment
+                                fragmentName="sap.capire.gameshop.view.fragments.OrderActions"
+                                type="XML"
+                                xmlns="sap.ui.core" />
+
+                        </HBox>
+                    </uxap:headerContent>
 
                 <!-- Tabs -->
-                <uxap:sections>
+                    <uxap:sections>
                     <uxap:ObjectPageSection title="General Information">
                         <uxap:subSections>
-                            <uxap:ObjectPageSubSection>
+
+                            <uxap:ObjectPageSubSection title="Specifications">
                                 <uxap:blocks>
                                     <f:SimpleForm editable="false" layout="ColumnLayout">
                                         <f:content>
@@ -78,6 +83,7 @@
                                     </f:SimpleForm>
                                 </uxap:blocks>
                             </uxap:ObjectPageSubSection>
+
                         </uxap:subSections>
                     </uxap:ObjectPageSection>
                 </uxap:sections>

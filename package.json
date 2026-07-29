@@ -36,6 +36,7 @@
     "test": "node --test",
     "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand",
     "test:sales": "npx jest test/SalesOrderService.test.js --verbose --runInBand",
+    "test:cart": "npx jest test/CartManager.test.js --verbose --runInBand",
     "build": "cds build --production",
     "start-so": "ui5 serve --config ui5.yaml --port 8082"
   },

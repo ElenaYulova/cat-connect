@@ -1,3 +1,24 @@
+/* Product image border */
 .productImage {
     border-radius: 10px;
+}
+/* Active cart button on Main Page highlight */
+
+.sapMBtnTransparent:hover .sapUiIcon,
+.sapMBtnTransparent:hover .sapMBtnIcon {
+    color: var(--sapButton_Emphasized_TextColor) !important;
+    transition: color 0.05s ease-in-out;
+}
+
+.sapMBtnTransparent:active .sapUiIcon,
+.sapMBtnTransparent:active .sapMBtnIcon {
+    color: var(--sapButton_Accept_TextColor) !important;
+    transition: color 0.05s ease-in-out;
+}
+
+/* Cart qty in header */
+
+.sapMPageHeader .sapMBtnContent bdi {
+    color: var(--sapButton_Accept_TextColor) !important;
+
 }

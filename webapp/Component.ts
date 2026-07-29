@@ -17,11 +17,12 @@ export default class Component extends UIComponent {
 
         // Cross-cutting Cart
 
-        this.setModel(new JSONModel({
+        const oCartModel = new JSONModel({
             items: [],
             totalItems: 0,
             totalPrice: 0.00
-        }), "cart");
+        });
+        this.setModel(oCartModel, "cart");
 
         // Global Role model
 

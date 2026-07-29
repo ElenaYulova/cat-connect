@@ -8,7 +8,7 @@
         <customHeader>
             <OverflowToolbar>
                 <Avatar
-                    src="./assets/img/logo.png"
+                    src="assets/img/logo.png"
                     displayShape="Circle"
                     displaySize="XS"
                     class="sapUiSmallMarginBegin" />
@@ -38,8 +38,9 @@
 
                 <!-- Cart button -->
                 <Button
+                    id="cartButton"
                     icon="sap-icon://cart"
-                    text="{= ${cart>/totalItems} > 0 ? 'To Cart (' + ${cart>/totalItems} + ')' : 'To Cart' }"
+                    text="{= ${cart>/totalItems} > 0 ? '(' + ${cart>/totalItems} + ')' : '' }"
                     tooltip="To Cart"
                     type="Transparent"
                     visible="{userRoles>/isLoggedIn}"

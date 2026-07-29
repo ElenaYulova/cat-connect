@@ -1,0 +1,44 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+
+    <!-- MODE A: IN STOCK (stock > 0) -->
+    <HBox
+        id="inStockContainer"
+        alignItems="Center"
+        visible="false"
+        class="sapUiTinyMarginTop">
+
+        <Label
+            id="quantityLabel"
+            text="Qty:"
+            class="sapUiTinyMarginEnd" />
+
+        <StepInput
+            id="quantityInput"
+            value="1"
+            min="1"
+            max="{stock}"
+            width="120px"
+            class="sapUiSmallMarginEnd"
+            enabled="{userRoles>/isLoggedIn}" />
+
+        <Button
+            text="Add to Cart"
+            icon="sap-icon://add-product"
+            type="Accept"
+            enabled="{userRoles>/isLoggedIn}"
+            press=".onAddToCart" />
+    </HBox>
+
+    <!-- MODE B: OUT OF STOCK (stock <= 0) -->
+    <MessageStrip
+        id="outOfStockMessage"
+        text="Out of Stock"
+        type="Error"
+        showIcon="true"
+        showCloseButton="false"
+        visible="false"
+        class="sapUiTinyMarginTop" />
+
+</core:FragmentDefinition>

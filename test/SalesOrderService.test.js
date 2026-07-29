@@ -72,4 +72,29 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
             });
         }
     });
+
+    /**
+     * TEST 3: Navigation to Product Details Object Page
+     */
+
+    test('should successfully handle deep routing request for ProductDetails Object Page with genre expansion', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+
+        const sObjectPageUrl = `/odata/v4/sales-order/Products(${sTargetProductId})?$expand=genre($select=name)`;
+
+        const response = await GET(sObjectPageUrl, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+
+
+        expect(response.data.ID).toBe(sTargetProductId);
+        expect(response.data).toHaveProperty('title');
+
+        expect(response.data).toHaveProperty('genre');
+        if (response.data.genre) {
+            expect(response.data.genre).toHaveProperty('name');
+        }
+    });
 });
