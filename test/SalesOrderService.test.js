@@ -10,7 +10,7 @@ cds.env.requires.auth = {
     }
 };
 
-const { GET } = cds.test(__dirname + '/..', '--in-memory');
+const { GET, POST } = cds.test(__dirname + '/..', '--in-memory');
 
 
 describe('Sales Order Service: Showcase & Stock Validation', () => {
@@ -136,13 +136,13 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(fPrice).toBeGreaterThan(fWholesalePrice);
     });
 
-        /**
+    /**
      * TEST 6: Transactional Order Submission & Stock Deduction
      */
 
     test('should successfully submit an order and deduct correct quantity from product stock', async () => {
         const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
-        
+
         const oBeforeResponse = await GET(`/odata/v4/sales-order/Products(${sTargetProductId})`, {
             auth: { username: 'admin', password: '' }
         });
@@ -150,9 +150,8 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
 
         const oOrderPayload = {
             currency_code: 'USD',
-            hasLoyaltyDiscount: false,
             items: [
-                { game_id: sTargetProductId, quantity: 2 }
+                { game_ID: sTargetProductId, quantity: 2 }
             ]
         };
 
@@ -178,9 +177,8 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
 
         const oDiscountedOrderPayload = {
             currency_code: 'USD',
-            hasLoyaltyDiscount: true,
             items: [
-                { game_id: sTargetProductId, quantity: 3 }
+                { game_ID: sTargetProductId, quantity: 3 }
             ]
         };
 
@@ -191,6 +189,36 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(oPostResponse.status).toBe(201);
         expect(oPostResponse.data).toHaveProperty('netAmount');
         expect(oPostResponse.data.netAmount).toBeLessThan(fSingleProductPrice * 3);
+    });
+
+    /**
+     * TEST 8: Strict Product Page Quantity Validation (Defensive Check)
+     */
+
+    test('should block order submission and return 409 Conflict if requested quantity exceeds available warehouse stock', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+
+        const oProductResponse = await GET(`/odata/v4/sales-order/Products(${sTargetProductId})`, {
+            auth: { username: 'admin', password: '' }
+        });
+        const iCurrentAvailableStock = oProductResponse.data.stock;
+
+        const oInvalidPayload = {
+            currency_code: 'USD',
+            items: [
+                { game_ID: sTargetProductId, quantity: iCurrentAvailableStock + 999 }
+            ]
+        };
+
+        try {
+            await POST('/odata/v4/sales-order/Orders', oInvalidPayload, {
+                auth: { username: 'admin', password: '' }
+            });
+        } catch (oError) {
+            const iStatus = oError.statusCode || oError.status || (oError.response && oError.response.status);
+            expect([400, 409]).toContain(iStatus);
+            expect(oError.message).toContain('Insufficient stock for game');
+        }
     });
 
 });

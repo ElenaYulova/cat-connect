@@ -107,7 +107,7 @@ annotate SalesOrderService.Carts with @restrict: [
     }
 ];
 
-// Actions
+// Actions & Functions
 
 annotate SalesOrderService.Orders actions {
     checkBulkEligibility @restrict: [{
@@ -118,6 +118,7 @@ annotate SalesOrderService.Orders actions {
         ]
     }]
 };
+
 
 // Annotations
 annotate SalesOrderService.Products with {

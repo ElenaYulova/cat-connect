@@ -4,6 +4,8 @@ import Event from "sap/ui/base/Event";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
 import Image from "sap/m/Image";
+import Control from "sap/ui/core/Control";
+import StepInput from "sap/m/StepInput";
 import CartManager from "../utils/CartManager";
 import Formatter from "../model/formatter";
 
@@ -17,7 +19,8 @@ export default class ProductDetails extends Controller {
     }
 
     private _onObjectMatched(oEvent: Event): void {
-        const oArgs = (oEvent as any).getParameter("arguments") as { productId?: string } | undefined;
+        const oParameters = oEvent.getParameters() as { arguments?: { productId?: string } } | undefined;
+        const oArgs = oParameters?.arguments;
         if (!oArgs || !oArgs.productId) return;
 
         const sProductId = oArgs.productId;
@@ -37,6 +40,7 @@ export default class ProductDetails extends Controller {
         }
         oViewModel.setProperty("/currentQuantity", iValidQuantity);
         oViewModel.setProperty("/isEditMode", false);
+        oViewModel.setProperty("/isAddToCartEnabled", true);
 
         oView.bindElement({
             path: `/Products(${sProductId})`,
@@ -45,6 +49,20 @@ export default class ProductDetails extends Controller {
                 "$expand": "genre($select=ID,name)"
             }
         });
+    }
+
+    public onQuantityChange(oEvent: Event): void {
+        const oControl = oEvent.getSource() as Control;
+        if (!oControl) return;
+        const oStepInput = oControl as StepInput;
+        const oView = this.getView();
+        if (!oView) return;
+
+        const oViewModel = oView.getModel("view") as JSONModel | undefined;
+        if (oViewModel) {
+            const bIsValid = oStepInput.getValueState() !== "Error";
+            oViewModel.setProperty("/isAddToCartEnabled", bIsValid);
+        }
     }
 
     public onAddToCart(): void {

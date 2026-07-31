@@ -64,9 +64,16 @@
                         <Text text="{cart>/totalItems}" class="sapUiBoldText" />
                     </HBox>
                     <HBox alignItems="Center" class="sapUiMediumMarginBottom">
-                        <Label text="Estimated Total:" class="sapUiSmallMarginEnd" />
+                        <Label text="Estimated Total with Client Discount:" class="sapUiSmallMarginEnd" />
+
                         <ObjectNumber
-                            number="{cart>/totalPrice}"
+                            number="{
+                                path: 'cart>/estimatedTotal',
+                                formatOptions: {
+                                    minFractionDigits: 2,
+                                    maxFractionDigits: 2
+                                }
+                            }"
                             unit="USD"
                             emphasized="true"
                             state="Information" />

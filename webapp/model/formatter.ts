@@ -91,4 +91,13 @@ export default class Formatter {
             oInput.setValue(sCleaned);
         }
     }
+
+    public static formatAddToCartEnabled(bIsLoggedIn: boolean, iCurrentQuantity: number, iStock: number): boolean {
+        if (!bIsLoggedIn) {
+            return false;
+        }
+        const iQty = Number(iCurrentQuantity) || 0;
+        const iAvailable = Number(iStock) || 0;
+        return iQty > 0 && iQty <= iAvailable;
+    }
 }

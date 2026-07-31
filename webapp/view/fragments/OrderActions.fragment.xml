@@ -20,13 +20,15 @@
             max="{stock}"
             width="120px"
             class="sapUiSmallMarginEnd"
-            enabled="{userRoles>/isLoggedIn}" />
+            enabled="{userRoles>/isLoggedIn}"
+            change=".onQuantityChange" />
 
         <Button
+            id="addToCartButton"
             text="Add to Cart"
             icon="sap-icon://add-product"
             type="Accept"
-            enabled="{userRoles>/isLoggedIn}"
+            enabled="{view>/isAddToCartEnabled}"
             press=".onAddToCart" />
     </HBox>
 
