@@ -6,14 +6,23 @@ import MessageBox from "sap/m/MessageBox";
 
 export default class App extends Controller {
 
+    // Routing to Home
+    public onNavToHome(): void {
+        const oRouter = (this.getOwnerComponent() as any).getRouter();
+        oRouter.navTo("SalesOrder", {}, true);
+    }
+
     // Cross-cutting Cart
     public onNavToCart(): void {
         UIComponent.getRouterFor(this).navTo("Cart");
     }
 
     // Login handler
-        public onLoginPress(): void {
-        const oRoleModel = this.getView()?.getModel("userRoles") as JSONModel;
+    public onLoginPress(): void {
+        const oView = this.getView();
+        if (!oView) return;
+
+        const oRoleModel = oView.getModel("userRoles") as JSONModel | undefined;
         if (!oRoleModel) return;
 
         const VALID_ROLES = ["Customer", "SalesManager", "Supplier", "CRMAdmin"];
@@ -21,10 +30,10 @@ export default class App extends Controller {
 
         const oBackendResponse = {
             username: "Administrator",
-            roles: ["CRMAdmin", "Hacker"] // TODO: Clear test data
+            roles: ["CRMAdmin", "Supplier"]
         };
 
-        const oUserProfile: Record<string, any> = {
+        const oUserProfile: Record<string, boolean | string> = {
             isLoggedIn: true,
             username: oBackendResponse.username,
             welcomeText: `Welcome, ${oBackendResponse.username}!`,
@@ -34,7 +43,7 @@ export default class App extends Controller {
             isCRMAdmin: false
         };
 
-        // Roles validation
+
         oBackendResponse.roles.forEach((sRole: string) => {
             if (VALID_ROLES.includes(sRole)) {
                 oUserProfile[`is${sRole}`] = true;
@@ -43,11 +52,11 @@ export default class App extends Controller {
             }
         });
 
+
         window.localStorage.setItem("catConnect_userProfile", JSON.stringify(oUserProfile));
 
         oRoleModel.setData(oUserProfile, false);
 
         MessageBox.success(`Welcome back, ${oUserProfile.username}!`);
     }
-
 }

@@ -10,10 +10,14 @@
                 <Avatar
                     src="assets/img/logo.png"
                     displayShape="Circle"
+                    press=".onNavToHome"
                     displaySize="XS"
                     class="sapUiSmallMarginBegin" />
 
-                <Title text="Cat-Connect Shop" titleStyle="H4" class="sapUiTinyMarginBegin" />
+                <Link
+                text="Cat-Connect Shop"
+                press=".onNavToHome"
+                class="sapUiTinyMarginBegin sapMTitle sapMTitleStyleH4 sapUiFontLarge" />
                 <ToolbarSpacer />
 
                 <!-- Guest Session -->

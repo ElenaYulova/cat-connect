@@ -1,0 +1,87 @@
+<mvc:View
+    controllerName="sap.capire.gameshop.controller.Cart"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+
+    <Page title="Your Shopping Cart" showNavButton="true" navButtonPress=".onNavBack">
+        <content>
+            <VBox class="sapUiResponsiveMargin">
+
+                <Table
+                    id="cartTable"
+                    noDataText="Your cart is empty. Go grab some games!"
+                    items="{cart>/items}">
+
+                    <columns>
+                        <Column width="4rem" hAlign="Center"><Text text="Cover" /></Column>
+                        <Column><Text text="Game Title" /></Column>
+                        <Column width="15%" hAlign="End"><Text text="Price" /></Column>
+                        <Column width="15%" hAlign="Center"><Text text="Quantity" /></Column>
+                        <Column width="15%" hAlign="End"><Text text="Subtotal" /></Column>
+                        <Column width="10%" hAlign="Center"><Text text="Action" /></Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <Image
+                                    src="{cart>image}"
+                                    width="2.5rem"
+                                    height="2.5rem"
+                                    class="productImage"
+                                    error=".onImageLoadError" />
+
+                                <ObjectIdentifier title="{cart>title}" />
+
+                                <ObjectNumber number="{cart>price}" unit="USD" />
+
+                                <StepInput
+                                    value="{cart>quantity}"
+                                    min="1"
+                                    max="{cart>stock}"
+                                    width="120px"
+                                    change=".onQuantityChange" />
+
+                                <ObjectNumber
+                                    number="{= (${cart>price} * ${cart>quantity}).toFixed(2) }"
+                                    unit="USD"
+                                    state="Success" />
+
+                                <Button
+                                    icon="sap-icon://delete"
+                                    type="Reject"
+                                    press=".onRemoveItem" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+
+                <VBox class="sapUiMediumMarginTop sapUiAlignmentEnd" width="100%">
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Label text="Total Items:" class="sapUiSmallMarginEnd" />
+                        <Text text="{cart>/totalItems}" class="sapUiBoldText" />
+                    </HBox>
+                    <HBox alignItems="Center" class="sapUiMediumMarginBottom">
+                        <Label text="Estimated Total:" class="sapUiSmallMarginEnd" />
+                        <ObjectNumber
+                            number="{cart>/totalPrice}"
+                            unit="USD"
+                            emphasized="true"
+                            state="Information" />
+                    </HBox>
+
+                    <Button
+                        text="Submit Order"
+                        type="Accept"
+                        icon="sap-icon://shipping-status"
+                        enabled="{= ${cart>/items}.length > 0 }"
+                        press=".onSubmitOrder"
+                        width="220px" />
+                </VBox>
+
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

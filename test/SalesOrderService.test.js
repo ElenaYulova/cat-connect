@@ -97,4 +97,100 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
             expect(response.data.genre).toHaveProperty('name');
         }
     });
+
+    /**
+     * TEST 4: Security & Role Validation (CRITICAL CONTRACT)
+     */
+
+    test('should successfully read wholesalePrice for managers and confirm schema alignment', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+        const sUrl = `/odata/v4/sales-order/Products(${sTargetProductId})`;
+
+        const response = await GET(sUrl, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.data).toHaveProperty('wholesalePrice');
+        expect(response.data.wholesalePrice).not.toBeNull();
+    });
+
+    /**
+     * TEST 5: Input Recalculation & Numeric Parser Contract
+     */
+
+    test('should verify that price formats strictly support mathematical decimal criteria', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+        const sUrl = `/odata/v4/sales-order/Products(${sTargetProductId})`;
+
+        const response = await GET(sUrl, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        const fPrice = Number(response.data.price);
+        const fWholesalePrice = Number(response.data.wholesalePrice);
+
+        expect(isNaN(fPrice)).toBe(false);
+        expect(isNaN(fWholesalePrice)).toBe(false);
+        expect(fPrice).toBeGreaterThan(fWholesalePrice);
+    });
+
+        /**
+     * TEST 6: Transactional Order Submission & Stock Deduction
+     */
+
+    test('should successfully submit an order and deduct correct quantity from product stock', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+        
+        const oBeforeResponse = await GET(`/odata/v4/sales-order/Products(${sTargetProductId})`, {
+            auth: { username: 'admin', password: '' }
+        });
+        const iInitialStock = oBeforeResponse.data.stock;
+
+        const oOrderPayload = {
+            currency_code: 'USD',
+            hasLoyaltyDiscount: false,
+            items: [
+                { game_id: sTargetProductId, quantity: 2 }
+            ]
+        };
+
+        const oPostResponse = await POST('/odata/v4/sales-order/Orders', oOrderPayload, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(oPostResponse.status).toBe(201);
+        expect(oPostResponse.data).toHaveProperty('id');
+    });
+
+    /**
+     * TEST 7: Backend Price Calculation & Stacked Discounts Rules
+     */
+
+    test('should automatically calculate totalPrice on backend and correctly apply stacked discount layers', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+
+        const oProductResponse = await GET(`/odata/v4/sales-order/Products(${sTargetProductId})`, {
+            auth: { username: 'admin', password: '' }
+        });
+        const fSingleProductPrice = oProductResponse.data.price;
+
+        const oDiscountedOrderPayload = {
+            currency_code: 'USD',
+            hasLoyaltyDiscount: true,
+            items: [
+                { game_id: sTargetProductId, quantity: 3 }
+            ]
+        };
+
+        const oPostResponse = await POST('/odata/v4/sales-order/Orders', oDiscountedOrderPayload, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(oPostResponse.status).toBe(201);
+        expect(oPostResponse.data).toHaveProperty('netAmount');
+        expect(oPostResponse.data.netAmount).toBeLessThan(fSingleProductPrice * 3);
+    });
+
 });

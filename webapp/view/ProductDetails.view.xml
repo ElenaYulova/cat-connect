@@ -1,6 +1,7 @@
 <mvc:View
     controllerName="sap.capire.gameshop.controller.ProductDetails"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m"
     xmlns:uxap="sap.uxap"
     xmlns:f="sap.ui.layout.form"
@@ -17,7 +18,7 @@
                 headerContentPinnable="true">
 
                 <!-- Dynamic Object page header -->
-                                <uxap:headerTitle>
+                 <uxap:headerTitle>
                     <uxap:ObjectPageHeader
                         objectTitle="{title}"
                         objectSubtitle="Category: {genre/name}">
@@ -25,8 +26,20 @@
                             <Button
                                 text="Edit Product"
                                 type="Emphasized"
-                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"
+                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }"
                                 press=".onEditProduct"/>
+                            <Button 
+                                text="Save Changes" 
+                                type="Accept" 
+                                icon="sap-icon://save" 
+                                visible="{view>/isEditMode}" 
+                                press=".onSaveChanges" />
+                            <Button 
+                                text="Cancel" 
+                                type="Reject" 
+                                icon="sap-icon://cancel" 
+                                visible="{view>/isEditMode}" 
+                                press=".onCancelChanges" />
                         </uxap:actions>
                     </uxap:ObjectPageHeader>
                 </uxap:headerTitle>
@@ -42,10 +55,9 @@
                                 class="sapUiSmallMarginEnd productImage"
                                 error=".onImageLoadError" />
 
-                            <Fragment
+                            <core:Fragment
                                 fragmentName="sap.capire.gameshop.view.fragments.OrderActions"
-                                type="XML"
-                                xmlns="sap.ui.core" />
+                                type="XML" />
 
                         </HBox>
                     </uxap:headerContent>
@@ -59,18 +71,34 @@
                                 <uxap:blocks>
                                     <f:SimpleForm editable="false" layout="ColumnLayout">
                                         <f:content>
-                                            <core:Title text="Product Pricing &amp; Specs" xmlns:core="sap.ui.core"/>
+                                            <core:Title text="Product Pricing &amp; Specs" />
 
                                             <Label text="Description" />
-                                            <Text text="{descr}" />
+                                            <Text text="{descr}" visible="{= !${view>/isEditMode} }" />
+                                            <TextArea value="{descr}" visible="{view>/isEditMode}" width="100%" rows="3" />
 
-                                            <Label text="Retail Price" />
-                                            <ObjectNumber number="{price}" unit="USD" />
+                                                                                        <Label text="Retail Price" />
+                                            <ObjectNumber number="{price}" unit="USD" visible="{= !${view>/isEditMode} }" />
+                                            <Input 
+                                                id="retailPriceInput" 
+                                                value="{
+                                                    path: 'price',
+                                                    type: 'sap.ui.model.odata.type.Decimal',
+                                                    formatOptions: {
+                                                        groupingEnabled: false
+                                                    }
+                                                }" 
+                                                type="Text" 
+                                                visible="{view>/isEditMode}" 
+                                                width="150px" 
+                                                liveChange=".onPriceLiveChange" />
 
                                             <Label text="Stock Availability" />
                                             <ObjectStatus
-                                                text="{path: 'stock', formatter: '.formatStock'} Pcs"
-                                                state="{= ${stock} > 0 ? 'Success' : 'Error' }" />
+                                                text="{path: 'stock', formatter: '.formatter.formatStock'} Pcs"
+                                                state="{= ${stock} > 0 ? 'Success' : 'Error' }"
+                                                visible="{= !${view>/isEditMode} }" />
+                                            <Input value="{stock}" type="Number" visible="{view>/isEditMode}" width="150px" liveChange=".onStockLiveChange" />
 
                                             <Label
                                                 text="Wholesale Price (Supplier Only)"
@@ -78,7 +106,21 @@
                                             <ObjectNumber
                                                 number="{wholesalePrice}"
                                                 unit="USD"
-                                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"/>
+                                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }"/>
+                                            <Input
+                                                id="wholesalePriceInput"
+                                                value="{
+                                                    path: 'wholesalePrice',
+                                                    type: 'sap.ui.model.odata.type.Decimal',
+                                                    formatOptions: {
+                                                        groupingEnabled: false
+                                                    }
+                                                }"
+                                                type="Text"
+                                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; ${view>/isEditMode} }"
+                                                width="150px"
+                                                liveChange=".onPriceLiveChange" />
+
                                         </f:content>
                                     </f:SimpleForm>
                                 </uxap:blocks>

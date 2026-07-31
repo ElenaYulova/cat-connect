@@ -90,6 +90,11 @@
                     "name": "ProductDetails",
                     "pattern": "Products/{productId}",
                     "target": ["TargetProductDetails"]
+                },
+                {
+                    "name": "Cart",
+                    "pattern": "cart",
+                    "target": "TargetCart"
                 }
             ],
             "targets": {
@@ -101,6 +106,12 @@
                 },
                 "TargetProductDetails": {
                     "viewName": "ProductDetails",
+                    "viewLevel": 2,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
+                },
+                "TargetCart": {
+                    "viewName": "Cart",
                     "viewLevel": 2,
                     "controlId": "salesOrderApp",
                     "controlAggregation": "pages"
