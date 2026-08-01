@@ -6,3 +6,19 @@ Authorization: Basic YWRtaW46
 ### 2. Filtered by stock
 GET http://localhost:4004/odata/v4/sales-order/Products?$filter=stock+gt+0&$expand=genre($select=name)
 Authorization: Basic YWRtaW46
+
+### 3. Create a Sales Order with Cross-Context CRM Discount
+POST http://localhost:4004/odata/v4/sales-order/Orders
+Authorization: Basic YWRtaW46
+Content-Type: application/json
+
+{
+    "currency_code": "USD",
+    "customer_ID": "b4d7b17e-39a0-45ef-bf73-13bd18a017cf",
+    "items": [
+        {
+            "game_ID": "07fe11fa-27da-4cb4-9826-791510b48dcd",
+            "quantity": 1
+        }
+    ]
+}

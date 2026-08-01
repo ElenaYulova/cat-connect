@@ -3,6 +3,9 @@ import History from "sap/ui/core/routing/History";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import UIComponent from "sap/ui/core/UIComponent";
 import CartManager from "../utils/CartManager";
+import NavigationManager from "../utils/NavigationManager";
+import Event from "sap/ui/base/Event";
+
 
 export default class Cart extends Controller {
 
@@ -18,13 +21,8 @@ export default class Cart extends Controller {
         }
     }
 
-    public onNavBack(): void {
-        const oHistory = History.getInstance();
-        if (oHistory.getPreviousHash() !== undefined) {
-            window.history.go(-1);
-        } else {
-            UIComponent.getRouterFor(this).navTo("SalesOrder", {}, true);
-        }
+        public onNavBack(): void {
+        NavigationManager.navBack(this, "SalesOrder");
     }
 
     public onQuantityChange(oEvent: any): void {
@@ -52,4 +50,8 @@ export default class Cart extends Controller {
             CartManager.submitOrder(oView, oODataModel, oCartModel);
         }
     }
+
+    public onImageLoadError(oEvent: Event): void {
+            NavigationManager.onImageLoadError(oEvent);
+        }
 }

@@ -1,84 +1,34 @@
 import cds from '@sap/cds';
+import OrderCalculator from './utils/OrderCalculator';
 
 export default class SalesOrderService extends cds.ApplicationService {
     async init(): Promise<void> {
-
         const { SELECT } = cds.ql;
 
-        const Orders: cds.entity = this.entities.Orders;
-        const Products: cds.entity = this.entities.Products;
+        const Orders = this.entities.Orders!;
+        const Products = this.entities.Products!;
 
         /**
-        * Cross-context discount (before CREATE)
+        * Calculator launcher
         */
-        this.before('CREATE', 'Orders', async (req: cds.Request) => {
-            const order = req.data;
-            if (!order || !order.items || order.items.length === 0) return;
 
-            // BE validation
-            for (const item of order.items) {
-                if (!item.game_id) continue;
-
-                const game = await cds.db.run(SELECT.one.from(Products).where({ id: item.game_id }));
-                if (!game) {
-                    return req.error(404, `Product with ID ${item.game_id} not found.`);
-                }
-
-                const requestedQty = item.quantity || 0;
-                const availableStock = game.stock || 0;
-
-                if (availableStock < requestedQty) {
-                    return req.error(409, `Insufficient stock for game: "${game.title}". Available: ${availableStock}, requested: ${requestedQty}`);
-                }
-            }
-
-            const calculation = await this._calculateOrderAmounts(order.customer_id, order.items);
-
-            order.totalAmount = calculation.totalAmount;
-            order.discountValue = calculation.discountValue;
-            order.netAmount = calculation.netAmount;
+        this.before('CREATE', Orders, async (req: cds.Request) => {
+            await OrderCalculator.calculateAndDeductStock(req, this.entities);
         });
 
         /**
         * Warehouse control with duplicate write-off protection (before UPDATE)
         */
-        this.before('UPDATE', 'Orders', async (req: cds.Request) => {
+        this.before('UPDATE', Orders, async (req: cds.Request) => {
             const currentOrder = req.data;
             if (!currentOrder || (currentOrder.status_code !== 'P' && currentOrder.status_code !== 'C')) return;
 
-            // Check prev state
-            const previousState = await cds.db.run(SELECT.one.from(Orders).where({ id: currentOrder.id }).columns('status_code'));
-            if (previousState && (previousState.status_code === 'P' || previousState.previousState === 'C')) {
-                return;
-            }
-
-            // Draft tables support
-            const draftOrder = await cds.db.run(
-                SELECT.one.from(req.target.name)
-                    .where({ id: currentOrder.id })
-                    .columns('id', 'items')
+            const previousState = await cds.db.run(
+                SELECT.one.from(Orders).where({ id: currentOrder.id }).columns('status_code')
             );
 
-            if (!draftOrder || !draftOrder.items || draftOrder.items.length === 0) return;
-
-            for (const item of draftOrder.items) {
-                if (!item.game_id) continue;
-
-                const product = await cds.db.run(SELECT.one.from(Products).where({ id: item.game_id }));
-                if (!product || product.productType === 'digital') continue;
-
-                const requestedQty = item.quantity || 0;
-                const availableStock = product.stock || 0;
-
-                if (availableStock < requestedQty) {
-                    return req.error(409, `Insufficient stock for game: "${product.title}". Available: ${availableStock}, requested: ${requestedQty}`);
-                }
-
-                await cds.db.run(
-                    cds.update(Products)
-                        .where({ id: item.game_id })
-                        .with({ stock: availableStock - requestedQty })
-                );
+            if (previousState && (previousState.status_code === 'P' || previousState.status_code === 'C')) {
+                return;
             }
         });
 
@@ -92,19 +42,40 @@ export default class SalesOrderService extends cds.ApplicationService {
             if (!orderId || !bulkThreshold) return false;
 
             const items = await cds.db.run(
-                SELECT.from('SalesOrderService.OrderItems').where({ parent_id: orderId }).columns('quantity')
+                SELECT.from('SalesOrderService.OrderItems').where({ parent_ID: orderId }).columns('quantity')
             );
             const totalQty = items.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
 
             return totalQty >= bulkThreshold;
         });
 
+        /**
+        * Feedbacks BE handling
+        */
+this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
+            try {
+                const oRemoteCrmService = await cds.connect.to('CRMService');
+
+                await oRemoteCrmService.run(
+                    INSERT.into('sap.capire.gameshop.crm.Feedbacks').entries({
+                        customer_ID: data.customer_ID,
+                        product_ID: data.product_ID,
+                        rating: data.rating,
+                        comments: data.comments,
+                        feedbackDate: data.feedbackDate
+                    })
+                );
+            } catch (oError: any) {
+                console.error("🔒 CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
+            }
+        });
+
         return super.init();
     }
 
     private async _calculateOrderAmounts(
-        customer_id: string | undefined | null,
-        items: Array<{ game_id: string, quantity: number }> | undefined | null
+        customer_ID: string | undefined | null,
+        items: Array<{ game_ID: string, quantity: number }> | undefined | null
     ) {
         const { SELECT } = cds.ql;
         const Products = this.entities.Products;
@@ -114,9 +85,10 @@ export default class SalesOrderService extends cds.ApplicationService {
 
         let totalGross = 0;
         for (const item of items) {
-            if (!item.game_id) continue;
 
-            const game = await cds.db.run(SELECT.one.from(Products).where({ id: item.game_id }));
+            if (!item.game_ID) continue;
+
+            const game = await cds.db.run(SELECT.one.from(Products).where({ ID: item.game_ID }));
             if (game) {
                 totalGross += (game.price * (item.quantity || 1));
             }
@@ -125,10 +97,10 @@ export default class SalesOrderService extends cds.ApplicationService {
         result.totalAmount = +totalGross.toFixed(2);
 
         let fAutoDiscountPercent = 0;
-        if (customer_id) {
+        if (customer_ID) {
             const gamerProfile = await cds.db.run(
                 SELECT.one.from('SalesOrderService.CustomerInsights')
-                    .where({ ID: customer_id })
+                    .where({ ID: customer_ID })
                     .columns('averageRating')
             );
 

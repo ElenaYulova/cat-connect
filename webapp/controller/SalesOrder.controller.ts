@@ -17,6 +17,7 @@ import SearchField from "sap/m/SearchField";
 import ComboBox from "sap/m/ComboBox";
 import CategorySorter from "../utils/CategorySorter";
 import CartManager from "../utils/CartManager";
+import NavigationManager from "../utils/NavigationManager";
 
 /**
  * @namespace sap.capire.gameshop.controller
@@ -33,12 +34,9 @@ export default class SalesOrder extends Controller {
 
 
     // Image placeholder for the game list
-    public onImageLoadError(oEvent: Event): void {
-        const oImageCtrl = oEvent.getSource() as Image;
-        if (oImageCtrl) {
-            oImageCtrl.setSrc("./assets/img/logo.png");
+        public onImageLoadError(oEvent: Event): void {
+            NavigationManager.onImageLoadError(oEvent);
         }
-    }
 
     // Interactive sorting by Title
     public onSortTitle(): void {
@@ -146,31 +144,7 @@ export default class SalesOrder extends Controller {
     // Navigation method
 
     public onNavToGenericDetails(oEvent: Event): void {
-        const oControl = oEvent.getSource() as ColumnListItem;
-        const sTargetRoute = (oControl.data("targetRoute") as string) || "ProductDetails";
-        const oCtx = oControl.getBindingContext();
-
-        if (!sTargetRoute) {
-            console.error("Architectural error: customData:targetRoute was forgotten in the fragment!");
-            return;
-        }
-
-        if (oCtx) {
-            const sEntityId = oCtx.getProperty("ID") as string;
-            const sPath = oCtx.getPath();
-
-            const sCleanPath = sPath.startsWith("/") ? sPath.substring(1) : sPath;
-
-            const sEntityName = sCleanPath.split("(")[0];
-
-            const oRouteParams: Record<string, string> = {};
-
-            const sParamName = sEntityName.toLowerCase().replace(/s$/, "") + "Id";
-            oRouteParams[sParamName] = sEntityId;
-
-            const oRouter = UIComponent.getRouterFor(this);
-            oRouter.navTo(sTargetRoute, oRouteParams);
-        }
+        NavigationManager.navToGenericDetails(this, oEvent);
     }
 
     // Quick add to Cart

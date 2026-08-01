@@ -1,0 +1,152 @@
+<mvc:View
+    controllerName="sap.capire.gameshop.controller.OrdersList"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+    <Page id="ordersListPage" title="Order Tracking History" showNavButton="true" navButtonPress="onNavBack">
+        <content>
+            <!-- Filterbar -->
+            <Panel expandable="true" headerText="Search &amp; Filter Options" expanded="true" class="sapUiSmallMarginBottom">
+                <content>
+                    <FlexBox wrap="Wrap" alignItems="End" justifyContent="SpaceBetween">
+                        <items>
+                            <!-- Filter 1: Order Number & Customer Name Search -->
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="Order Number / Client:" design="Bold" />
+                                <SearchField
+                                    id="filterOrderNumber"
+                                    placeholder="Search order or name..."
+                                    width="14rem"
+                                    search="onApplyFilters" />
+                            </VBox>
+
+                            <!-- Filter 2: Status Selection -->
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="Order Status:" design="Bold" />
+                                <Select id="filterStatus" width="12rem" change="onApplyFilters">
+                                    <core:Item key="ALL" text="-- Show All Statuses --" />
+                                    <core:Item key="N" text="New Request" />
+                                    <core:Item key="P" text="In Progress" />
+                                    <core:Item key="C" text="Completed" />
+                                    <core:Item key="X" text="Cancelled" />
+                                </Select>
+                            </VBox>
+
+                            <!-- Filter 3: Date Range Selection -->
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="Placement Date Range:" design="Bold" />
+                                <DateRangeSelection 
+                                    id="filterDateRange" 
+                                    width="18rem" 
+                                    displayFormat="yyyy-MM-dd"
+                                    change="onApplyFilters" />
+                            </VBox>
+
+                            <!-- Reset Button -->
+                            <Button
+                                icon="sap-icon://clear-filter"
+                                text="Reset Filters"
+                                type="Transparent"
+                                class="sapUiTinyMarginBottom"
+                                press="onResetFilters" />
+                        </items>
+                    </FlexBox>
+                </content>
+            </Panel>
+
+            <!-- Table -->
+            <Table
+                id="ordersTable"
+                items="{
+                    path: '/Orders',
+                    parameters: {
+                        $orderby: 'createdAt desc',
+                        $expand: 'customer'
+                    }
+                }"
+                growing="true"
+                growingThreshold="10"
+                class="sapUiResponsiveMargin">
+                <headerToolbar>
+                    <OverflowToolbar class="sapUiSmallMarginEnd">
+                        <Title text="System Sales Orders" level="H2"/>
+                        <ToolbarSpacer/>
+                        <Button icon="sap-icon://refresh" tooltip="Refresh Data" press="onRefreshOrders"/>
+                    </OverflowToolbar>
+                </headerToolbar>
+                <columns>
+                    <!-- 1. Order Reference -->
+                    <Column width="16rem">
+                        <Button text="Order Reference" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortOrderNumber" />
+                    </Column>
+
+                    <!-- 2. Customer Name -->
+                    <Column id="colCustomer" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" width="14rem">
+                        <Text text="Customer Name" />
+                    </Column>
+
+                    <!-- 3. Total sum -->
+                    <Column minScreenWidth="Tablet" demandPopin="true" width="8rem">
+                        <Button text="Order sum" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTotalAmount" />
+                    </Column>
+
+                    <!-- 4. Games Qty -->
+                    <Column minScreenWidth="Tablet" demandPopin="true" width="8rem">
+                        <Text text="Games Qty" />
+                    </Column>
+
+                    <!-- 5. Placement Date -->
+                    <Column minScreenWidth="Desktop" demandPopin="true" width="12rem">
+                        <Button text="Placement Date" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortCreatedAt" />
+                    </Column>
+
+                    <!-- 6. Status -->
+                    <Column width="10rem" hAlign="Center">
+                        <Button text="Status" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortStatus" />
+                    </Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem
+                        vAlign="Middle"
+                        type="Navigation"
+                        press=".onOrderDetailsPress">
+                        <cells>
+                            <!-- 1. Order Reference -->
+                            <ObjectIdentifier title="{= ${orderNumber} ? ${orderNumber} : ${ID} }" />
+
+                            <!-- 2. Customer Name -->
+                            <Text text="{customer/firstName} {customer/lastName}" />
+
+                            <!-- 3. Total Gross -->
+                            <ObjectNumber number="{totalAmount}" unit="{currency_code}" />
+
+                            <!-- 4. Games Qty -->
+                            <Text text="{items/$count} pcs" />
+
+                            <!-- 5. Placement Date -->
+                            <Text text="{
+                                path: 'createdAt',
+                                formatOptions: {
+                                    style: 'medium'
+                                }
+                            }" />
+
+                            <!-- 6. Status -->
+                            <ObjectStatus
+                                text="{
+                                    path: 'status_code',
+                                    formatter: '.formatStatusText'
+                                }"
+                                state="{
+                                    path: 'status_code',
+                                    formatter: '.formatStatusState'
+                                }"
+                                inverted="true" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+    </Page>
+</mvc:View>

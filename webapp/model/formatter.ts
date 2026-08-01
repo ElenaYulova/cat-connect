@@ -2,31 +2,12 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Control from "sap/ui/core/Control";
 import Component from "sap/ui/core/Component";
 
-type ValueState = "Success" | "Warning" | "Error" | "None";
+type ValueState = "Success" | "Warning" | "Error" | "None" | "Information";
 
 /**
  * @namespace sap.capire.gameshop.model
  */
 export default class Formatter {
-
-    public static statusState(iCriticality: number): ValueState {
-        switch (iCriticality) {
-            case 3: return "Success";
-            case 2: return "Warning";
-            case 1: return "Error";
-            default: return "None";
-        }
-    }
-
-    public static statusIcon(iCriticality: number): string {
-        switch (iCriticality) {
-            case 3: return "sap-icon://sys-enter-2";
-            case 2: return "sap-icon://status-in-process";
-            case 1: return "sap-icon://error";
-            default: return "sap-icon://document";
-        }
-    }
-
     public static formatStock(iStock: number | undefined | null): string {
         if (iStock === undefined || iStock === null) return "No data";
         return iStock > 0 ? iStock.toString() : "Out of stock";
@@ -99,5 +80,33 @@ export default class Formatter {
         const iQty = Number(iCurrentQuantity) || 0;
         const iAvailable = Number(iStock) || 0;
         return iQty > 0 && iQty <= iAvailable;
+    }
+
+    public static orderStatusText(sStatusCode: string): string {
+        switch (sStatusCode) {
+            case "new":
+            case "N": return "New Request";
+            case "in_process":
+            case "P": return "In Progress";
+            case "completed":
+            case "C": return "Completed";
+            case "cancelled":
+            case "X": return "Cancelled";
+            default:           return sStatusCode || "Pending";
+        }
+    }
+
+    public static orderStatusState(sStatusCode: string): ValueState {
+        switch (sStatusCode) {
+            case "new":
+            case "N": return "Information";
+            case "in_process":
+            case "P": return "Warning";
+            case "completed":
+            case "C": return "Success";
+            case "cancelled":
+            case "X": return "Error";
+            default:           return "None";
+        }
     }
 }

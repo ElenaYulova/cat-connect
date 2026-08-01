@@ -4,7 +4,6 @@ service SalesOrderService @(requires: 'authenticated-user') {
 
     // Main entities
 
-    @odata.draft.enabled
     entity Orders           as projection on myApp.salesorder.Orders
         actions {
             function checkBulkEligibility(qty: Integer) returns Boolean;
@@ -32,7 +31,6 @@ service SalesOrderService @(requires: 'authenticated-user') {
                 statusCode.code as customerStatus
         };
 
-    @readonly
     entity Feedbacks        as projection on myApp.crm.Feedbacks;
 
     @readonly
@@ -104,6 +102,23 @@ annotate SalesOrderService.Carts with @restrict: [
     {
         grant: '*',
         to   : 'CRMAdmin'
+    }
+];
+
+annotate SalesOrderService.Feedbacks with @restrict: [
+    {
+        grant: [
+            'READ',
+            'insert'
+        ],
+        to   : [
+            'Customer',
+            'SalesManager'
+        ]
+    },
+    {
+        grant: '*',
+        to   : ['CRMAdmin']
     }
 ];
 

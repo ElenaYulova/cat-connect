@@ -1,0 +1,131 @@
+<mvc:View controllerName="sap.capire.gameshop.controller.OrderDetails"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:form="sap.ui.layout.form">
+    <Page id="orderDetailsPage" title="Sales Order Specification" showNavButton="true" navButtonPress="onNavBack">
+        <headerContent>
+            <Button id="cancelOrderButton" icon="sap-icon://cancel" text="Cancel Order" type="Default" press="onCancelOrder" />
+
+            <Button id="deleteOrderButton" icon="sap-icon://delete" text="Delete Order" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" press="onDeleteOrder" />
+        </headerContent>
+        <content>
+            <ObjectHeader id="orderHeader" title="Order Details" number="{totalAmount}" numberUnit="USD">                <!-- 🔮 TODO: Dynamic OData v4 currency context binding -->
+                <attributes>
+                    <ObjectAttribute text="Order UUID: {ID}" />
+                    <ObjectAttribute text="Placement Date: {
+                        path: 'createdAt',
+                        formatOptions: { style: 'medium' }
+                    }" />
+                    <!-- TODO: Add feature with Loyalty Saving Sums across historical log -->
+                    <ObjectAttribute id="discountAttribute" text="" />
+                </attributes>
+                <statuses>
+                    <ObjectStatus text="{path: 'status_code', formatter: '.formatter.orderStatusText'}" state="{path: 'status_code', formatter: '.formatter.orderStatusState'}" inverted="true" />
+                </statuses>
+            </ObjectHeader>
+
+            <IconTabBar id="orderTabBar" upperCase="true" class="sapUiResponsiveContentPadding">
+                <items>
+                    <!-- TAB 1: ORDER ITEMS -->
+                    <IconTabFilter id="tabItems" icon="sap-icon://basket" text="Games Specification">
+                        <Table id="orderItemsTable" items="{items}" growing="true" growingThreshold="10">
+                            <columns>
+                                <Column width="6rem">
+                                    <Text text="Cover" />
+                                </Column>
+                                <Column>
+                                    <Text text="Game Title" />
+                                </Column>
+                                <Column width="8rem" hAlign="Right">
+                                    <Text text="Price" />
+                                </Column>
+                                <Column width="6rem" hAlign="Center">
+                                    <Text text="Qty" />
+                                </Column>
+                            </columns>
+                            <items>
+                                <ColumnListItem vAlign="Middle">
+                                    <cells>
+                                        <Image src="{game/image}" width="4rem" alt="Cover" error=".onImageLoadError" />
+
+                                        <ObjectIdentifier title="{game/title}" />
+                                        <!-- TODO: Add Currency -->
+                                        <ObjectNumber number="{game/price}" unit="USD" />
+
+                                        <Text text="{quantity} pcs" />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </IconTabFilter>
+
+                    <!-- TAB 2: FEEDBACKS -->
+                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="Customer Reviews">
+                        <VBox class="sapUiMediumMargin">
+
+                            <MessageStrip id="reviewStatusNoAccessStrip" text="You can submit a review only after this sales order is successfully Completed. Share your experience once you receive your games!" type="Warning" showIcon="true" visible="{localView>/isReviewLocked}" class="sapUiSmallMarginBottom" />
+
+                            <VBox id="reviewFormContainer" visible="{localView>/isReviewFormVisible}">
+                                <Title text="Share Your GameShop Experience" level="H3" class="sapUiSmallMarginBottom" />
+                                <Text text="Your feedback directly affects your CRM profile rank and subsequent loyalty discounts!" class="sapUiMediumMarginBottom" />
+                                <VBox class="sapUiSmallMarginBottom">
+                                    <Label text="Rate our service and delivery logistics:" required="true" class="sapUiTinyMarginBottom" />
+                                    <RatingIndicator id="feedbackRatingIndicator" maxValue="5" value="5" visualMode="Full" class="sapUiTinyMarginBottom" />
+                                </VBox>
+
+                                <VBox class="sapUiMediumMarginBottom">
+                                    <Label text="Your Review Comments:" required="true" class="sapUiTinyMarginBottom" />
+                                    <TextArea id="feedbackTextArea" width="100%" rows="5" placeholder="Tell us what you think about our service..." maxLength="1000" growing="true" />
+                                </VBox>
+
+                                <Button id="submitReviewButton" text="Submit Review" icon="sap-icon://paper-plane" type="Emphasized" press="onSubmitReview" width="12rem" />
+                            </VBox>
+
+                            <VBox id="reviewReadOnlyContainer" visible="{localView>/isReviewReadOnlyVisible}">
+                                <Title text="Your Submitted Order Review" level="H3" class="sapUiSmallMarginBottom" />
+
+                                <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                                    <Label text="Your Rating: " class="sapUiTinyMarginEnd" />
+                                    <RatingIndicator id="savedRatingIndicator" maxValue="5" editable="false" />
+                                </HBox>
+
+                                <Label text="Your Comment:" />
+                                <Text id="savedCommentText" class="sapUiMediumMarginBottom sapUiSelectable" />
+
+                                <VBox class="sapUiMediumMarginTop" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }">
+                                    <Title text="Administrative SMM Moderation" level="H4" class="sapUiSmallMarginBottom" />
+                                    <Label text="Approve this feedback for Social Media Marketing (SMM) Broadcast:" class="sapUiTinyMarginBottom" />
+                                    <Switch id="smmApprovalSwitch" state="false" customTextOn="Yes" customTextOff="No" change="onSmmSwitchChange" />
+                                </VBox>
+                            </VBox>
+
+                        </VBox>
+                    </IconTabFilter>
+
+
+                    <!-- TAB 3: CUSTOMER INSIGHTS -->
+                    <IconTabFilter id="tabCustomer" icon="sap-icon://customer" text="Client Profile">
+                        <form:SimpleForm id="customerForm" editable="false" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
+                            <form:content>
+
+                                <Label text="First Name" />
+                                <Text text="{customer/firstName}" />
+
+                                <Label text="Last Name" />
+                                <Text text="{customer/lastName}" />
+
+                                <Label text="Account Category" />
+                                <ObjectStatus text="{customer/categoryGroup}" state="Success" inverted="true" />
+                                <!-- TODO: Add Currency -->
+                                <Label text="CRM Average Rating" />
+                                <ObjectNumber number="{customer/averageRating}" unit="★" />
+                            </form:content>
+                        </form:SimpleForm>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
+</mvc:View>

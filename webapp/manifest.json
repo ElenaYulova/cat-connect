@@ -92,6 +92,16 @@
                     "target": ["TargetProductDetails"]
                 },
                 {
+                    "name": "OrdersList",
+                    "pattern": "orders",
+                    "target": ["TargetOrdersList"]
+                },
+                {
+                    "name": "OrderDetails",
+                    "pattern": "orders/{orderId}",
+                    "target": ["TargetOrderDetails"]
+                },
+                {
                     "name": "Cart",
                     "pattern": "cart",
                     "target": "TargetCart"
@@ -110,14 +120,25 @@
                     "controlId": "salesOrderApp",
                     "controlAggregation": "pages"
                 },
+                "TargetOrdersList": {
+                    "viewName": "OrdersList",
+                    "viewLevel": 2,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
+                },
                 "TargetCart": {
                     "viewName": "Cart",
                     "viewLevel": 2,
                     "controlId": "salesOrderApp",
                     "controlAggregation": "pages"
+                },
+                "TargetOrderDetails": {
+                    "viewName": "OrderDetails",
+                    "viewLevel": 3,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
                 }
             }
         }
-
     }
 }

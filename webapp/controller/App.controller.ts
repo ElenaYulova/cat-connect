@@ -4,6 +4,8 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import View from "sap/ui/core/mvc/View";
 import LoginManager from "../utils/LoginManager";
+import NavigationManager from "../utils/NavigationManager";
+
 
 export default class App extends Controller {
 
@@ -28,14 +30,17 @@ export default class App extends Controller {
     }
 
     public onNavToHome(): void {
-        const oOwnerComponent = this.getOwnerComponent() as UIComponent | undefined;
-        oOwnerComponent?.getRouter().navTo("SalesOrder", {}, true);
+        NavigationManager.navTo(this, "SalesOrder");
+    }
+
+    public onNavToOrders(): void {
+        NavigationManager.navTo(this, "OrdersList");
     }
 
     public onNavToCart(): void {
-        const oOwnerComponent = this.getOwnerComponent() as UIComponent | undefined;
-        oOwnerComponent?.getRouter().navTo("Cart");
+        NavigationManager.navTo(this, "Cart");
     }
+
 
     public onLoginPress(): void {
         const oView: View | undefined = this.getView();

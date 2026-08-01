@@ -134,16 +134,20 @@ export default class CartManager {
 
         oView.setBusy(true);
 
-        const oOrdersListBinding = oODataModel.bindList("/Orders");
+        const oOrdersListBinding = oODataModel.bindList("/Orders", undefined, undefined, undefined, {
+            $$updateGroupId: "$auto"
+        });
 
-        const oOrderContext = oOrdersListBinding.create({
+        const oOrderPayload = {
             currency_code: "USD",
             customer_ID: oUserData && oUserData.id ? oUserData.id : null,
             items: aCartItems.map((oItem: CartItem) => ({
                 game_ID: oItem.id,
                 quantity: typeof oItem.quantity === "string" ? parseInt(oItem.quantity, 10) : oItem.quantity || 1
             }))
-        });
+        };
+
+        const oOrderContext = oOrdersListBinding.create(oOrderPayload, false);
 
         if (!oOrderContext) {
             oView.setBusy(false);
@@ -153,31 +157,35 @@ export default class CartManager {
 
         const oCreatedPromise = oOrderContext.created();
 
-        if (!oCreatedPromise) {
+        if (oCreatedPromise) {
+            oCreatedPromise.then(() => {
+                oView.setBusy(false);
+
+                const oCreatedData = oOrderContext.getObject() as BackendOrderResponse | undefined;
+                
+                const fFinalAmount = oCreatedData && typeof oCreatedData.netAmount === "number"
+                    ? oCreatedData.netAmount
+                    : oCartModel.getProperty("/estimatedTotal");
+
+                // Очищаем корзину на фронтенде
+                oCartModel.setProperty("/items", []);
+                oCartModel.setProperty("/totalItems", 0);
+                oCartModel.setProperty("/totalPrice", 0.00);
+                oCartModel.setProperty("/estimatedTotal", 0.00);
+                oCartModel.updateBindings(true);
+
+                MessageBox.success(`Order has been successfully submitted! Final amount with rating discount: ${fFinalAmount} USD`);
+            }).catch((oError: any) => {
+                oView.setBusy(false);
+                if (oODataModel.hasPendingChanges()) {
+                    oODataModel.resetChanges();
+                }
+                MessageBox.error(oError?.message || "Failed to submit order due to database constraints.");
+            });
+        } else {
             oView.setBusy(false);
-            MessageBox.error("OData creation promise is not available.");
-            return;
+            MessageBox.error("OData creation pipeline failed to respond.");
         }
-
-        oCreatedPromise.then(() => {
-            oView.setBusy(false);
-
-            const oCreatedData = oOrderContext.getObject() as BackendOrderResponse | undefined;
-            const fFinalAmount = oCreatedData && typeof oCreatedData.netAmount === "number" 
-                ? oCreatedData.netAmount 
-                : oCartModel.getProperty("/totalPrice");
-
-            oCartModel.setProperty("/items", []);
-            oCartModel.setProperty("/totalItems", 0);
-            oCartModel.setProperty("/totalPrice", 0.00);
-            oCartModel.setProperty("/estimatedTotal", 0.00);
-            oCartModel.updateBindings(true);
-
-            MessageBox.success(`Order has been successfully submitted! Final amount with rating discount: ${fFinalAmount} USD`);
-        }).catch((oError: Error) => {
-            oView.setBusy(false);
-            MessageBox.error(oError.message || "Failed to submit order due to database constraints.");
-        });
     }
 
 }

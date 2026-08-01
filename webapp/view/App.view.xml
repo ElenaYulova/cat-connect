@@ -40,6 +40,15 @@
                     visible="{= !${userRoles>/isLoggedIn} }"
                     press="onLoginPress" />
 
+                    <!-- Orders button -->
+                <Button
+                    id="ordersButton"
+                    icon="sap-icon://history"
+                    text=""
+                    tooltip="View Orders"
+                    type="Transparent"
+                    visible="{userRoles>/isLoggedIn}"
+                    press="onNavToOrders" />
                 <!-- Cart button -->
                 <Button
                     id="cartButton"
