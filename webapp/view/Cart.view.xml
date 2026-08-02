@@ -1,5 +1,4 @@
-<mvc:View
-    controllerName="sap.capire.gameshop.controller.Cart"
+<mvc:View controllerName="sap.capire.gameshop.controller.Cart"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns="sap.m">
@@ -8,86 +7,92 @@
         <content>
             <VBox class="sapUiResponsiveMargin">
 
-                <Table
-                    id="cartTable"
-                    noDataText="Your cart is empty. Go grab some games!"
-                    items="{cart>/items}">
+                <Table id="cartTable" noDataText="Your cart is empty. Go grab some games!" items="{cart>/items}">
 
                     <columns>
-                        <Column width="4rem" hAlign="Center"><Text text="Cover" /></Column>
-                        <Column><Text text="Game Title" /></Column>
-                        <Column width="15%" hAlign="End"><Text text="Price" /></Column>
-                        <Column width="15%" hAlign="Center"><Text text="Quantity" /></Column>
-                        <Column width="15%" hAlign="End"><Text text="Subtotal" /></Column>
-                        <Column width="10%" hAlign="Center"><Text text="Action" /></Column>
+                        <Column width="4rem" hAlign="Center">
+                            <Text text="Cover" />
+                        </Column>
+                        <Column>
+                            <Text text="Game Title" />
+                        </Column>
+                        <Column width="15%" hAlign="End">
+                            <Text text="Price" />
+                        </Column>
+                        <Column width="15%" hAlign="Center">
+                            <Text text="Quantity" />
+                        </Column>
+                        <Column width="15%" hAlign="End">
+                            <Text text="Subtotal" />
+                        </Column>
+                        <Column width="10%" hAlign="Center">
+                            <Text text="Action" />
+                        </Column>
                     </columns>
 
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-                                <Image
-                                    src="{cart>image}"
-                                    width="2.5rem"
-                                    height="2.5rem"
-                                    class="productImage"
-                                    error=".onImageLoadError" />
+                                <Image src="{cart>image}" width="2.5rem" height="2.5rem" class="productImage" error=".onImageLoadError" />
 
                                 <ObjectIdentifier title="{cart>title}" />
 
                                 <ObjectNumber number="{cart>price}" unit="USD" />
 
-                                <StepInput
-                                    value="{cart>quantity}"
-                                    min="1"
-                                    max="{cart>stock}"
-                                    width="120px"
-                                    change=".onQuantityChange" />
+                                <StepInput value="{cart>quantity}" min="1" max="{cart>stock}" width="120px" change=".onQuantityChange" />
 
-                                <ObjectNumber
-                                    number="{= (${cart>price} * ${cart>quantity}).toFixed(2) }"
-                                    unit="USD"
-                                    state="Success" />
+                                <ObjectNumber number="{= (${cart>price} * ${cart>quantity}).toFixed(2) }" unit="USD" state="Success" />
 
-                                <Button
-                                    icon="sap-icon://delete"
-                                    type="Reject"
-                                    press=".onRemoveItem" />
+                                <Button icon="sap-icon://delete" type="Reject" press=".onRemoveItem" />
                             </cells>
                         </ColumnListItem>
                     </items>
                 </Table>
-
 
                 <VBox class="sapUiMediumMarginTop sapUiAlignmentEnd" width="100%">
                     <HBox alignItems="Center" class="sapUiSmallMarginBottom">
                         <Label text="Total Items:" class="sapUiSmallMarginEnd" />
                         <Text text="{cart>/totalItems}" class="sapUiBoldText" />
                     </HBox>
+
+                    <!-- Total Gross Amount-->
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Label text="Total (Gross Amount):" class="sapUiSmallMarginEnd" />
+                        <ObjectNumber number="{
+                                path: 'cart>/totalPrice',
+                                formatOptions: {
+                                    minFractionDigits: 2,
+                                    maxFractionDigits: 2
+                                }
+                            }" unit="USD" state="None" />
+                    </HBox>
+
+                    <!-- Client Discount-->
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Label text="Your Total Discount:" class="sapUiSmallMarginEnd" />
+                        <ObjectNumber number="{
+                                path: 'cart>/clientDiscount',
+                                formatOptions: {
+                                    minFractionDigits: 2,
+                                    maxFractionDigits: 2
+                                }
+                            }" unit="USD" state="Warning" />
+                    </HBox>
+
+                    <!-- Final Estimated Total-->
                     <HBox alignItems="Center" class="sapUiMediumMarginBottom">
                         <Label text="Estimated Total with Client Discount:" class="sapUiSmallMarginEnd" />
-
-                        <ObjectNumber
-                            number="{
+                        <ObjectNumber number="{
                                 path: 'cart>/estimatedTotal',
                                 formatOptions: {
                                     minFractionDigits: 2,
                                     maxFractionDigits: 2
                                 }
-                            }"
-                            unit="USD"
-                            emphasized="true"
-                            state="Information" />
+                            }" unit="USD" emphasized="true" state="Information" />
                     </HBox>
 
-                    <Button
-                        text="Submit Order"
-                        type="Accept"
-                        icon="sap-icon://shipping-status"
-                        enabled="{= ${cart>/items}.length > 0 }"
-                        press=".onSubmitOrder"
-                        width="220px" />
+                    <Button text="Submit Order" type="Accept" icon="sap-icon://shipping-status" enabled="{= ${cart>/items}.length > 0 }" press=".onSubmitOrder" width="220px" />
                 </VBox>
-
             </VBox>
         </content>
     </Page>

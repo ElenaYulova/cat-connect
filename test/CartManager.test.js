@@ -159,7 +159,7 @@ describe('Front-End: CartManager Unit Suite', () => {
         const oResultData = oMockModel.getData();
         expect(oResultData.totalPrice).toBe(200.00);
 
-        expect(oResultData.estimatedTotal).toBe(190.00); 
+        expect(oResultData.estimatedTotal).toBe(190.00);
     });
 
     test('Should apply dynamic 4.5% discount for Premium user with rating 4.50', () => {
@@ -168,7 +168,7 @@ describe('Front-End: CartManager Unit Suite', () => {
             id: "b4d7b17e-39a0-45ef-bf73-13bd18a017cf",
             averageRating: "4.50"
         };
-        
+
         global.window.localStorage.getItem = jest.fn().mockReturnValue(JSON.stringify(oMockPremiumProfile));
 
         const oMockModel = new MockJSONModel({
@@ -184,5 +184,63 @@ describe('Front-End: CartManager Unit Suite', () => {
         expect(oResultData.totalPrice).toBe(100.00);
 
         expect(oResultData.estimatedTotal).toBe(95.50);
+    });
+
+     test('Should combine base rating discount and bulk discount when item quantity triggers threshold', () => {
+
+        const oMockEligibleProfile = {
+            id: "user-bulk-true-123",
+            averageRating: "4.00",
+            isBulkAvailable: true,
+            bulkDiscountPercent: 0.10,
+            bulkMinQuantity: 10
+        };
+
+        global.window.localStorage.getItem = jest.fn().mockReturnValue(JSON.stringify(oMockEligibleProfile));
+
+        const oMockModel = new MockJSONModel({
+            items: [{ id: "game-111", price: 10.00, quantity: 5 }],
+            totalItems: 5,
+            totalPrice: 50.00,
+            estimatedTotal: 50.00
+        });
+
+        CartManager.updateQuantity(oMockModel, "game-111", 5);
+        let oData = oMockModel.getData();
+        expect(oData.totalPrice).toBe(50.00);
+
+        expect(oData.estimatedTotal).toBe(48.00);
+
+        CartManager.updateQuantity(oMockModel, "game-111", 10);
+        oData = oMockModel.getData();
+
+        expect(oData.totalPrice).toBe(100.00);
+        expect(oData.estimatedTotal).toBe(96.00);
+    });
+
+    test('Should not apply bulk discount even if quantity is high if isBulkAvailable is false', () => {
+
+        const oMockNotEligibleProfile = {
+            id: "user-bulk-false-999",
+            averageRating: "5.00",
+            isBulkAvailable: false,
+            bulkDiscountPercent: 0.10,
+            bulkMinQuantity: 10
+        };
+
+        global.window.localStorage.getItem = jest.fn().mockReturnValue(JSON.stringify(oMockNotEligibleProfile));
+
+        const oMockModel = new MockJSONModel({
+            items: [{ id: "game-222", price: 10.00, quantity: 15 }],
+            totalItems: 15,
+            totalPrice: 150.00,
+            estimatedTotal: 150.00
+        });
+
+        CartManager.updateQuantity(oMockModel, "game-222", 15);
+        const oData = oMockModel.getData();
+
+        expect(oData.totalPrice).toBe(150.00);
+        expect(oData.estimatedTotal).toBe(142.50);
     });
 });

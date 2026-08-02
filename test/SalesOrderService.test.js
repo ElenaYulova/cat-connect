@@ -181,7 +181,7 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
     /**
      * TEST 7: Backend Price Calculation & Cross-Context Discount
      */
-    test('7. should automatically calculate netAmount on backend and apply CRM rating discount', async () => {
+    test('should automatically calculate netAmount on backend and apply CRM rating discount', async () => {
         const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
 
         const oProductResponse = await GET(`/odata/v4/sales-order/Products(${sTargetProductId})`, {
@@ -209,7 +209,7 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(fNetAmount).toBeLessThan(fSinglePrice);
     });
     /**
-     * TEST 8: Strict Product Page Quantity Validation (Defensive Check)
+     * TEST 8: Strict Product Page Quantity Validation
      */
 
     test('should block order submission and return 409 Conflict if requested quantity exceeds available warehouse stock', async () => {
@@ -258,5 +258,46 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(fFrontEndTotalGross - fFrontEndSaving).toBe(9.55);
     });
 
+    /**
+     * Test 10: Feedback Saving Validation
+     */
+
+        test('Should execute full review pipeline: save feedback, recalculate rating, and verify interaction log', async () => {
+        const targetCustomerId = 'b4d7b17e-39a0-45ef-bf73-13bd18a017cf';
+        const sFakeStoreProductId = '44444444-4444-4444-4444-444444444444';
+        const sTargetOrderId = 'a1b2c3d4-e5f6-47a8-b9c0-1d2e3f4a5b6c';
+
+        const feedbackResponse = await POST('/odata/v4/crm/Feedbacks', {
+            ID: 'f9e8d7c6-b5a4-3210-0987-fedcba987654',
+            customer_ID: targetCustomerId,
+            product_ID: sFakeStoreProductId,
+            rating: 1,
+            comments: `[Order_ID: ${sTargetOrderId}] Unacceptable delivery delay, totally disappointed!`,
+            feedbackDate: '2026-08-01'
+        }, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(feedbackResponse.status).toBe(201);
+
+        const customerResponse = await GET(`/odata/v4/crm/Customers(ID='${targetCustomerId}',IsActiveEntity=true)`, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(customerResponse.status).toBe(200);
+        expect(customerResponse.data.averageRating).toBeLessThanOrEqual(3.00);
+        expect(customerResponse.data.statusCode_code).toBe('R');
+
+        const interactionsResponse = await GET('/odata/v4/crm/Interactions', {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(interactionsResponse.status).toBe(200);
+        const aLogs = interactionsResponse.data.value;
+        const oTargetLog = aLogs.find(log => log.customer_ID === targetCustomerId && log.method_code === 'feedback');
+
+        expect(oTargetLog).toBeDefined();
+        expect(oTargetLog.summary).toContain('Rating: 1');
+    });
 
 });

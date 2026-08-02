@@ -3,7 +3,7 @@ using {sap.capire.gameshop as myApp} from '../db/schema';
 service SalesOrderService @(requires: 'authenticated-user') {
 
     // Main entities
-
+    @odata.draft.enabled
     entity Orders           as projection on myApp.salesorder.Orders
         actions {
             function checkBulkEligibility(qty: Integer) returns Boolean;
@@ -35,6 +35,13 @@ service SalesOrderService @(requires: 'authenticated-user') {
 
     @readonly
     entity OrderStatusCode  as projection on myApp.salesorder.OrderStatusCode;
+
+    function getCartEligibilities(customer_ID: UUID) returns {
+        isBulkAvailable     : Boolean;
+        averageRating       : Decimal(3, 2);
+        bulkDiscountPercent : Decimal(3, 2);
+        bulkMinQuantity     : Integer;
+    };
 }
 
 

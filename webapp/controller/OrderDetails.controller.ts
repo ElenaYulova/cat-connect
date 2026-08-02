@@ -46,7 +46,7 @@ export default class OrderDetails extends Controller {
         if (!oView || !sOrderId) return;
 
         oView.bindElement({
-            path: `/Orders(${sOrderId})`,
+            path: `/Orders(ID=${sOrderId},IsActiveEntity=true)`,
             parameters: {
                 $expand: "customer,items($expand=game)"
             },

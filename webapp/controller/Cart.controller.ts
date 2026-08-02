@@ -1,5 +1,4 @@
 import Controller from "sap/ui/core/mvc/Controller";
-import History from "sap/ui/core/routing/History";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import UIComponent from "sap/ui/core/UIComponent";
 import CartManager from "../utils/CartManager";
@@ -14,12 +13,17 @@ export default class Cart extends Controller {
         oOwnerComponent?.getRouter().getRoute("Cart")?.attachPatternMatched(this._onCartMatched, this);
     }
 
-    private _onCartMatched(): void {
-        const oCartModel = this.getView()?.getModel("cart") as JSONModel | undefined;
-        if (oCartModel) {
+    private async _onCartMatched(): Promise<void> {
+        const oView = this.getView();
+        const oODataModel = oView?.getModel() as any;
+        const oCartModel = oView?.getModel("cart") as JSONModel;
+
+        if (oView && oODataModel && oCartModel) {
+            await CartManager.validateBulkEligibility(oView, oODataModel);
             CartManager.triggerRefresh(oCartModel);
         }
     }
+
 
         public onNavBack(): void {
         NavigationManager.navBack(this, "SalesOrder");

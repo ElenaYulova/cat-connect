@@ -81,38 +81,19 @@ export default class CartManager {
         oCartModel.setProperty("/totalItems", iTotalItems);
         oCartModel.setProperty("/totalPrice", parseFloat(fTotalPrice.toFixed(2)));
 
-        const sSavedUserJson = window.localStorage.getItem("catConnect_userProfile");
-        let fDiscountPercent = 0;
+        const fClientDiscountAmount = CartManager._calculateClientDiscount(fTotalPrice, iTotalItems);
+        oCartModel.setProperty("/clientDiscount", fClientDiscountAmount);
 
-        if (sSavedUserJson) {
-            try {
-                const oUserData = JSON.parse(sSavedUserJson);
-                if (oUserData && oUserData.averageRating) {
-                    const fRatingValue = parseFloat(oUserData.averageRating);
-                    if (!isNaN(fRatingValue)) {
-                        fDiscountPercent = fRatingValue / 100;
-                    }
-                }
-            } catch (e) {
-                fDiscountPercent = 0;
-            }
-        }
-
-        const fEstimatedTotal = fTotalPrice * (1 - fDiscountPercent);
+        const fEstimatedTotal = fTotalPrice - fClientDiscountAmount;
         oCartModel.setProperty("/estimatedTotal", parseFloat(fEstimatedTotal.toFixed(2)));
 
         oCartModel.refresh(true);
     }
 
-
     public static submitOrder(oView: View, oODataModel: ODataModel, oCartModel: JSONModel): void {
         interface CartItem {
             id: string;
             quantity: number | string;
-        }
-
-        interface BackendOrderResponse {
-            netAmount?: number;
         }
 
         const aCartItems = (oCartModel.getProperty("/items") as CartItem[]) || [];
@@ -132,12 +113,6 @@ export default class CartManager {
             }
         }
 
-        oView.setBusy(true);
-
-        const oOrdersListBinding = oODataModel.bindList("/Orders", undefined, undefined, undefined, {
-            $$updateGroupId: "$auto"
-        });
-
         const oOrderPayload = {
             currency_code: "USD",
             customer_ID: oUserData && oUserData.id ? oUserData.id : null,
@@ -147,11 +122,18 @@ export default class CartManager {
             }))
         };
 
+        oView.setBusy(true);
+        CartManager._createOrderDraft(oView, oODataModel, oCartModel, oOrderPayload);
+    }
+
+    private static _createOrderDraft(oView: View, oODataModel: ODataModel, oCartModel: JSONModel, oOrderPayload: any): void {
+        const oOrdersListBinding = oODataModel.bindList("/Orders");
+
         const oOrderContext = oOrdersListBinding.create(oOrderPayload, false);
 
         if (!oOrderContext) {
             oView.setBusy(false);
-            MessageBox.error("Failed to initialize OData context for the new order.");
+            MessageBox.error("Failed to initialize OData context for the new order draft.");
             return;
         }
 
@@ -159,33 +141,141 @@ export default class CartManager {
 
         if (oCreatedPromise) {
             oCreatedPromise.then(() => {
-                oView.setBusy(false);
-
-                const oCreatedData = oOrderContext.getObject() as BackendOrderResponse | undefined;
-                
-                const fFinalAmount = oCreatedData && typeof oCreatedData.netAmount === "number"
-                    ? oCreatedData.netAmount
-                    : oCartModel.getProperty("/estimatedTotal");
-
-                // Очищаем корзину на фронтенде
-                oCartModel.setProperty("/items", []);
-                oCartModel.setProperty("/totalItems", 0);
-                oCartModel.setProperty("/totalPrice", 0.00);
-                oCartModel.setProperty("/estimatedTotal", 0.00);
-                oCartModel.updateBindings(true);
-
-                MessageBox.success(`Order has been successfully submitted! Final amount with rating discount: ${fFinalAmount} USD`);
+                CartManager._activateOrderDraft(oView, oODataModel, oCartModel, oOrderContext);
             }).catch((oError: any) => {
                 oView.setBusy(false);
                 if (oODataModel.hasPendingChanges()) {
                     oODataModel.resetChanges();
                 }
-                MessageBox.error(oError?.message || "Failed to submit order due to database constraints.");
+                MessageBox.error(oError?.message || "Failed to submit draft order due to database constraints.");
             });
         } else {
             oView.setBusy(false);
             MessageBox.error("OData creation pipeline failed to respond.");
         }
+    }
+
+    private static async _activateOrderDraft(oView: View, oODataModel: ODataModel, oCartModel: JSONModel, oOrderContext: any): Promise<void> {
+        interface BackendOrderResponse {
+            netAmount?: number;
+        }
+
+        try {
+
+            const oOperation = oODataModel.bindContext(`${oOrderContext.getPath()}/SalesOrderService.draftActivate(...)`);
+            await oOperation.execute();
+
+            oView.setBusy(false);
+
+            if (typeof oOrderContext.destroy === "function") {
+                oOrderContext.destroy();
+            }
+
+            oCartModel.setProperty("/items", []);
+            oCartModel.setProperty("/totalItems", 0);
+            oCartModel.setProperty("/totalPrice", 0.00);
+            oCartModel.setProperty("/estimatedTotal", 0.00);
+            oCartModel.updateBindings(true);
+
+            MessageBox.success("Order has been successfully submitted! Active inventory is locked.");
+        } catch (oError: any) {
+            oView.setBusy(false);
+            if (oODataModel.hasPendingChanges()) {
+                oODataModel.resetChanges();
+            }
+            MessageBox.error(oError?.message || "Error during order draft activation.");
+        }
+    }
+    public static async validateBulkEligibility(oView: View, oODataModel: any): Promise<void> {
+        if (!oView || !oODataModel) return;
+
+        const sSavedUserJson = window.localStorage.getItem("catConnect_userProfile");
+        if (!sSavedUserJson) return;
+
+        let oUserData: {
+            id?: string;
+            isBulkAvailable?: boolean; 
+            averageRating?: string | number;
+            bulkDiscountPercent?: number;
+            bulkMinQuantity?: number;
+        } = {};
+        
+        try {
+            oUserData = JSON.parse(sSavedUserJson);
+        } catch (e) {
+            return;
+        }
+
+        if (!oUserData.id) return;
+
+        oView.setBusy(true);
+
+        try {
+            const oOperation = oODataModel.bindContext("/getCartEligibilities(...)");
+            oOperation.setParameter("customer_ID", oUserData.id);
+            await oOperation.execute();
+
+            const oResultContext = oOperation.getBoundContext();
+            const oResponseData = oResultContext ? oResultContext.getObject() as {
+                isBulkAvailable: boolean;
+                averageRating: number;
+                bulkDiscountPercent: number;
+                bulkMinQuantity: number;
+            } : null;
+
+            if (oResponseData) {
+                oUserData.isBulkAvailable = oResponseData.isBulkAvailable === true;
+                oUserData.averageRating = oResponseData.averageRating;
+                oUserData.bulkDiscountPercent = oResponseData.bulkDiscountPercent;
+                oUserData.bulkMinQuantity = oResponseData.bulkMinQuantity;
+
+                window.localStorage.setItem("catConnect_userProfile", JSON.stringify(oUserData));
+            }
+        } catch (oError: any) {
+            console.error("Pre-Fetch Pipeline Failure: ", oError?.message || oError);
+            oUserData.isBulkAvailable = false;
+            oUserData.bulkDiscountPercent = 0.10;
+            oUserData.bulkMinQuantity = 10;
+            window.localStorage.setItem("catConnect_userProfile", JSON.stringify(oUserData));
+        } finally {
+            oView.setBusy(false);
+        }
+    }
+
+    private static _calculateClientDiscount(fTotalPrice: number, iTotalItems: number): number {
+        const sSavedUserJson = window.localStorage.getItem("catConnect_userProfile");
+        let fBaseDiscountPercent = 0;
+        let fBulkDiscountPercent = 0;
+
+        if (sSavedUserJson) {
+            try {
+                const oUserData = JSON.parse(sSavedUserJson);
+                if (oUserData) {
+
+                    if (oUserData.averageRating) {
+                        const fRatingValue = parseFloat(oUserData.averageRating);
+                        if (!isNaN(fRatingValue)) {
+                            fBaseDiscountPercent = fRatingValue / 100;
+                        }
+                    }
+
+                    const iMinQtyThreshold = typeof oUserData.bulkMinQuantity === "number" ? oUserData.bulkMinQuantity : 10;
+                    const fConfiguredBulkPercent = typeof oUserData.bulkDiscountPercent === "number" ? oUserData.bulkDiscountPercent : 0.10;
+
+                    if (iTotalItems >= iMinQtyThreshold && oUserData.isBulkAvailable === true) {
+                        fBulkDiscountPercent = fConfiguredBulkPercent;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to parse user profile for dynamic discounts calculation");
+            }
+        }
+
+        const fTotalDiscountPercent = fBaseDiscountPercent + fBulkDiscountPercent;
+
+        const fCalculatedDiscountAmount = fTotalPrice * fTotalDiscountPercent;
+
+        return parseFloat(fCalculatedDiscountAmount.toFixed(2));
     }
 
 }

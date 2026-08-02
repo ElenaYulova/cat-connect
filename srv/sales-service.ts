@@ -6,19 +6,17 @@ export default class SalesOrderService extends cds.ApplicationService {
         const { SELECT } = cds.ql;
 
         const Orders = this.entities.Orders!;
-        const Products = this.entities.Products!;
 
         /**
-        * Calculator launcher
-        */
-
-        this.before('CREATE', Orders, async (req: cds.Request) => {
+         * Calculator launcher for active orders
+         */
+        this.before(['CREATE', 'UPDATE'], Orders, async (req: cds.Request) => {
             await OrderCalculator.calculateAndDeductStock(req, this.entities);
         });
 
         /**
-        * Warehouse control with duplicate write-off protection (before UPDATE)
-        */
+         * Warehouse control with duplicate write-off protection (before UPDATE)
+         */
         this.before('UPDATE', Orders, async (req: cds.Request) => {
             const currentOrder = req.data;
             if (!currentOrder || (currentOrder.status_code !== 'P' && currentOrder.status_code !== 'C')) return;
@@ -52,7 +50,7 @@ export default class SalesOrderService extends cds.ApplicationService {
         /**
         * Feedbacks BE handling
         */
-this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
+        this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
             try {
                 const oRemoteCrmService = await cds.connect.to('CRMService');
 
@@ -67,6 +65,58 @@ this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
                 );
             } catch (oError: any) {
                 console.error("🔒 CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
+            }
+        });
+
+        /**
+        * Bulk Discount Availability
+        */
+
+        this.on('getCartEligibilities', async (req: cds.Request) => {
+            const { customer_ID } = req.data as { customer_ID?: string };
+
+            const oDefaultResponse = { isBulkAvailable: false, averageRating: 0.00 };
+            if (!customer_ID || customer_ID === "undefined" || customer_ID.length !== 36) {
+                return oDefaultResponse;
+            }
+
+            try {
+                const oEnvSettings = (cds.env as any).settings || {};
+                const fBulkPercent = oEnvSettings.bulkDiscountPercent || 0.10;
+                const iBulkMinQty = oEnvSettings.bulkMinQuantity || 10;
+                const fMinRating = oEnvSettings.minRatingForBulk || 4.0;
+                const aIgnoredStatuses = oEnvSettings.ignoredStatusesForOrderHistory || ["X", "canceled"];
+
+                // TODO: Create entity in db for CRM configuration matrix
+                const oCustomerCRM = await cds.db.run(
+                    SELECT.one.from('sap.capire.gameshop.crm.Customers')
+                        .where({ ID: customer_ID })
+                        .columns('averageRating')
+                ) as { averageRating?: number } | null;
+
+                const fFreshRating = oCustomerCRM && oCustomerCRM.averageRating ? parseFloat(oCustomerCRM.averageRating as any) : 0.00;
+
+                const aPastOrders = await cds.db.run(
+                    SELECT.from(Orders)
+                        .where({ customer_ID: customer_ID, status_code: { 'not in': aIgnoredStatuses } })
+                        .columns('ID')
+                ) as any[];
+
+                const iPastOrdersCount = aPastOrders ? aPastOrders.length : 0;
+
+
+                const bBulkEligible = fFreshRating >= fMinRating && iPastOrdersCount > 0;
+
+                return {
+                    isBulkAvailable: bBulkEligible,
+                    averageRating: +fFreshRating.toFixed(2),
+                    bulkDiscountPercent: fBulkPercent,
+                    bulkMinQuantity: iBulkMinQty
+                };
+
+            } catch (oError: any) {
+                req.error(500, `Failed to resolve cart eligibilities: ${oError.message}`);
+                return oDefaultResponse;
             }
         });
 
