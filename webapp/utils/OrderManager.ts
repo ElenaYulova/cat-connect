@@ -9,10 +9,6 @@ import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
 import Controller from "sap/ui/core/mvc/Controller";
 
-/**
- * Enterprise Sales Order Business Logic Pipeline
- * Centralized utility to encapsulate financial math and transactional UI triggers.
- */
 export default class OrderManager {
 
     /**
@@ -75,34 +71,46 @@ export default class OrderManager {
         }
     }
 
-    public static async checkAndPrepareReviewContainer(oController: any, oOrderData: any): Promise<void> {
+        public static async checkAndPrepareReviewContainer(oController: any, oOrderData: any): Promise<void> {
         const oView = oController.getView();
         const oLocalModel = oView?.getModel("localView") as JSONModel | undefined;
         if (!oView || !oLocalModel || !oOrderData) return;
 
         const sStatus = oOrderData.status_code;
         const sOrderId = oOrderData.ID;
+        const sCustomerId = oOrderData.customer?.ID || oOrderData.customer_ID;
 
         const bIsCompleted = (sStatus === "completed" || sStatus === "C");
+        const bIsCanceled = (sStatus === "canceled" || sStatus === "X");
 
-        if (!bIsCompleted) {
+        // TODO: Refactor UI layout for canceled state to completely hide unused labels (Your Rating/Comment)
+        // and shift to a dedicated encapsulated fragments block before final mentor review.
+        if (bIsCanceled) {
+            oLocalModel.setProperty("/isReviewLocked", false);
+            oLocalModel.setProperty("/isReviewFormVisible", false);
+            oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
+        } else if (!bIsCompleted) {
             oLocalModel.setProperty("/isReviewLocked", true);
             oLocalModel.setProperty("/isReviewFormVisible", false);
             oLocalModel.setProperty("/isReviewReadOnlyVisible", false);
             return;
+        } else {
+            oLocalModel.setProperty("/isReviewLocked", false);
         }
 
-        oLocalModel.setProperty("/isReviewLocked", false);
-
-
         const oODataModel = oView.getModel() as ODataModel;
-        const sCustomerId = oOrderData.customer?.ID || oOrderData.customer_ID;
-        const sFakeStoreProductId = "44444444-4444-4444-4444-444444444444";
-
         oView.setBusy(true);
+
         try {
+
+            let sFilterQuery = `customer_ID eq ${sCustomerId} and product_ID eq 44444444-4444-4444-4444-444444444444 and contains(comments,'${sOrderId}')`;
+
+            if (bIsCanceled) {
+                sFilterQuery = `customer_ID eq ${sCustomerId} and contains(comments,'[CANCELED]') and contains(comments,'${sOrderId}')`;
+            }
+
             const oListBinding = oODataModel.bindList("/Feedbacks", undefined, undefined, undefined, {
-                $filter: `customer_ID eq ${sCustomerId} and product_ID eq ${sFakeStoreProductId} and contains(comments,'${sOrderId}')`
+                $filter: sFilterQuery
             }) as ODataListBinding;
 
             const aContexts = await oListBinding.requestContexts(0, 1);
@@ -111,21 +119,38 @@ export default class OrderManager {
             if (aContexts && aContexts.length > 0) {
                 const oSavedReview = aContexts[0].getObject() as { rating: number, comments: string };
 
-                oLocalModel.setProperty("/isReviewFormVisible", false);
-                oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
-
-                const sCleanComment = oSavedReview.comments.replace(`[Order_ID: ${sOrderId}]`, "").trim();
-
-                (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(oSavedReview.rating);
-                (oView.byId("savedCommentText") as Text)?.setText(sCleanComment);
-            } else {
-                const sCurrentDisplayedText = (oView.byId("savedCommentText") as Text)?.getText() || "";
-                if (sCurrentDisplayedText.trim()) {
+                if (oSavedReview.rating === 0 || oSavedReview.comments.includes("[CANCELED]")) {
                     oLocalModel.setProperty("/isReviewFormVisible", false);
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
+
+                const sCleanComment = oSavedReview.comments
+                        .replace("[CANCELED]", "🛑 STATUS: CANCELED |")
+                        .replace(/\[/g, " ")
+                        .replace(/\]/g, " |");
+
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(0);
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(false);
+                    (oView.byId("savedCommentText") as Text)?.setText(sCleanComment);
+                } else {
+
+                    oLocalModel.setProperty("/isReviewFormVisible", false);
+                    oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(true);
+
+                    const sCleanComment = oSavedReview.comments.replace(`[Order_ID: ${sOrderId}]`, "").trim();
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(oSavedReview.rating);
+                    (oView.byId("savedCommentText") as Text)?.setText(sCleanComment);
+                }
+            } else {
+                if (bIsCanceled) {
+                    oLocalModel.setProperty("/isReviewFormVisible", false);
+                    oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(false);
+                    (oView.byId("savedCommentText") as Text)?.setText("🛑 System Log: This digital key contract has been revoked and canceled.");
                 } else {
                     oLocalModel.setProperty("/isReviewFormVisible", true);
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", false);
+                    (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(true);
                 }
             }
         } catch (oError) {
@@ -133,6 +158,7 @@ export default class OrderManager {
             oLocalModel.setProperty("/isReviewFormVisible", true);
         }
     }
+
 
 
 
@@ -187,5 +213,52 @@ export default class OrderManager {
 
         (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(iRating);
         (oView.byId("savedCommentText") as Text)?.setText(sComment);
+    }
+
+    public static async executeOrderCancellation(oController: any, oCancelDialog: any): Promise<void> {
+        const oView = oController.getView();
+        const oODataModel = oView?.getModel() as any;
+        const oBindingContext = oView?.getBindingContext();
+
+        if (!oView || !oODataModel || !oBindingContext || !oCancelDialog) return;
+
+        const sReason = (oView.byId("reasonInput") as any).getValue().trim();
+        const sPlatform = (oView.byId("destinationInput") as any).getValue().trim();
+        const sComment = (oView.byId("cancelCommentArea") as any).getValue().trim();
+
+        if (!sReason || !sPlatform) {
+            MessageBox.error("Please select both Cancellation Reason and License Platform using Search Helps.");
+            return;
+        }
+
+        oView.setBusy(true);
+        oCancelDialog.setBusy(true);
+
+        try {
+            const oActionContext = oODataModel.bindContext(`${oBindingContext.getPath()}/SalesOrderService.cancelOrder(...)`);
+
+            oActionContext.setParameter("reasonCode", sReason);
+            oActionContext.setParameter("platformCode", sPlatform);
+            oActionContext.setParameter("comment", sComment);
+
+            await oActionContext.execute();
+
+            oCancelDialog.setBusy(false);
+            oCancelDialog.close();
+
+            oView.setBusy(false);
+
+            const oViewBinding = oView.getBindingContext()?.getBinding();
+            if (oViewBinding && typeof oViewBinding.refresh === "function") {
+                oViewBinding.refresh();
+            }
+
+            MessageBox.success("Order has been successfully canceled!");
+
+        } catch (oError: any) {
+            oCancelDialog.setBusy(false);
+            oView.setBusy(false);
+            MessageBox.error(oError?.message || "Fatal error during order cancellation transaction.");
+        }
     }
 }

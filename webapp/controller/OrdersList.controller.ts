@@ -1,24 +1,21 @@
 import Controller from "sap/ui/core/mvc/Controller";
-import UIComponent from "sap/ui/core/UIComponent";
-import History from "sap/ui/core/routing/History";
 import Table from "sap/m/Table";
-import Filter from "sap/ui/model/Filter";
-import FilterOperator from "sap/ui/model/FilterOperator";
+import Sorter from "sap/ui/model/Sorter";
+import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
+import ColumnListItem from "sap/m/ColumnListItem";
 import SearchField from "sap/m/SearchField";
 import Select from "sap/m/Select";
-import Sorter from "sap/ui/model/Sorter";
 import DateRangeSelection from "sap/m/DateRangeSelection";
-import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
-import { ValueState } from "sap/ui/core/library";
-import ColumnListItem from "sap/m/ColumnListItem";
+import Filters from "../utils/Filters";
 import NavigationManager from "../utils/NavigationManager";
-
+import Formatter from "../model/formatter";
 
 /**
  * @namespace sap.capire.gameshop.controller
  */
 export default class OrdersList extends Controller {
 
+    public formatter: typeof Formatter = Formatter;
     /**
      * Forcibly triggers OData v4 model context synchronization reload
      */
@@ -30,80 +27,8 @@ export default class OrdersList extends Controller {
         }
     }
 
-    /**
-     * Formatter to convert technical state codes into user-friendly localized names
-     */
-    public formatStatusText(sStatusCode: string): string {
-        switch (sStatusCode) {
-            case "N": return "New Request";
-            case "P": return "In Progress";
-            case "C": return "Completed";
-            case "X": return "Cancelled";
-            case "R": return "Refunded";
-            default:  return sStatusCode || "Pending";
-        }
-    }
-
-    /**
-     * Formatter to map enterprise state codes to UI ValueState palettes
-     */
-    public formatStatusState(sStatusCode: string): ValueState {
-        switch (sStatusCode) {
-            case "N": return ValueState.Information;
-            case "P": return ValueState.Warning;
-            case "C": return ValueState.Success;
-            case "X": return ValueState.Error;
-            case "R": return ValueState.Error;
-            default:  return ValueState.None;
-        }
-    }
-
-    /**
-     * Resets all filter components back to default factory states
-     */
-
     public onApplyFilters(): void {
-        const oTable = this.byId("ordersTable") as Table | undefined;
-        const oBinding = oTable?.getBinding("items") as ODataListBinding | undefined;
-        if (!oBinding) return;
-
-        const aFilters: Filter[] = [];
-
-        // Filter by Order Number OR Customer Name
-        const oSearchField = this.byId("filterOrderNumber") as SearchField | undefined;
-        const sSearchValue = oSearchField?.getValue()?.trim();
-        if (sSearchValue) {
-            aFilters.push(new Filter({
-                filters: [
-                    new Filter("orderNumber", FilterOperator.Contains, sSearchValue),
-                    new Filter("customer/name", FilterOperator.Contains, sSearchValue)
-                ],
-                and: false
-            }));
-        }
-
-
-        // Filter by Status Code
-        const oSelect = this.byId("filterStatus") as Select | undefined;
-        const sStatusKey = oSelect?.getSelectedKey();
-        if (sStatusKey && sStatusKey !== "ALL") {
-            aFilters.push(new Filter("status_code", FilterOperator.EQ, sStatusKey));
-        }
-
-        // Filter by Date Range Selection
-        const oDateRange = this.byId("filterDateRange") as DateRangeSelection | undefined;
-        const oFromDate = oDateRange?.getDateValue();
-        const oToDate = oDateRange?.getSecondDateValue();
-
-        if (oFromDate && oToDate) {
-
-            const oToDateEnd = new Date(oToDate);
-            oToDateEnd.setHours(23, 59, 59, 999);
-
-            aFilters.push(new Filter("createdAt", FilterOperator.BT, oFromDate.toISOString(), oToDateEnd.toISOString()));
-        }
-
-        oBinding.filter(aFilters);
+        Filters.executeOrdersListFiltration(this);
     }
 
     /**
@@ -168,11 +93,12 @@ export default class OrdersList extends Controller {
             oBinding.sort(oSorter);
         }
     }
+
     public onNavBack(): void {
         NavigationManager.navBack(this, "SalesOrder");
     }
 
-     public onOrderDetailsPress(oEvent: any): void {
+    public onOrderDetailsPress(oEvent: any): void {
         const oItem = oEvent.getSource() as ColumnListItem;
         const oBindingContext = oItem.getBindingContext();
         if (!oBindingContext) return;

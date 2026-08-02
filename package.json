@@ -33,10 +33,10 @@
     "start": "cds-serve",
     "start-dev": "cds watch --in-memory",
     "watch-crm_customers": "cds watch --open crmcustomers/index.html?sap-ui-xx-viewCache=false --livereload false",
-    "test": "node --test",
     "test:crm": "npx jest test/CrmService.test.js --verbose --runInBand",
     "test:sales": "npx jest test/SalesOrderService.test.js --verbose --runInBand",
     "test:cart": "npx jest test/CartManager.test.js --verbose --runInBand",
+    "test": "npm run test:crm && npm run test:sales && npm run test:cart",
     "build": "cds build --production",
     "start-so": "ui5 serve --config ui5.yaml --port 8082"
   },

@@ -1,63 +1,29 @@
-<mvc:View
-    controllerName="sap.capire.gameshop.controller.App"
+<mvc:View controllerName="sap.capire.gameshop.controller.App"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m"
-    displayBlock="true">
+    xmlns="sap.m" displayBlock="true">
 
     <Page id="appMasterContainer" showHeader="true">
         <customHeader>
             <OverflowToolbar>
-                <Avatar
-                    src="assets/img/logo.png"
-                    displayShape="Circle"
-                    press=".onNavToHome"
-                    displaySize="XS"
-                    class="sapUiSmallMarginBegin" />
+                <Avatar src="assets/img/logo.png" displayShape="Circle" press=".onNavToHome" displaySize="XS" class="sapUiSmallMarginBegin" />
 
-                <Link
-                text="Cat-Connect Shop"
-                press=".onNavToHome"
-                class="sapUiTinyMarginBegin sapMTitle sapMTitleStyleH4 sapUiFontLarge" />
+                <Link text="Cat-Connect Shop" press=".onNavToHome" class="sapUiTinyMarginBegin sapMTitle sapMTitleStyleH4 sapUiFontLarge" />
                 <ToolbarSpacer />
 
                 <!-- Guest Session -->
-                <Text
-                    text="Guest Session"
-                    visible="{= !${userRoles>/isLoggedIn} }"
-                    class="sapUiSmallMarginEnd" />
+                <Text text="Guest Session" visible="{= !${userRoles>/isLoggedIn} }" class="sapUiSmallMarginEnd" />
 
                 <!-- User Session -->
-                <Text
-                    text="{userRoles>/welcomeText}"
-                    visible="{userRoles>/isLoggedIn}"
-                    class="sapUiSmallMarginEnd" />
+                <Text text="{userRoles>/welcomeText}" visible="{userRoles>/isLoggedIn}" class="sapUiSmallMarginEnd" />
 
                 <!-- Login button -->
-                <Button
-                    icon="sap-icon://signin"
-                    text="Log In"
-                    type="Emphasized"
-                    visible="{= !${userRoles>/isLoggedIn} }"
-                    press="onLoginPress" />
+                <Button icon="sap-icon://signin" text="Log In" type="Emphasized" visible="{= !${userRoles>/isLoggedIn} }" press="onLoginPress" />
+                <!-- TODO: Add Client Page -->
 
-                    <!-- Orders button -->
-                <Button
-                    id="ordersButton"
-                    icon="sap-icon://history"
-                    text=""
-                    tooltip="View Orders"
-                    type="Transparent"
-                    visible="{userRoles>/isLoggedIn}"
-                    press="onNavToOrders" />
+                <!-- Orders button -->
+                <Button id="ordersButton" icon="sap-icon://history" text="" tooltip="View Orders" type="Transparent" visible="{userRoles>/isLoggedIn}" press="onNavToOrders" />
                 <!-- Cart button -->
-                <Button
-                    id="cartButton"
-                    icon="sap-icon://cart"
-                    text="{= ${cart>/totalItems} > 0 ? '(' + ${cart>/totalItems} + ')' : '' }"
-                    tooltip="To Cart"
-                    type="Transparent"
-                    visible="{userRoles>/isLoggedIn}"
-                    press="onNavToCart" />
+                <Button id="cartButton" icon="sap-icon://cart" text="{= ${cart>/totalItems} > 0 ? '(' + ${cart>/totalItems} + ')' : '' }" tooltip="To Cart" type="Transparent" visible="{userRoles>/isLoggedIn}" press="onNavToCart" />
             </OverflowToolbar>
         </customHeader>
 

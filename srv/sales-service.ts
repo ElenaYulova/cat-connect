@@ -48,27 +48,6 @@ export default class SalesOrderService extends cds.ApplicationService {
         });
 
         /**
-        * Feedbacks BE handling
-        */
-        this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
-            try {
-                const oRemoteCrmService = await cds.connect.to('CRMService');
-
-                await oRemoteCrmService.run(
-                    INSERT.into('sap.capire.gameshop.crm.Feedbacks').entries({
-                        customer_ID: data.customer_ID,
-                        product_ID: data.product_ID,
-                        rating: data.rating,
-                        comments: data.comments,
-                        feedbackDate: data.feedbackDate
-                    })
-                );
-            } catch (oError: any) {
-                console.error("🔒 CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
-            }
-        });
-
-        /**
         * Bulk Discount Availability
         */
 
@@ -117,6 +96,84 @@ export default class SalesOrderService extends cds.ApplicationService {
             } catch (oError: any) {
                 req.error(500, `Failed to resolve cart eligibilities: ${oError.message}`);
                 return oDefaultResponse;
+            }
+        });
+
+        /**
+        * Cancelling handling
+        */
+
+        this.on('cancelOrder', 'Orders', async (req: cds.Request) => {
+            const { reasonCode, platformCode, comment } = req.data as { reasonCode: string, platformCode: string, comment: string };
+
+            const oParamObj = req.params[0] as any;
+            const sCleanOrderId = typeof oParamObj === "object" ? oParamObj.ID : oParamObj;
+
+            const { OrderItems, Products, Feedbacks } = this.entities;
+
+            try {
+
+                const oOrder = await cds.db.run(
+                    SELECT.one.from(Orders).where({ ID: sCleanOrderId }).columns('ID', 'status_code', 'customer_ID')
+                ) as { ID: string, status_code: string, customer_ID: string } | null;
+
+                if (!oOrder) return req.error(404, `Order with ID ${sCleanOrderId} not found.`);
+                if (oOrder.status_code === 'X') return req.error(400, "This order is already canceled.");
+
+                const aOrderItems = await cds.db.run(
+                    SELECT.from(OrderItems).where({ parent_ID: sCleanOrderId }).columns('game_ID', 'quantity')
+                ) as { game_ID: string, quantity: number }[];
+
+                await cds.run(
+                    UPDATE(Orders).set({ status_code: 'X' }).where({ ID: sCleanOrderId })
+                );
+
+                for (const item of aOrderItems) {
+                    await cds.run(
+                        UPDATE(Products)
+                            .set({ stock: { '+=': item.quantity } })
+                            .where({ ID: item.game_ID })
+                    );
+
+                    const sPackedComment = `[CANCELED][${platformCode}][${reasonCode}] ${comment || 'No comment provided'}`;
+
+                    await cds.run(
+                        INSERT.into(Feedbacks).entries({
+                            ID: cds.utils.uuid(),
+                            rating: 0,
+                            comments: sPackedComment,
+                            feedbackDate: new Date().toISOString().split('T')[0],
+                            customer_ID: oOrder.customer_ID,
+                            product_ID: item.game_ID
+                        })
+                    );
+                }
+
+                return true;
+
+            } catch (oError: any) {
+                return req.error(500, `Failed to execute order cancellation pipeline: ${oError.message}`);
+            }
+        });
+
+        /**
+        * Feedbacks BE handling
+        */
+        this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
+            try {
+                const oRemoteCrmService = await cds.connect.to('CRMService');
+
+                await oRemoteCrmService.run(
+                    INSERT.into('sap.capire.gameshop.crm.Feedbacks').entries({
+                        customer_ID: data.customer_ID,
+                        product_ID: data.product_ID,
+                        rating: data.rating,
+                        comments: data.comments,
+                        feedbackDate: data.feedbackDate
+                    })
+                );
+            } catch (oError: any) {
+                console.error("🔒 CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
             }
         });
 

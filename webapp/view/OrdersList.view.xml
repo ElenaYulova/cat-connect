@@ -1,5 +1,4 @@
-<mvc:View
-    controllerName="sap.capire.gameshop.controller.OrdersList"
+<mvc:View controllerName="sap.capire.gameshop.controller.OrdersList"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns="sap.m">
@@ -13,11 +12,7 @@
                             <!-- Filter 1: Order Number & Customer Name Search -->
                             <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
                                 <Label text="Order Number / Client:" design="Bold" />
-                                <SearchField
-                                    id="filterOrderNumber"
-                                    placeholder="Search order or name..."
-                                    width="14rem"
-                                    search="onApplyFilters" />
+                                <SearchField id="filterOrderNumber" placeholder="Search order or name..." width="14rem" search="onApplyFilters" />
                             </VBox>
 
                             <!-- Filter 2: Status Selection -->
@@ -35,38 +30,24 @@
                             <!-- Filter 3: Date Range Selection -->
                             <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
                                 <Label text="Placement Date Range:" design="Bold" />
-                                <DateRangeSelection 
-                                    id="filterDateRange" 
-                                    width="18rem" 
-                                    displayFormat="yyyy-MM-dd"
-                                    change="onApplyFilters" />
+                                <DateRangeSelection id="filterDateRange" width="18rem" displayFormat="yyyy-MM-dd" change="onApplyFilters" />
                             </VBox>
 
                             <!-- Reset Button -->
-                            <Button
-                                icon="sap-icon://clear-filter"
-                                text="Reset Filters"
-                                type="Transparent"
-                                class="sapUiTinyMarginBottom"
-                                press="onResetFilters" />
+                            <Button icon="sap-icon://clear-filter" text="Reset Filters" type="Transparent" class="sapUiTinyMarginBottom" press="onResetFilters" />
                         </items>
                     </FlexBox>
                 </content>
             </Panel>
 
             <!-- Table -->
-            <Table
-                id="ordersTable"
-                items="{
+            <Table id="ordersTable" items="{
                     path: '/Orders',
                     parameters: {
                         $orderby: 'createdAt desc',
                         $expand: 'customer'
                     }
-                }"
-                growing="true"
-                growingThreshold="10"
-                class="sapUiResponsiveMargin">
+                }" growing="true" growingThreshold="10" class="sapUiResponsiveMargin">
                 <headerToolbar>
                     <OverflowToolbar class="sapUiSmallMarginEnd">
                         <Title text="System Sales Orders" level="H2"/>
@@ -107,17 +88,19 @@
                 </columns>
 
                 <items>
-                    <ColumnListItem
-                        vAlign="Middle"
-                        type="Navigation"
-                        press=".onOrderDetailsPress">
+                    <ColumnListItem vAlign="Middle" type="Navigation" press=".onOrderDetailsPress">
                         <cells>
                             <!-- 1. Order Reference -->
                             <ObjectIdentifier title="{= ${orderNumber} ? ${orderNumber} : ${ID} }" />
 
                             <!-- 2. Customer Name -->
-                            <Text text="{customer/firstName} {customer/lastName}" />
-
+                            <Text text="{
+                                parts: [
+                                    {path: 'customer/firstName'},
+                                    {path: 'customer/lastName'}
+                                ],
+                                formatter: '.formatter.formatCustomerFullName'
+                            }" />
                             <!-- 3. Total Gross -->
                             <ObjectNumber number="{totalAmount}" unit="{currency_code}" />
 
@@ -132,17 +115,13 @@
                                 }
                             }" />
 
-                            <!-- 6. Status -->
-                            <ObjectStatus
-                                text="{
+                            <ObjectStatus text="{
                                     path: 'status_code',
-                                    formatter: '.formatStatusText'
-                                }"
-                                state="{
+                                    formatter: '.formatter.orderStatusText'
+                                }" state="{
                                     path: 'status_code',
-                                    formatter: '.formatStatusState'
-                                }"
-                                inverted="true" />
+                                    formatter: '.formatter.orderStatusState'
+                                }" inverted="true" />
                         </cells>
                     </ColumnListItem>
                 </items>

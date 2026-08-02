@@ -3,6 +3,7 @@ import MessageToast from "sap/m/MessageToast";
 import MessageBox from "sap/m/MessageBox";
 import View from "sap/ui/core/mvc/View";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
+import NavigationManager from "./NavigationManager";
 
 /**
  * @namespace sap.capire.gameshop.utils
@@ -173,11 +174,21 @@ export default class CartManager {
 
             oCartModel.setProperty("/items", []);
             oCartModel.setProperty("/totalItems", 0);
+            oCartModel.setProperty("/clientDiscount", 0.00);
             oCartModel.setProperty("/totalPrice", 0.00);
             oCartModel.setProperty("/estimatedTotal", 0.00);
             oCartModel.updateBindings(true);
 
-            MessageBox.success("Order has been successfully submitted! Active inventory is locked.");
+            MessageBox.success("Order has been successfully submitted! Active inventory is locked.", {
+                actions: [MessageBox.Action.OK],
+                onClose: () => {
+                    const oController = oView.getController();
+                    if (oController) {
+                        NavigationManager.navTo(oController, "OrdersList", {});
+                    }
+                }
+            });
+
         } catch (oError: any) {
             oView.setBusy(false);
             if (oODataModel.hasPendingChanges()) {

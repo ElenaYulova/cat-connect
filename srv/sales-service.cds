@@ -7,6 +7,9 @@ service SalesOrderService @(requires: 'authenticated-user') {
     entity Orders           as projection on myApp.salesorder.Orders
         actions {
             function checkBulkEligibility(qty: Integer) returns Boolean;
+            action   cancelOrder(reasonCode: String(50),
+                                 platformCode: String(50),
+                                 comment: LargeString)  returns Boolean;
         };
 
     entity OrderItems       as projection on myApp.salesorder.OrderItems;

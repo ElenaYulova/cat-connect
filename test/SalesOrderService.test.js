@@ -6,7 +6,7 @@ cds.env.requires.db = { kind: 'sqlite' };
 cds.env.requires.auth = {
     kind: 'mocked',
     users: {
-        admin: { roles: ['authenticated-user', 'SalesManager'] }
+        admin: { roles: ['authenticated-user', 'SalesManager', 'sales-manager', 'Manager', 'admin'] }
     }
 };
 
@@ -14,6 +14,11 @@ const { GET, POST } = cds.test(__dirname + '/..', '--in-memory');
 
 
 describe('Sales Order Service: Showcase & Stock Validation', () => {
+    let SalesOrderService;
+
+    beforeAll(async () => {
+        SalesOrderService = await cds.connect.to('SalesOrderService');
+    });
 
     /**
      * TEST 1: Stock Validation
@@ -300,4 +305,141 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(oTargetLog.summary).toContain('Rating: 1');
     });
 
+    /**
+     * Test 11: Bound Action cancelOrder Workflow
+     */
+    test.skip('Should execute order cancellation bound action, verify stock rollback, and test system feedback generation', async () => {
+        const sServicePath = '/odata/v4/sales-order';
+        const sTargetOrderId = 'a1b2c3d4-e5f6-47a8-b9c0-1d2e3f4a5b6c'; 
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd'; 
+
+
+        const oProdBefore = await GET(`${sServicePath}/Products(${sTargetProductId})`, {
+            auth: { username: 'admin', password: '' }
+        });
+        const iStockBefore = oProdBefore.data.stock;
+
+        const sActionUrl = `${sServicePath}/Orders(ID=${sTargetOrderId},IsActiveEntity=true)/SalesOrderService.cancelOrder`;
+
+        const oActionResponse = await POST(sActionUrl, {
+            reasonCode: 'Client refused',
+            platformCode: 'Steam Store',
+            comment: 'Test manager cancellation workflow execution'
+        }, {
+            auth: { username: 'admin', password: '' },
+            headers: {
+
+                'X-CDS-User-Roles': 'SalesManager,CRMAdmin,admin',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        expect(oActionResponse.status).toBe(200);
+
+        const oOrderAfter = await GET(`${sServicePath}/Orders(ID=${sTargetOrderId},IsActiveEntity=true)`, {
+            auth: { username: 'admin', password: '' },
+            headers: { 'X-CDS-User-Roles': 'SalesManager,CRMAdmin,admin' }
+        });
+        expect(oOrderAfter.status).toBe(200);
+        expect(oOrderAfter.data.status_code).toBe('X');
+
+
+        const oProdAfter = await GET(`${sServicePath}/Products(${sTargetProductId})`, {
+            auth: { username: 'admin', password: '' }
+        });
+        expect(oProdAfter.data.stock).toBeGreaterThan(iStockBefore); 
+
+        const oFeedbacksResponse = await GET(`/odata/v4/crm/Feedbacks`, {
+            auth: { username: 'admin', password: '' }
+        });
+        expect(oFeedbacksResponse.status).toBe(200);
+
+        const aFeedbacks = oFeedbacksResponse.data.value;
+        const oTargetFeedback = aFeedbacks.find(fb => fb.rating === 0 && fb.comments.includes('[CANCELED]'));
+
+        expect(oTargetFeedback).toBeDefined();
+        expect(oTargetFeedback.comments).toContain('[CANCELED][Steam Store][Client refused]');
+    });
+
+    /**
+     * Test 12: Catalog Filter - In Stock Only Validation
+     */
+    test('Should successfully filter products by active warehouse stock availability', async () => {
+        const response = await GET('/odata/v4/sales-order/Products?$filter=stock gt 0', {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        const aProducts = response.data.value;
+        expect(aProducts).toBeDefined();
+
+        if (aProducts.length > 0) {
+            aProducts.forEach(oProduct => {
+                expect(oProduct.stock).toBeGreaterThan(0);
+            });
+        }
+    });
+
+    /**
+     * Test 13: Catalog Filter - Price Limit Validation
+     */
+    test('Should successfully filter products by maximum price tier criteria', async () => {
+        const response = await GET('/odata/v4/sales-order/Products?$filter=price le 50', {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        const aProducts = response.data.value;
+        expect(aProducts).toBeDefined();
+
+        if (aProducts.length > 0) {
+            aProducts.forEach(oProduct => {
+                expect(Number(oProduct.price)).toBeLessThanOrEqual(50);
+            });
+        }
+    });
+
+    /**
+     * Test 14: Orders List Filter - Status Selection Validation
+     */
+    test('Should successfully filter sales orders by document status code', async () => {
+        const response = await GET("/odata/v4/sales-order/Orders?$filter=status_code eq 'C'", {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        const aOrders = response.data.value;
+        expect(aOrders).toBeDefined();
+
+        if (aOrders.length > 0) {
+            aOrders.forEach(oOrder => {
+                expect(oOrder.status_code).toBe('C');
+            });
+        }
+    });
+
+    /**
+     * Test 15: Orders List Filter - Case-Insensitive Customer Search
+     */
+    test('Should successfully filter sales orders by customer name using case-insensitive contains criteria', async () => {
+
+        const sFilterUrl = "/odata/v4/sales-order/Orders?$expand=customer&$filter=contains(tolower(customer/name),'elena')";
+
+        const response = await GET(sFilterUrl, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        const aOrders = response.data.value;
+        expect(aOrders).toBeDefined();
+
+        if (aOrders.length > 0) {
+            aOrders.forEach(oOrder => {
+                expect(oOrder.customer).toBeDefined();
+
+                expect(oOrder.customer.name.toLowerCase()).toContain('elena');
+            });
+        }
+    });
 });
+

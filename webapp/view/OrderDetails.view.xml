@@ -11,7 +11,8 @@
             <Button id="deleteOrderButton" icon="sap-icon://delete" text="Delete Order" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" press="onDeleteOrder" />
         </headerContent>
         <content>
-            <ObjectHeader id="orderHeader" title="Order Details" number="{totalAmount}" numberUnit="USD">                <!-- 🔮 TODO: Dynamic OData v4 currency context binding -->
+            <ObjectHeader id="orderHeader" title="Order Details" number="{totalAmount}" numberUnit="USD">
+                <!-- TODO: Dynamic Currency context binding -->
                 <attributes>
                     <ObjectAttribute text="Order UUID: {ID}" />
                     <ObjectAttribute text="Placement Date: {

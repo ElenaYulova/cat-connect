@@ -10,6 +10,12 @@ import OrderManager from "../utils/OrderManager";
 import ObjectAttribute from "sap/m/ObjectAttribute";
 import Button from "sap/m/Button";
 import Formatter from "../model/formatter";
+import Fragment from "sap/ui/core/Fragment";
+import Dialog from "sap/m/Dialog";
+import SelectDialog from "sap/m/SelectDialog";
+import StandardListItem from "sap/m/StandardListItem";
+import Input from "sap/m/Input";
+import TextArea from "sap/m/TextArea";
 
 /**
  * @namespace sap.capire.gameshop.controller
@@ -17,6 +23,7 @@ import Formatter from "../model/formatter";
 export default class OrderDetails extends Controller {
 
     public formatter: typeof Formatter = Formatter;
+    private _oCancelDialog: Dialog | null = null;
 
     public onInit(): void {
         const oOwnerComponent = this.getOwnerComponent() as UIComponent | undefined;
@@ -28,6 +35,10 @@ export default class OrderDetails extends Controller {
             isReviewReadOnlyVisible: false
         });
         this.getView()?.setModel(oLocalModel, "localView");
+
+        const oValueHelpsModel = new JSONModel();
+        oValueHelpsModel.loadData("model/valueHelps.json");
+        this.getView()?.setModel(oValueHelpsModel, "valueHelps");
     }
 
     public onImageLoadError(oEvent: Event): void {
@@ -79,35 +90,81 @@ export default class OrderDetails extends Controller {
 
     public async onCancelOrder(): Promise<void> {
         const oView = this.getView();
-        const oBindingContext = oView?.getBindingContext() as ODataContext | undefined;
-        if (!oBindingContext) return;
+        if (!oView) return;
 
-        MessageBox.confirm("Are you sure you want to cancel this sales order?", {
-            onClose: async (sAction: string | null) => {
-                if (sAction !== MessageBox.Action.OK) return;
+        if (!this._oCancelDialog) {
+            this._oCancelDialog = await Fragment.load({
+                id: oView.getId(),
+                name: "sap.capire.gameshop.view.fragments.ActionDialog",
+                controller: this
+            }) as Dialog;
+            oView.addDependent(this._oCancelDialog);
+        }
 
-                try {
-                    oView!.setBusy(true);
-                    await oBindingContext.setProperty("status_code", "X");
-                    oView!.setBusy(false);
+        (oView.byId("reasonInput") as Input).setValue("");
+        (oView.byId("destinationInput") as Input).setValue("");
+        (oView.byId("cancelCommentArea") as TextArea).setValue("");
 
-                    const oOrderData = oBindingContext.getObject();
+        this._oCancelDialog.open();
+    }
 
-                    const oDiscountAttr = this.byId("discountAttribute") as ObjectAttribute | undefined;
-                    const oCancelBtn = this.byId("cancelOrderButton") as Button | undefined;
-                    const oUserRoles = oView!.getModel("userRoles") as JSONModel | undefined;
+    public onReasonValueHelp(): void {
+        const oView = this.getView();
+        const oInput = oView?.byId("reasonInput") as Input;
+        const oModel = oView?.getModel("valueHelps");
 
-                    OrderManager.calculateLoyaltySaving(oOrderData, oDiscountAttr);
-                    OrderManager.updateCancelButtonVisibility(oCancelBtn, oOrderData, oUserRoles);
-                    await OrderManager.checkAndPrepareReviewContainer(this, oOrderData);
+        if (!oView || !oInput || !oModel) return;
 
-                    MessageBox.success("Order has been successfully cancelled.");
-                } catch (oError: any) {
-                    oView!.setBusy(false);
-                    MessageBox.error(oError?.message || "Failed to cancel order due to database constraints.");
-                }
+        const oSelectDialog = new SelectDialog({
+            title: "Select Cancellation Reason",
+            confirm: (oEvent: any) => {
+                const oSelectedItem = oEvent.getParameter("selectedItem");
+                if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
             }
         });
+
+        oSelectDialog.setModel(oModel as any, "valueHelps");
+
+        oSelectDialog.bindAggregation("items", {
+            path: "valueHelps>/cancellationReasons",
+            template: new StandardListItem({ title: "{valueHelps>code}", description: "{valueHelps>text}" })
+        });
+
+        oSelectDialog.open("");
+    }
+
+    public onDestinationValueHelp(): void {
+        const oView = this.getView();
+        const oInput = oView?.byId("destinationInput") as Input;
+        const oModel = oView?.getModel("valueHelps");
+
+        if (!oView || !oInput || !oModel) return;
+
+        const oSelectDialog = new SelectDialog({
+            title: "Select License Platform",
+            confirm: (oEvent: any) => {
+                const oSelectedItem = oEvent.getParameter("selectedItem");
+                if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
+            }
+        });
+
+        oSelectDialog.setModel(oModel as any, "valueHelps");
+
+        oSelectDialog.bindAggregation("items", {
+            path: "valueHelps>/licensePlatforms",
+            template: new StandardListItem({ title: "{valueHelps>code}", description: "{valueHelps>text}" })
+        });
+
+        oSelectDialog.open("");
+    }
+
+    public async onConfirmOrderCancellation(): Promise<void> {
+
+        await OrderManager.executeOrderCancellation(this, this._oCancelDialog);
+    }
+
+    public onCloseCancelDialog(): void {
+        this._oCancelDialog?.close();
     }
 
     public onDeleteOrder(): void {

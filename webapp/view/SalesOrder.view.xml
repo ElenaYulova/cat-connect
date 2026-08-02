@@ -1,11 +1,9 @@
-<mvc:View
-    controllerName="sap.capire.gameshop.controller.SalesOrder"
+<mvc:View controllerName="sap.capire.gameshop.controller.SalesOrder"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:core="sap.ui.core"
-    xmlns:app="http://sap.com"
-    displayBlock="true">
+    xmlns:app="http://sap.com" displayBlock="true">
 
     <f:DynamicPage id="salesOrderPage" headerExpanded="true">
         <f:title>
@@ -19,36 +17,36 @@
         <f:content>
             <VBox>
                 <OverflowToolbar class="sapUiSmallMarginBottom">
-                    <SearchField 
-                        id="searchTitleField"
-                        placeholder="Search by title..."
-                        width="250px"
-                        search=".onSearch" />
+                    <!-- Filter by Title  -->
+                    <SearchField id="searchTitleField" placeholder="Search by title..." width="230px" search=".onCatalogFiltersTrigger" />
 
                     <ToolbarSeparator />
-                    <ComboBox
-                        id="categorySelect"
-                        placeholder="Select Category..."
-                        showClearIcon="true"
-                        change=".onCategoryChange"
-                        width="240px" />
-                    <CheckBox
-                        id="parentCategoryCheckBox"
-                        text="Include Child Categories"
-                        select=".onCategoryChange"
-                        enabled="true" />
-                </OverflowToolbar>
 
-                <Table
-                    id="gamesTable"
-                    growing="true"
-                    growingThreshold="10"
-                    sticky="ColumnHeaders"
-                    items="{
+                    <!-- Filter by Category -->
+                    <ComboBox id="categorySelect" placeholder="Select Category..." showClearIcon="true" change=".onCatalogFiltersTrigger" width="220px" />
+                    <CheckBox id="parentCategoryCheckBox" text="Include Child Categories" select=".onCatalogFiltersTrigger" enabled="true" />
+
+                    <ToolbarSeparator />
+
+                    <!-- Filter by Stock-->
+                    <Label text="In Stock Only:" />
+                    <Switch id="stockFilterSwitch" state="true" change=".onCatalogFiltersTrigger" tooltip="Show only games with active digital keys currently available" />
+
+                    <!-- Filter by Price Range -->
+                    <Label text="Price Limit:" class="sapUiSmallMarginBegin" />
+                    <Select id="priceFilterCombo" change=".onCatalogFiltersTrigger" width="150px" tooltip="Filter digital licenses by maximum retail price tier">
+                        <items>
+                            <core:Item key="all" text="All Prices" />
+                            <core:Item key="20" text="Under 20 USD" />
+                            <core:Item key="50" text="Under 50 USD" />
+                            <core:Item key="100" text="Under 100 USD" />
+                        </items>
+                    </Select>
+                </OverflowToolbar>
+                <Table id="gamesTable" growing="true" growingThreshold="10" sticky="ColumnHeaders" items="{
                         path: '/Products',
                         parameters: {
-                            $expand: 'genre',
-                            $filter: 'stock gt 0'
+                            $expand: 'genre'
                         }
                     }">
                     <columns>
@@ -70,28 +68,15 @@
                     </columns>
 
                     <items>
-                        <ColumnListItem
-                            type="Navigation"
-                            press=".onNavToGenericDetails"
-                            app:targetRoute="ProductDetails">
+                        <ColumnListItem type="Navigation" press=".onNavToGenericDetails" app:targetRoute="ProductDetails">
                             <cells>
-                                <Image
-                                    src="{image}"
-                                    width="2.5rem"
-                                    height="2.5rem"
-                                    class="productImage"
-                                    error=".onImageLoadError" />
+                                <Image src="{image}" width="2.5rem" height="2.5rem" class="productImage" error=".onImageLoadError" />
 
                                 <ObjectIdentifier title="{title}" />
                                 <Text text="{genre/name}" />
                                 <ObjectNumber number="{price}" unit="USD" />
-
-                                <Button
-                                    icon="sap-icon://add-product"
-                                    type="Transparent"
-                                    tooltip="Quick Add to Cart"
-                                    enabled="{userRoles>/isLoggedIn}"
-                                    press=".onQuickAddToCart" />
+                                <!-- TODO: Add Disabling when out of stock-->
+                                <Button icon="sap-icon://add-product" type="Transparent" tooltip="Quick Add to Cart" enabled="{userRoles>/isLoggedIn}" press=".onQuickAddToCart" />
                             </cells>
                         </ColumnListItem>
                     </items>
