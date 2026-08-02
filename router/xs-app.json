@@ -1,5 +1,5 @@
 {
-  "welcomeFile": "/crm_customers/index.html",
+  "welcomeFile": "/index.html",
   "authenticationMethod": "none",
   "routes": [
     {
@@ -8,6 +8,13 @@
       "destination": "srv-api",
       "authenticationType": "none",
       "csrfProtection": false
+    },
+    {
+      "source": "^/sales_order/(.*)$",
+      "target": "$1",
+      "localDir": "sales_order",
+      "cacheControl": "no-cache",
+      "authenticationType": "none"
     },
     {
       "source": "^/(.*)$",

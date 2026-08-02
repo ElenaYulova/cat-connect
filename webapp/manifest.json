@@ -62,7 +62,7 @@
                     "synchronizationMode": "None",
                     "operationMode": "Server",
                     "autoExpandSelect": true,
-                    "serviceUrl": "http://localhost:4004/odata/v4/sales-order/",
+                    "serviceUrl": "/odata/v4/sales-order/",
                     "httpHeaders": {
                         "Authorization": "Basic YWRtaW46"
                     }
