@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.25
+version: 1.0.45
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -9,11 +9,13 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install --omit=dev --legacy-peer-deps
-        - npx cds build --production
+        - npm install --legacy-peer-deps
+        - npm run build
+        - mkdir -p router/sales_order
+        - cp -r dist/. router/sales_order/
 
 modules:
-  # Node.js CAP Backend
+  # Node.js CAP Backend Service
   - name: cat-connect-srv
     type: nodejs
     path: gen/srv
@@ -42,7 +44,7 @@ modules:
     requires:
       - name: cat-connect-db
 
-  # SAP AppRouter + FIORI ELEMENTS
+  # SAP AppRouter Module
   - name: cat-connect
     type: approuter.nodejs
     path: router
@@ -52,10 +54,9 @@ modules:
       memory: 256M
     build-parameters:
       before-builder:
-        - mkdir -p crm_customers
-        - cp -r ../app/crm_customers/* ./crm_customers/
-        - mkdir -p router/sales_order
-        - rsync -av --exclude='resources' ../webapp/ ./router/sales_order/
+        - rm -rf crm_customers sales_order
+        - mkdir -p crm_customers sales_order
+        - cp -r ../app/crm_customers/. ./crm_customers/ 2>/dev/null || true
     requires:
       - name: srv-api
         group: destinations
@@ -65,7 +66,7 @@ modules:
           forwardAuthToken: false
 
 resources:
-  # SAP HANA Cloud
+  # SAP HANA Cloud HDI Container
   - name: cat-connect-db
     type: com.sap.xs.hdi-container
     parameters:

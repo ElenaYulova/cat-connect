@@ -1,9 +1,8 @@
 {
   "name": "cat-connect",
-  "version": "1.0.25",
+  "version": "1.0.45",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
-    "@sap/approuter": "^22.0.3",
     "@sap/cds": "^9",
     "@sap/cds-dk": "^9",
     "@sap/xssec": "^4.13.0",
@@ -15,6 +14,7 @@
     "@cap-js/cds-types": "^0.18.0",
     "@cap-js/sqlite": "^2.4.0",
     "@openui5/ts-types": "^1.150.0",
+    "@sap/ux-ui5-tooling": "^1.14.0",
     "@sapui5/types": "^1.150.0",
     "@types/express": "^5.0.6",
     "@ui5/cli": "^4.0.57",
@@ -27,8 +27,8 @@
     "ui5-middleware-route-proxy": "^1.0.10",
     "ui5-middleware-serveframework": "^3.8.2",
     "ui5-middleware-simpleproxy": "^3.8.0",
-    "ui5-tooling-transpile": "^3.12.0",
-    "@sap/ux-ui5-tooling": "^1.14.0"
+    "ui5-task-babel": "^2.1.0",
+    "ui5-tooling-transpile": "^3.12.0"
   },
   "scripts": {
     "start": "cds-serve",
@@ -38,7 +38,7 @@
     "test:sales": "npx jest test/SalesOrderService.test.js --verbose --runInBand",
     "test:cart": "npx jest test/CartManager.test.js --verbose --runInBand",
     "test": "npm run test:crm && npm run test:sales && npm run test:cart",
-    "build": "cds build --production",
+    "build": "ui5 build --config ui5.yaml --clean-dest --dest dist && cds build --production",
     "start-so": "ui5 serve --config ui5.yaml --port 8090"
   },
   "private": true,
@@ -63,13 +63,13 @@
         ]
       },
       "cds-plugin-ui5": {
-      "modules": {
-        "sales_order": {
-          "configFile": "ui5.yaml",
-          "mountPath": "/"
+        "modules": {
+          "sales_order": {
+            "configFile": "ui5.yaml",
+            "mountPath": "/"
+          }
         }
-      }
-    },
+      },
       "auth": {
         "[development]": {
           "kind": "mocked",

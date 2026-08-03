@@ -17,9 +17,15 @@
       "authenticationType": "none"
     },
     {
+      "source": "^/crm_customers/(.*)$",
+      "target": "$1",
+      "localDir": "crm_customers",
+      "authenticationType": "none"
+    },
+    {
       "source": "^/(.*)$",
-      "target": "/$1",
-      "localDir": ".",
+      "target": "$1",
+      "localDir": "sales_order",
       "authenticationType": "none"
     }
   ]
