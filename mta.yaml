@@ -54,6 +54,8 @@ modules:
       before-builder:
         - mkdir -p crm_customers
         - cp -r ../app/crm_customers/* ./crm_customers/
+        - mkdir -p router/sales_order
+        - rsync -av --exclude='resources' ../webapp/ ./router/sales_order/
     requires:
       - name: srv-api
         group: destinations
