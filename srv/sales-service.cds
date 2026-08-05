@@ -4,6 +4,24 @@ service SalesOrderService @(requires: 'authenticated-user') {
 
     // Main entities
     @odata.draft.enabled
+    entity ClientProfile    as
+        projection on myApp.crm.Customers {
+            key ID,
+                @readonly firstName,
+                @readonly lastName,
+                @readonly categoryGroup,
+                @readonly averageRating,
+                @readonly statusCode.code as customerStatus,
+
+                email,
+                phone,
+                creditCardNo,
+                city,
+                postCode,
+                streetAddress
+        };
+
+    @odata.draft.enabled
     entity Orders           as projection on myApp.salesorder.Orders
         actions {
             function checkBulkEligibility(qty: Integer) returns Boolean;
@@ -20,6 +38,7 @@ service SalesOrderService @(requires: 'authenticated-user') {
 
     entity Producers        as projection on myApp.salesorder.Producers;
     entity Categories       as projection on myApp.salesorder.Categories;
+
 
     // CRM & System Insights (Read-Only in this service)
     @readonly
@@ -132,6 +151,16 @@ annotate SalesOrderService.Feedbacks with @restrict: [
     }
 ];
 
+annotate SalesOrderService.ClientProfile with @restrict: [{
+    grant: [
+        'READ',
+        'UPDATE'
+    ],
+    to   : 'Customer',
+    where: 'ID = $user.id'
+}];
+
+
 // Actions & Functions
 
 annotate SalesOrderService.Orders actions {
@@ -149,3 +178,6 @@ annotate SalesOrderService.Orders actions {
 annotate SalesOrderService.Products with {
     genre  @Common.Text: genre.name  @Common.TextArrangement: #TextOnly
 };
+
+// Redirections
+annotate SalesOrderService.ClientProfile with @cds.redirection.target;

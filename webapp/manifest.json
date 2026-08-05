@@ -105,6 +105,11 @@
                     "name": "Cart",
                     "pattern": "cart",
                     "target": "TargetCart"
+                },
+                {
+                    "name": "ClientProfile",
+                    "pattern": "profile",
+                    "target": ["TargetClientProfile"]
                 }
             ],
             "targets": {
@@ -135,6 +140,12 @@
                 "TargetOrderDetails": {
                     "viewName": "OrderDetails",
                     "viewLevel": 3,
+                    "controlId": "salesOrderApp",
+                    "controlAggregation": "pages"
+                },
+                "TargetClientProfile": {
+                    "viewName": "ClientProfile",
+                    "viewLevel": 2,
                     "controlId": "salesOrderApp",
                     "controlAggregation": "pages"
                 }

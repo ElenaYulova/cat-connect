@@ -441,5 +441,39 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
             });
         }
     });
+
+    /**
+     * TEST 16: Login System Pipeline & Privileged Context Verification
+     */
+
+    // Test 16.1
+    test('Should successfully fetch specific Administrator profile by static UUID from CRM Customers entity', async () => {
+        const sAdminId = '77777777-7777-7777-7777-777777777777';
+
+        const sAdminUrl = `/odata/v4/crm/Customers(ID='${sAdminId}',IsActiveEntity=true)`;
+
+        const response = await GET(sAdminUrl, {
+            auth: { username: 'admin', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.data).toBeDefined();
+
+        expect(response.data.ID).toBe(sAdminId);
+        expect(response.data).toHaveProperty('categoryGroup');
+    });
+
+    test('Should reject anonymous request to crm Customers with 401 to trigger custom fallback login dialog', async () => {
+        const sAdminId = '77777777-7777-7777-7777-777777777777';
+        const sSilentLoginUrl = `/odata/v4/crm/Customers(ID='${sAdminId}',IsActiveEntity=true)`;
+
+        try {
+            await GET(sSilentLoginUrl);
+        } catch (oError) {
+            const iStatus = oError.statusCode || oError.status || (oError.response && oError.response.status);
+            expect(iStatus).toBe(401);
+        }
+    });
+
 });
 

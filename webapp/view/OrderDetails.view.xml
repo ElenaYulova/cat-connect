@@ -104,27 +104,14 @@
 
                         </VBox>
                     </IconTabFilter>
-
-
                     <!-- TAB 3: CUSTOMER INSIGHTS -->
                     <IconTabFilter id="tabCustomer" icon="sap-icon://customer" text="Client Profile">
-                        <form:SimpleForm id="customerForm" editable="false" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
-                            <form:content>
 
-                                <Label text="First Name" />
-                                <Text text="{customer/firstName}" />
-
-                                <Label text="Last Name" />
-                                <Text text="{customer/lastName}" />
-
-                                <Label text="Account Category" />
-                                <ObjectStatus text="{customer/categoryGroup}" state="Success" inverted="true" />
-                                <!-- TODO: Add Currency -->
-                                <Label text="CRM Average Rating" />
-                                <ObjectNumber number="{customer/averageRating}" unit="★" />
-                            </form:content>
-                        </form:SimpleForm>
+                        <VBox id="customerFragmentContainer" binding="{customer}">
+                            <core:Fragment fragmentName="sap.capire.gameshop.view.fragments.CustomerInsightsForm" type="XML" />
+                        </VBox>
                     </IconTabFilter>
+
                 </items>
             </IconTabBar>
         </content>

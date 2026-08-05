@@ -27,6 +27,11 @@
       "target": "$1",
       "localDir": "sales_order",
       "authenticationType": "none"
+    },
+     {
+      "source": "^/user-api(.*)",
+      "target": "$1",
+      "service": "sap-approuter-userapi"
     }
   ]
 }

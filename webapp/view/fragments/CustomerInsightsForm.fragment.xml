@@ -1,0 +1,22 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:form="sap.ui.layout.form">
+
+    <!-- Read-Only Customer Data -->
+    <form:SimpleForm id="customerInsightsForm" editable="false" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
+        <form:content>
+            <Label id="lblFirstName" text="First Name" />
+            <Text id="txtFirstName" text="{firstName}" />
+
+            <Label id="lblLastName" text="Last Name" />
+            <Text id="txtLastName" text="{lastName}" />
+
+            <Label id="lblAccountCategory" text="Account Category" />
+            <ObjectStatus id="statusCategory" text="{categoryGroup}" state="Success" inverted="true" />
+
+            <Label id="lblCrmRating" text="CRM Average Rating" />
+            <ObjectNumber id="numAverageRating" number="{averageRating}" unit="★" />
+        </form:content>
+    </form:SimpleForm>
+
+</core:FragmentDefinition>

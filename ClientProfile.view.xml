@@ -1,0 +1,61 @@
+<mvc:View controllerName="sap.capire.gameshop.controller.ClientProfile"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:form="sap.ui.layout.form">
+
+    <Page id="clientProfilePage" title="Gamer Profile" showNavButton="true" navButtonPress="onNavBack">
+        <headerContent>
+            <Button id="btnEdit" text="Edit" press="onEditPress" visible="{= !\${localView>/isEditMode} }" icon="sap-icon://edit" />
+            <Button id="btnSave" text="Save Changes" press="onSavePress" visible="{localView>/isEditMode}" type="Emphasized" icon="sap-icon://save" />
+            <Button id="btnCancel" text="Cancel" press="onCancelPress" visible="{localView>/isEditMode}" type="Reject" icon="sap-icon://cancel" />
+        </headerContent>
+        <content>
+            <IconTabBar id="profileTabBar" expandable="false" class="sapUiResponsiveContentPadding">
+                <items>
+                    <!-- Tab 1: Personal Details -->
+                    <IconTabFilter id="tabGeneral" icon="sap-icon://vcard" text="Personal Data">
+
+                        <!-- Customer Insight -->
+                        <core:Fragment fragmentName="sap.capire.gameshop.view.fragments.CustomerInsightsForm" type="XML" />
+
+                        <!-- Editable Data -->
+                        <form:SimpleForm id="billingForm" title="Contact &amp; Payment Details" editable="true" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
+                            <form:content>
+                                <Label id="lblEmail" text="Email Address" required="true" />
+                                <Input id="inEmail" value="{email}" editable="{localView>/isEditMode}" type="Email" placeholder="gamer@domain.com" />
+
+                                <Label id="lblPhone" text="Phone Number" />
+                                <Input id="inPhone" value="{phone}" editable="{localView>/isEditMode}" type="Tel" placeholder="+000 (...)" />
+
+                                <Label id="lblCard" text="Payment Card Number" />
+                                <Input id="inCard" value="{creditCardNo}" editable="{localView>/isEditMode}" placeholder="0000-0000-0000-0000" />
+
+                                <core:Title id="titleAddress" text="Delivery Address" />
+
+                                <Label id="lblCity" text="City" />
+                                <Input id="inCity" value="{city}" editable="{localView>/isEditMode}" placeholder="New York" />
+
+                                <Label id="lblPostCode" text="Zip / Post Code" />
+                                <Input id="inPostCode" value="{postCode}" editable="{localView>/isEditMode}" placeholder="220000" />
+
+                                <Label id="lblStreet" text="Street &amp; Building" />
+                                <Input id="inStreet" value="{streetAddress}" editable="{localView>/isEditMode}" placeholder="1st st., 15-4" />
+                            </form:content>
+                        </form:SimpleForm>
+                    </IconTabFilter>
+
+                    <!-- TODO: Tab 2: Orders) -->
+                    <IconTabFilter id="tabOrders" icon="sap-icon://documents" text="Orders History">
+                        <MessagePage id="msgOrders" icon="sap-icon://history" text="No orders historical data attached yet." description="This section will link transactional sales data in the next sprints." />
+                    </IconTabFilter>
+
+                    <!-- TODO: Tab 3: Feedbacks -->
+                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="My Feedbacks">
+
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
+</mvc:View>
