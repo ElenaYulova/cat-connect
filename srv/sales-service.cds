@@ -9,6 +9,7 @@ service SalesOrderService @(requires: 'authenticated-user') {
             key ID,
                 @readonly firstName,
                 @readonly lastName,
+                @readonly name,
                 @readonly categoryGroup,
                 @readonly averageRating,
                 @readonly statusCode.code as customerStatus,

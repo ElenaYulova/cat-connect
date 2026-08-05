@@ -6,11 +6,13 @@ cds.env.requires.db = { kind: 'sqlite' };
 cds.env.requires.auth = {
     kind: 'mocked',
     users: {
-        admin: { roles: ['authenticated-user', 'SalesManager', 'sales-manager', 'Manager', 'admin'] }
+        admin:   { roles: ['authenticated-user', 'SalesManager', 'sales-manager', 'Manager', 'admin', 'CRMAdmin'] },
+        manager: { roles: ['authenticated-user', 'SalesManager'] },
+        gamer:   { id: 'b4d7b17e-39a0-45ef-bf73-13bd18a017cf', roles: ['authenticated-user', 'Customer'] }
     }
 };
 
-const { GET, POST } = cds.test(__dirname + '/..', '--in-memory');
+const { GET, POST, PATCH, DELETE } = cds.test(__dirname + '/..', '--in-memory');
 
 
 describe('Sales Order Service: Showcase & Stock Validation', () => {
@@ -463,6 +465,8 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         expect(response.data).toHaveProperty('categoryGroup');
     });
 
+    // 16.2
+
     test('Should reject anonymous request to crm Customers with 401 to trigger custom fallback login dialog', async () => {
         const sAdminId = '77777777-7777-7777-7777-777777777777';
         const sSilentLoginUrl = `/odata/v4/crm/Customers(ID='${sAdminId}',IsActiveEntity=true)`;
@@ -474,6 +478,58 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
             expect(iStatus).toBe(401);
         }
     });
+    /**
+     * TEST 17: Multi-Role RBAC & Data Isolation for ClientProfile
+     */
 
+    // 17.1
+    test('Gamer with Customer role should successfully read their own ClientProfile data', async () => {
+        const sGamerId = 'b4d7b17e-39a0-45ef-bf73-13bd18a017cf';
+        const sUrl = `/odata/v4/sales-order/ClientProfile(ID='${sGamerId}',IsActiveEntity=true)`;
+
+        const response = await GET(sUrl, {
+            auth: { username: 'gamer', password: '' }
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.data).toBeDefined();
+        expect(response.data.ID).toBe(sGamerId);
+    });
+
+    // 17.2
+
+    test('Should strictly block SalesManager from accessing ClientProfile entity', async () => {
+        const sGamerId = 'b4d7b17e-39a0-45ef-bf73-13bd18a017cf';
+        const sUrl = `/odata/v4/sales-order/ClientProfile(ID='${sGamerId}',IsActiveEntity=true)`;
+
+        await expect(GET(sUrl, {
+            auth: { username: 'manager', password: '' }
+        })).rejects.toThrow();
+    });
+
+    /**
+     * TEST 18: Feedbacks Deletion Protection Contract
+     */
+    test('Should block Customer and SalesManager from deleting feedback rows', async () => {
+        const sFeedbackId = 'f9e8d7c6-b5a4-3210-0987-fedcba987654';
+        const sUrl = `/odata/v4/sales-order/Feedbacks(${sFeedbackId})`;
+
+        const configManager = { auth: { username: 'manager', password: '' } };
+        const configGamer = { auth: { username: 'gamer', password: '' } };
+
+        await expect(DELETE(sUrl, configManager)).rejects.toThrow();
+        await expect(DELETE(sUrl, configGamer)).rejects.toThrow();
+    });
+
+    /**
+     * TEST 19: Products Catalog Data Mutation Block
+     */
+    test('Should block SalesManager and Customer from updating game pricing in Products catalog', async () => {
+        const sTargetProductId = '07fe11fa-27da-4cb4-9826-791510b48dcd';
+        const sUrl = `/odata/v4/sales-order/Products(${sTargetProductId})`;
+
+        const configManager = { auth: { username: 'manager', password: '' } };
+        await expect(PATCH(sUrl, { price: 99.99 }, configManager)).rejects.toThrow();
+    });
 });
 
