@@ -20,6 +20,7 @@ export default class CartManager {
 
     public static addToCart(oCartModel: JSONModel, sId: string, sTitle: string, fPrice: number, iQtyToAdd: number): void {
         if (!oCartModel) return;
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const oCartData = oCartModel.getData();
         const aItems = oCartData.items as any[];
         const oExistingItem = aItems.find(item => item.id === sId);
@@ -36,7 +37,7 @@ export default class CartManager {
         }
 
         this._recalculateTotalsAndRefresh(oCartModel, oCartData, aItems);
-        MessageToast.show(`Added ${iQtyToAdd} copy(ies) of "${sTitle}" to cart!`);
+        MessageToast.show(oBundle?.getText("cartManager.message.addedToCart", [iQtyToAdd, sTitle]) || "...");
     }
 
     public static updateQuantity(oCartModel: JSONModel, sId: string, iNewQty: number): void {
@@ -53,6 +54,7 @@ export default class CartManager {
 
     public static removeFromCart(oCartModel: JSONModel, sId: string): void {
         if (!oCartModel) return;
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const oCartData = oCartModel.getData();
         const aItems = oCartData.items as any[];
 
@@ -60,7 +62,7 @@ export default class CartManager {
         oCartData.items = aUpdatedItems;
 
         this._recalculateTotalsAndRefresh(oCartModel, oCartData, aUpdatedItems);
-        MessageToast.show("Item removed from cart");
+        MessageToast.show(oBundle?.getText("cartManager.message.itemRemoved") || "...");
     }
 
     public static triggerRefresh(oCartModel: JSONModel): void {
@@ -98,9 +100,10 @@ export default class CartManager {
         }
 
         const aCartItems = (oCartModel.getProperty("/items") as CartItem[]) || [];
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         if (aCartItems.length === 0) {
-            MessageToast.show("Your cart is empty.");
+            MessageBox.error(oBundle?.getText("cartManager.message.cartEmpty") || "...");
             return;
         }
 
@@ -131,10 +134,11 @@ export default class CartManager {
         const oOrdersListBinding = oODataModel.bindList("/Orders");
 
         const oOrderContext = oOrdersListBinding.create(oOrderPayload, false);
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         if (!oOrderContext) {
             oView.setBusy(false);
-            MessageBox.error("Failed to initialize OData context for the new order draft.");
+             MessageBox.error(oBundle?.getText("cartManager.message.draftContextError") || "Failed to initialize OData context for the new order draft.");
             return;
         }
 
@@ -148,11 +152,11 @@ export default class CartManager {
                 if (oODataModel.hasPendingChanges()) {
                     oODataModel.resetChanges();
                 }
-                MessageBox.error(oError?.message || "Failed to submit draft order due to database constraints.");
+                MessageBox.error(oError?.message || oBundle?.getText("cartManager.message.draftSubmitError") || "Failed to submit draft order due to database constraints.");
             });
         } else {
             oView.setBusy(false);
-            MessageBox.error("OData creation pipeline failed to respond.");
+            MessageBox.error(oBundle?.getText("cartManager.message.pipelineError") || "OData creation pipeline failed to respond.");
         }
     }
 
@@ -160,6 +164,8 @@ export default class CartManager {
         interface BackendOrderResponse {
             netAmount?: number;
         }
+
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         try {
 
@@ -179,7 +185,7 @@ export default class CartManager {
             oCartModel.setProperty("/estimatedTotal", 0.00);
             oCartModel.updateBindings(true);
 
-            MessageBox.success("Order has been successfully submitted! Active inventory is locked.", {
+            MessageBox.success(oBundle?.getText("cartManager.message.activationSuccess") || "Order has been successfully submitted!", {
                 actions: [MessageBox.Action.OK],
                 onClose: () => {
                     const oController = oView.getController();
@@ -194,7 +200,7 @@ export default class CartManager {
             if (oODataModel.hasPendingChanges()) {
                 oODataModel.resetChanges();
             }
-            MessageBox.error(oError?.message || "Error during order draft activation.");
+            MessageBox.error(oError?.message || oBundle?.getText("cartManager.message.activationError") || "Error during order draft activation.");
         }
     }
     public static async validateBulkEligibility(oView: View, oODataModel: any): Promise<void> {
@@ -222,9 +228,10 @@ export default class CartManager {
         oView.setBusy(true);
 
         try {
-            const oOperation = oODataModel.bindContext("/getCartEligibilities(...)");
+            const oOperation = oODataModel.bindContext("/SalesOrderService.getCartEligibilities(...)");
             oOperation.setParameter("customer_ID", oUserData.id);
             await oOperation.execute();
+
 
             const oResultContext = oOperation.getBoundContext();
             const oResponseData = oResultContext ? oResultContext.getObject() as {

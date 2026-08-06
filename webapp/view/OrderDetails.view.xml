@@ -4,14 +4,14 @@
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:form="sap.ui.layout.form">
-    <Page id="orderDetailsPage" title="Sales Order Specification" showNavButton="true" navButtonPress="onNavBack">
+    <Page id="orderDetailsPage" title="{i18n>orderDetails.page.title}" showNavButton="true" navButtonPress="onNavBack">
         <headerContent>
-            <Button id="cancelOrderButton" icon="sap-icon://cancel" text="Cancel Order" type="Default" press="onCancelOrder" />
-
-            <Button id="deleteOrderButton" icon="sap-icon://delete" text="Delete Order" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" press="onDeleteOrder" />
+            <Button id="cancelOrderButton" icon="sap-icon://cancel" text="{i18n>orderDetails.button.cancelOrder}" type="Default" press="onCancelOrder" />
+            <Button id="deleteOrderButton" icon="sap-icon://delete" text="{i18n>orderDetails.button.deleteOrder}" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" press="onDeleteOrder" />
         </headerContent>
+
         <content>
-            <ObjectHeader id="orderHeader" title="Order Details" number="{totalAmount}" numberUnit="USD">
+            <ObjectHeader id="orderHeader" title="{i18n>orderDetails.header.title}" number="{totalAmount}" numberUnit="USD">
                 <!-- TODO: Dynamic Currency context binding -->
                 <attributes>
                     <ObjectAttribute text="Order UUID: {ID}" />
@@ -30,32 +30,33 @@
             <IconTabBar id="orderTabBar" upperCase="true" class="sapUiResponsiveContentPadding">
                 <items>
                     <!-- TAB 1: ORDER ITEMS -->
-                    <IconTabFilter id="tabItems" icon="sap-icon://basket" text="Games Specification">
+                    <IconTabFilter id="tabItems" icon="sap-icon://basket" text="{i18n>orderDetails.tab.items}">
                         <Table id="orderItemsTable" items="{items}" growing="true" growingThreshold="10">
                             <columns>
                                 <Column width="6rem">
-                                    <Text text="Cover" />
+                                    <Text text="{i18n>orderDetails.table.column.cover}" />
                                 </Column>
                                 <Column>
-                                    <Text text="Game Title" />
+                                    <Text text="{i18n>orderDetails.table.column.gameTitle}" />
                                 </Column>
                                 <Column width="8rem" hAlign="Right">
-                                    <Text text="Price" />
+                                    <Text text="{i18n>orderDetails.table.column.price}" />
                                 </Column>
                                 <Column width="6rem" hAlign="Center">
-                                    <Text text="Qty" />
+                                    <Text text="{i18n>orderDetails.table.column.quantity}" />
                                 </Column>
                             </columns>
                             <items>
                                 <ColumnListItem vAlign="Middle">
                                     <cells>
-                                        <Image src="{game/image}" width="4rem" alt="Cover" error=".onImageLoadError" />
+                                        <Image src="{game/image}" width="4rem" alt="{i18n>orderDetails.table.column.cover}" error=".onImageLoadError" />
 
                                         <ObjectIdentifier title="{game/title}" />
                                         <!-- TODO: Add Currency -->
                                         <ObjectNumber number="{game/price}" unit="USD" />
 
-                                        <Text text="{quantity} pcs" />
+                                        <Text text="{= ${i18n>orderDetails.table.unit.pcs}.replace('{0}', ${quantity}) }" />
+
                                     </cells>
                                 </ColumnListItem>
                             </items>
@@ -63,41 +64,41 @@
                     </IconTabFilter>
 
                     <!-- TAB 2: FEEDBACKS -->
-                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="Customer Reviews">
+                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="{i18n>orderDetails.tab.feedbacks}">
                         <VBox class="sapUiMediumMargin">
 
-                            <MessageStrip id="reviewStatusNoAccessStrip" text="You can submit a review only after this sales order is successfully Completed. Share your experience once you receive your games!" type="Warning" showIcon="true" visible="{localView>/isReviewLocked}" class="sapUiSmallMarginBottom" />
+                            <MessageStrip id="reviewStatusNoAccessStrip" text="{i18n>orderDetails.review.noAccess}" type="Warning" showIcon="true" visible="{localView>/isReviewLocked}" class="sapUiSmallMarginBottom" />
 
                             <VBox id="reviewFormContainer" visible="{localView>/isReviewFormVisible}">
-                                <Title text="Share Your GameShop Experience" level="H3" class="sapUiSmallMarginBottom" />
-                                <Text text="Your feedback directly affects your CRM profile rank and subsequent loyalty discounts!" class="sapUiMediumMarginBottom" />
+                                <Title text="{i18n>orderDetails.review.form.title}" level="H3" class="sapUiSmallMarginBottom" />
+                                <Text text="{i18n>orderDetails.review.form.description}" class="sapUiMediumMarginBottom" />
                                 <VBox class="sapUiSmallMarginBottom">
-                                    <Label text="Rate our service and delivery logistics:" required="true" class="sapUiTinyMarginBottom" />
+                                    <Label text="{i18n>orderDetails.review.form.labelRating}" required="true" class="sapUiTinyMarginBottom" />
                                     <RatingIndicator id="feedbackRatingIndicator" maxValue="5" value="5" visualMode="Full" class="sapUiTinyMarginBottom" />
                                 </VBox>
 
                                 <VBox class="sapUiMediumMarginBottom">
-                                    <Label text="Your Review Comments:" required="true" class="sapUiTinyMarginBottom" />
-                                    <TextArea id="feedbackTextArea" width="100%" rows="5" placeholder="Tell us what you think about our service..." maxLength="1000" growing="true" />
+                                    <Label text="{i18n>orderDetails.review.form.labelComment}" required="true" class="sapUiTinyMarginBottom" />
+                                    <TextArea id="feedbackTextArea" width="100%" rows="5" placeholder="{i18n>orderDetails.review.form.placeholderComment}" maxLength="1000" growing="true" />
                                 </VBox>
 
-                                <Button id="submitReviewButton" text="Submit Review" icon="sap-icon://paper-plane" type="Emphasized" press="onSubmitReview" width="12rem" />
+                                <Button id="submitReviewButton" text="{i18n>orderDetails.review.form.buttonSubmit}" icon="sap-icon://paper-plane" type="Emphasized" press="onSubmitReview" width="12rem" />
                             </VBox>
 
                             <VBox id="reviewReadOnlyContainer" visible="{localView>/isReviewReadOnlyVisible}">
-                                <Title text="Your Submitted Order Review" level="H3" class="sapUiSmallMarginBottom" />
+                                <Title text="{i18n>orderDetails.review.read.title}" level="H3" class="sapUiSmallMarginBottom" />
 
                                 <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                                    <Label text="Your Rating: " class="sapUiTinyMarginEnd" />
+                                    <Label text="{i18n>orderDetails.review.read.labelRating}" class="sapUiTinyMarginEnd" />
                                     <RatingIndicator id="savedRatingIndicator" maxValue="5" editable="false" />
                                 </HBox>
 
-                                <Label text="Your Comment:" />
+                                <Label text="{i18n>orderDetails.review.read.labelComment}" />
                                 <Text id="savedCommentText" class="sapUiMediumMarginBottom sapUiSelectable" />
 
                                 <VBox class="sapUiMediumMarginTop" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }">
-                                    <Title text="Administrative SMM Moderation" level="H4" class="sapUiSmallMarginBottom" />
-                                    <Label text="Approve this feedback for Social Media Marketing (SMM) Broadcast:" class="sapUiTinyMarginBottom" />
+                                    <Title text="{i18n>orderDetails.review.admin.title}" level="H4" class="sapUiSmallMarginBottom" />
+                                    <Label text="{i18n>orderDetails.review.admin.labelApprove}" class="sapUiTinyMarginBottom" />
                                     <Switch id="smmApprovalSwitch" state="false" customTextOn="Yes" customTextOff="No" change="onSmmSwitchChange" />
                                 </VBox>
                             </VBox>
@@ -105,7 +106,7 @@
                         </VBox>
                     </IconTabFilter>
                     <!-- TAB 3: CUSTOMER INSIGHTS -->
-                    <IconTabFilter id="tabCustomer" icon="sap-icon://customer" text="Client Profile">
+                    <IconTabFilter id="tabCustomer" icon="sap-icon://customer" text="{i18n>orderDetails.tab.customer}">
 
                         <VBox id="customerFragmentContainer" binding="{customer}">
                             <core:Fragment fragmentName="sap.capire.gameshop.view.fragments.CustomerInsightsForm" type="XML" />

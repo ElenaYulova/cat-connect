@@ -7,9 +7,10 @@ import { ValueState } from "sap/ui/core/library";
  * @namespace sap.capire.gameshop.model
  */
 export default class Formatter {
-    public static formatStock(iStock: number | undefined | null): string {
-        if (iStock === undefined || iStock === null) return "No data";
-        return iStock > 0 ? iStock.toString() : "Out of stock";
+    public static formatStock( iStock: number | undefined | null): string {
+        const oResourceBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+        if ( iStock === undefined || iStock === null) return oResourceBundle?.getText("formatter.stock.noData") || "No data";
+        return iStock > 0 ? iStock. toString() : oResourceBundle?.getText("formatter.stock.outOfStock") || "Out of stock";
     }
 
     public static formatStockVisible(iStock: number | undefined | null): boolean {
@@ -74,17 +75,18 @@ export default class Formatter {
     /**
      * Localized state text mapper
      */
-    public static orderStatusText(sStatusCode: string): string {
-        switch (sStatusCode) {
+    public static orderStatusText( sStatusCode: string): string {
+    const oResourceBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+        switch ( sStatusCode) {
             case "new":
-            case "N": return "New Request";
+            case "N": return oResourceBundle?.getText("formatter.orderStatus.new") || "New Request";
             case "in_process":
-            case "P": return "In Progress";
+            case "P": return oResourceBundle?.getText("formatter.orderStatus.inProgress") || "In Progress";
             case "completed":
-            case "C": return "Completed";
+            case "C": return oResourceBundle?.getText("formatter.orderStatus.completed") || "Completed";
             case "cancelled":
-            case "X": return "Cancelled";
-            default:   return sStatusCode || "Pending";
+            case "X": return oResourceBundle?.getText("formatter.orderStatus.cancelled") || "Cancelled";
+            default: return sStatusCode || oResourceBundle?.getText("formatter.orderStatus.pending") || "Pending";
         }
     }
 
@@ -105,9 +107,14 @@ export default class Formatter {
     /**
      * Formatter to safely merge customer first and last names
      */
-    public static formatCustomerFullName(sFirstName: string | undefined | null, sLastName: string | undefined | null): string {
-        const sFirst = sFirstName || "";
-        const sLast = sLastName || "";
-        return `${sFirst} ${sLast}`.trim() || "Anonymous Customer";
+    public static formatCustomerFullName( sFirstName: string | undefined | null, sLastName: string | undefined | null): string {
+    const sFirst = sFirstName || "";
+    const sLast = sLastName || "";
+    const sFullName = `${ sFirst} ${ sLast}`. trim();
+    if (!sFullName) {
+        const oResourceBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+        return oResourceBundle?.getText("formatter.customer.anonymous") || "Anonymous Customer";
     }
+    return sFullName;
+}
 }

@@ -1,6 +1,7 @@
 import JSONModel from "sap/ui/model/json/JSONModel";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import View from "sap/ui/core/mvc/View";
+import MessageBox from "sap/m/MessageBox";
 
 interface UserApiUserInfo {
     name: string;
@@ -43,8 +44,10 @@ export default class CustomerManager {
         const oUserApiModel = new JSONModel();
         const oLoadPromise = oUserApiModel.loadData("/user-api/currentUser", undefined, true, "GET");
 
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+
         if (!oLoadPromise) {
-            throw new Error("Failed to initialize AppRouter session promise.");
+            throw new Error(oBundle?.getText("customerManager.error.sessionPromise") || "Failed to initialize AppRouter session promise.");
         }
 
         try {
@@ -52,14 +55,14 @@ export default class CustomerManager {
             const oRawData: unknown = oUserApiModel.getData();
 
             if (!oRawData || typeof oRawData !== "object" || !("name" in oRawData)) {
-                throw new Error("Invalid session data structure received from user-api.");
+                throw new Error(oBundle?.getText("customerManager.error.invalidSessionData") || "Invalid session data structure received from user-api.");
             }
 
             const oUserInfo = oRawData as Record<string, unknown>;
             const sSessionUsername = oUserInfo.name as string;
 
             if (!sSessionUsername) {
-                throw new Error("Session username is empty.");
+                throw new Error(oBundle?.getText("customerManager.error.emptyUsername") || "Session username is empty.");
             }
 
             if (sSessionUsername === "admin") {
@@ -74,11 +77,9 @@ export default class CustomerManager {
     }
 
     public static getBindingPath(sCustomerId: string): string {
-        if (!sCustomerId) {
-            return "";
-        }
-        return `/Customers(ID='${sCustomerId}',IsActiveEntity=true)`;
+        return sCustomerId ? `/ClientProfile(ID=${sCustomerId},IsActiveEntity=true)` : "";
     }
+
 
     /**
      * Safe ID Extraction
@@ -97,5 +98,31 @@ export default class CustomerManager {
             console.error("[AUTODEV CUSTOMER LOG]: Failed to parse user profile from localStorage.");
             return "";
         }
+    }
+
+    public static async bindProfileView(oView: View, fnRedirect: () => void): Promise<void> {
+        const oODataModel = oView.getModel() as ODataModel | undefined;
+        if (!oView || !oODataModel) {
+            return;
+        }
+
+        const sCustomerId = await this.getCurrentCustomerId(oView, oODataModel);
+        if (!sCustomerId) {
+            fnRedirect();
+            return;
+        }
+
+        const sBindingPath = this.getBindingPath(sCustomerId);
+
+        oView.bindElement({
+            path: sBindingPath,
+            parameters: {
+                "$$patchToMultipleFields": true
+            },
+            events: {
+                dataRequested: () => oView.setBusy(true),
+                dataReceived: () => oView.setBusy(false)
+            }
+        });
     }
 }

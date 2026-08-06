@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.0.50",
+  "version": "1.0.72",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/cds": "^9",
@@ -79,7 +79,8 @@
                 "authenticated-user",
                 "CRMAdmin",
                 "SalesManager",
-                "SupportAgent"
+                "SupportAgent",
+                "Customer"
               ]
             },
             "manager": {
@@ -103,6 +104,11 @@
       "[production]": {
         "db": {
           "kind": "hana"
+        }
+      },
+      "SalesOrderService": {
+        "[production]": {
+          "impl": "sales-service"
         }
       }
     }

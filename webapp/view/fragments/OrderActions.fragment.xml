@@ -1,44 +1,15 @@
-<core:FragmentDefinition
-    xmlns:core="sap.ui.core"
+<core:FragmentDefinition xmlns:core="sap.ui.core"
     xmlns="sap.m">
 
-    <HBox
-        id="inStockContainer"
-        alignItems="Center"
-        visible="{path: 'stock', type: 'sap.ui.model.type.Boolean', formatter: '.formatter.formatStockVisible'}"
-        class="sapUiTinyMarginTop">
+    <HBox id="inStockContainer" alignItems="Center" visible="{path: 'stock', type: 'sap.ui.model.type.Boolean', formatter: '.formatter.formatStockVisible'}" class="sapUiTinyMarginTop">
 
-        <Label
-            id="quantityLabel"
-            text="Qty:"
-            class="sapUiTinyMarginEnd" />
+        <Label id="quantityLabel" text="{i18n>orderActions.label.quantity}" class="sapUiTinyMarginEnd" />
 
-        <StepInput
-            id="quantityInput"
-            value="{view>/currentQuantity}"
-            min="1"
-            max="{stock}"
-            width="120px"
-            class="sapUiSmallMarginEnd"
-            enabled="{userRoles>/isLoggedIn}"
-            change=".onQuantityChange" />
+        <StepInput id="quantityInput" value="{view>/currentQuantity}" min="1" max="{stock}" width="120px" class="sapUiSmallMarginEnd" enabled="{userRoles>/isLoggedIn}" change=".onQuantityChange" />
 
-        <Button
-            id="addToCartButton"
-            text="Add to Cart"
-            icon="sap-icon://add-product"
-            type="Accept"
-            enabled="{view>/isAddToCartEnabled}"
-            press=".onAddToCart" />
+        <Button id="addToCartButton" text="{i18n>orderActions.button.addToCart}" icon="sap-icon://add-product" type="Accept" enabled="{view>/isAddToCartEnabled}" press=".onAddToCart" />
     </HBox>
 
-    <MessageStrip
-        id="outOfStockMessage"
-        text="Out of Stock"
-        type="Error"
-        showIcon="true"
-        showCloseButton="false"
-        visible="{path: 'stock', type: 'sap.ui.model.type.Boolean', formatter: '.formatter.formatOutOfStockVisible'}"
-        class="sapUiTinyMarginTop" />
+    <MessageStrip id="outOfStockMessage" text="{i18n>orderActions.message.outOfStock}" type="Error" showIcon="true" showCloseButton="false" visible="{path: 'stock', type: 'sap.ui.model.type.Boolean', formatter: '.formatter.formatOutOfStockVisible'}" class="sapUiTinyMarginTop" />
 
 </core:FragmentDefinition>

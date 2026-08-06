@@ -1,42 +1,42 @@
 {
-  "cancellationReasons": [
+    "cancellationReasons": [
     {
-      "code": "Client refused",
-      "text": "Client changed mind or accidental click"
+      "code": "{i18n>valueHelps.cancel.refused.code}",
+      "text": "{i18n>valueHelps.cancel.refused.text}"
     },
     {
-      "code": "Price high",
-      "text": "Found cheaper alternative or promotion mismatch"
+      "code": "{i18n>valueHelps.cancel.priceHigh.code}",
+      "text": "{i18n>valueHelps.cancel.priceHigh.text}"
     },
     {
-      "code": "Out of stock",
-      "text": "Digital key batch exhaustion at publisher side"
+      "code": "{i18n>valueHelps.cancel.outOfStock.code}",
+      "text": "{i18n>valueHelps.cancel.outOfStock.text}"
     },
     {
-      "code": "Technical issue",
-      "text": "Key generation failure or licensing server timeout"
+      "code": "{i18n>valueHelps.cancel.techIssue.code}",
+      "text": "{i18n>valueHelps.cancel.techIssue.text}"
     }
   ],
-  "licensePlatforms": [
+    "licensePlatforms": [
     {
-      "code": "Steam Store",
-      "text": "Valve Steam Global Digital License"
+      "code": "{i18n>valueHelps.platform.steam.code}",
+      "text": "{i18n>valueHelps.platform.steam.text}"
     },
     {
-      "code": "Epic Store",
-      "text": "Epic Games Launcher Digital License"
+      "code": "{i18n>valueHelps.platform.epic.code}",
+      "text": "{i18n>valueHelps.platform.epic.text}"
     },
     {
-      "code": "PlayStation Network",
-      "text": "PSN Console Activation Key"
+      "code": "{i18n>valueHelps.platform.psn.code}",
+      "text": "{i18n>valueHelps.platform.psn.text}"
     },
     {
-      "code": "Xbox Live",
-      "text": "Xbox Live Console Activation Key"
+      "code": "{i18n>valueHelps.platform.xbox.code}",
+      "text": "{i18n>valueHelps.platform.xbox.text}"
     },
     {
-      "code": "GOG Launcher",
-      "text": "GOG DRM-Free Digital License"
+      "code": "{i18n>valueHelps.platform.gog.code}",
+      "text": "{i18n>valueHelps.platform.gog.text}"
     }
   ]
 }

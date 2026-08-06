@@ -1,125 +1,78 @@
-<mvc:View
-    controllerName="sap.capire.gameshop.controller.ProductDetails"
+<mvc:View controllerName="sap.capire.gameshop.controller.ProductDetails"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns="sap.m"
     xmlns:uxap="sap.uxap"
-    xmlns:f="sap.ui.layout.form"
-    displayBlock="true">
+    xmlns:f="sap.ui.layout.form" displayBlock="true">
 
     <Page id="productDetailsPage" showHeader="false">
         <content>
 
-            <uxap:ObjectPageLayout
-                id="objectPageLayout"
-                showTitleInHeaderContent="false"
-                alwaysShowContentHeader="false"
-                preserveHeaderStateOnScroll="true"
-                headerContentPinnable="true">
+            <uxap:ObjectPageLayout id="objectPageLayout" showTitleInHeaderContent="false" alwaysShowContentHeader="false" preserveHeaderStateOnScroll="true" headerContentPinnable="true">
 
                 <!-- Dynamic Object page header -->
-                 <uxap:headerTitle>
-                    <uxap:ObjectPageHeader
-                        objectTitle="{title}"
-                        objectSubtitle="Category: {genre/name}">
+                <uxap:headerTitle>
+                    <uxap:ObjectPageHeader objectTitle="{title}" objectSubtitle="{= ${i18n>productDetails.header.subtitle}.replace('{0}', ${genre/name}) }">
                         <uxap:actions>
-                            <Button
-                                text="Edit Product"
-                                type="Emphasized"
-                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }"
-                                press=".onEditProduct"/>
-                            <Button 
-                                text="Save Changes" 
-                                type="Accept" 
-                                icon="sap-icon://save" 
-                                visible="{view>/isEditMode}" 
-                                press=".onSaveChanges" />
-                            <Button 
-                                text="Cancel" 
-                                type="Reject" 
-                                icon="sap-icon://cancel" 
-                                visible="{view>/isEditMode}" 
-                                press=".onCancelChanges" />
+                            <Button text="{i18n>productDetails.button.edit}" type="Emphasized" visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }" press=".onEditProduct"/>
+                            <Button text="{i18n>productDetails.button.save}" type="Accept" icon="sap-icon://save" visible="{view>/isEditMode}" press=".onSaveChanges" />
+                            <Button text="{i18n>productDetails.button.cancel}" type="Reject" icon="sap-icon://cancel" visible="{view>/isEditMode}" press=".onCancelChanges" />
                         </uxap:actions>
                     </uxap:ObjectPageHeader>
                 </uxap:headerTitle>
 
                 <!-- Header Content -->
-                    <uxap:headerContent>
-                        <HBox alignItems="Center" class="sapUiSmallMarginEnd">
+                <uxap:headerContent>
+                    <HBox alignItems="Center" class="sapUiSmallMarginEnd">
 
-                            <Image
-                                src="{path: 'image', mode: 'OneWay'}"
-                                width="5rem"
-                                height="5rem"
-                                class="sapUiSmallMarginEnd productImage"
-                                error=".onImageLoadError" />
+                        <Image src="{path: 'image', mode: 'OneWay'}" width="5rem" height="5rem" class="sapUiSmallMarginEnd productImage" error=".onImageLoadError" />
 
-                            <core:Fragment
-                                fragmentName="sap.capire.gameshop.view.fragments.OrderActions"
-                                type="XML" />
+                        <core:Fragment fragmentName="sap.capire.gameshop.view.fragments.OrderActions" type="XML" />
 
-                        </HBox>
-                    </uxap:headerContent>
+                    </HBox>
+                </uxap:headerContent>
 
                 <!-- Tabs -->
-                    <uxap:sections>
-                    <uxap:ObjectPageSection title="General Information">
+                <uxap:sections>
+                    <uxap:ObjectPageSection title="{i18n>productDetails.section.general}">
                         <uxap:subSections>
 
-                            <uxap:ObjectPageSubSection title="Specifications">
+                            <uxap:ObjectPageSubSection title="{i18n>productDetails.subsection.specs}">
+
                                 <uxap:blocks>
                                     <f:SimpleForm editable="false" layout="ColumnLayout">
                                         <f:content>
-                                            <core:Title text="Product Pricing &amp; Specs" />
+                                            <core:Title text="{i18n>productDetails.form.title}" />
 
-                                            <Label text="Description" />
+                                            <Label text="{i18n>productDetails.label.description}" />
+
                                             <Text text="{descr}" visible="{= !${view>/isEditMode} }" />
                                             <TextArea value="{descr}" visible="{view>/isEditMode}" width="100%" rows="3" />
 
-                                                                                        <Label text="Retail Price" />
+                                            <Label text="{i18n>productDetails.label.price}" />
                                             <ObjectNumber number="{price}" unit="USD" visible="{= !${view>/isEditMode} }" />
-                                            <Input 
-                                                id="retailPriceInput" 
-                                                value="{
+                                            <Input id="retailPriceInput" value="{
                                                     path: 'price',
                                                     type: 'sap.ui.model.odata.type.Decimal',
                                                     formatOptions: {
                                                         groupingEnabled: false
                                                     }
-                                                }" 
-                                                type="Text" 
-                                                visible="{view>/isEditMode}" 
-                                                width="150px" 
-                                                liveChange=".onPriceLiveChange" />
+                                                }" type="Text" visible="{view>/isEditMode}" width="150px" liveChange=".onPriceLiveChange" />
 
-                                            <Label text="Stock Availability" />
-                                            <ObjectStatus
-                                                text="{path: 'stock', formatter: '.formatter.formatStock'} Pcs"
-                                                state="{= ${stock} > 0 ? 'Success' : 'Error' }"
-                                                visible="{= !${view>/isEditMode} }" />
+                                            <Label text="{i18n>productDetails.label.stock}" />
+                                            <ObjectStatus text="{= ${i18n>orderDetails.table.unit.pcs}.replace('{0}', ${path: 'stock', formatter: '.formatter.formatStock'}) }" state="{= ${stock} > 0 ? 'Success' : 'Error' }" visible="{= !${view>/isEditMode} }" />
+
                                             <Input value="{stock}" type="Number" visible="{view>/isEditMode}" width="150px" liveChange=".onStockLiveChange" />
 
-                                            <Label
-                                                text="Wholesale Price (Supplier Only)"
-                                                visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"/>
-                                            <ObjectNumber
-                                                number="{wholesalePrice}"
-                                                unit="USD"
-                                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }"/>
-                                            <Input
-                                                id="wholesalePriceInput"
-                                                value="{
+                                            <Label text="{i18n>productDetails.label.wholesale}" visible="{= ${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier} }"/>
+                                            <ObjectNumber number="{wholesalePrice}" unit="USD" visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; !${view>/isEditMode} }"/>
+                                            <Input id="wholesalePriceInput" value="{
                                                     path: 'wholesalePrice',
                                                     type: 'sap.ui.model.odata.type.Decimal',
                                                     formatOptions: {
                                                         groupingEnabled: false
                                                     }
-                                                }"
-                                                type="Text"
-                                                visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; ${view>/isEditMode} }"
-                                                width="150px"
-                                                liveChange=".onPriceLiveChange" />
+                                                }" type="Text" visible="{= (${userRoles>/isCRMAdmin} || ${userRoles>/isSupplier}) &amp;&amp; ${view>/isEditMode} }" width="150px" liveChange=".onPriceLiveChange" />
 
                                         </f:content>
                                     </f:SimpleForm>

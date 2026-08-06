@@ -30,9 +30,10 @@ export default class OrderManager {
 
         const fTotalAmount = oOrder.totalAmount || 0;
         const fSaving = +(fTotalGross - fTotalAmount).toFixed(2);
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         if (fSaving > 0) {
-            oDiscountAttr.setText(`Your Loyalty Saving: ${fSaving} USD`);
+             oDiscountAttr.setText(oBundle?.getText("orderManager.label.loyaltySaving", [fSaving]) || `Your Loyalty Saving: ${fSaving} USD`);
         } else {
             oDiscountAttr.setText("");
         }
@@ -56,11 +57,13 @@ export default class OrderManager {
 
         if (bIsAdmin || bIsCRMAdmin || bIsManager) return;
 
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+
         const sSavedUserJson = window.localStorage.getItem("catConnect_userProfile");
         if (sSavedUserJson) {
             const oUserData = JSON.parse(sSavedUserJson) as { id?: string };
             if (oOrderData.customer_ID !== oUserData.id) {
-                MessageBox.error("Access Denied: You cannot view other customers' orders.", {
+                MessageBox.error(oBundle?.getText("orderManager.message.accessDenied") || "Access Denied: You cannot view other customers' orders.", {
                     onClose: () => {
                         if (typeof (oController as any).onNavBack === "function") {
                             (oController as any).onNavBack();
@@ -75,6 +78,8 @@ export default class OrderManager {
         const oView = oController.getView();
         const oLocalModel = oView?.getModel("localView") as JSONModel | undefined;
         if (!oView || !oLocalModel || !oOrderData) return;
+
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         const sStatus = oOrderData.status_code;
         const sOrderId = oOrderData.ID;
@@ -124,9 +129,9 @@ export default class OrderManager {
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
 
                 const sCleanComment = oSavedReview.comments
-                        .replace("[CANCELED]", "🛑 STATUS: CANCELED |")
-                        .replace(/\[/g, " ")
-                        .replace(/\]/g, " |");
+                    .replace("[CANCELED]", oBundle?.getText("orderManager.status.canceled") || "🛑 STATUS: CANCELED |")
+                    .replace(/\[/g, " ")
+                    .replace(/\]/g, " |");
 
                     (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(0);
                     (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(false);
@@ -146,7 +151,7 @@ export default class OrderManager {
                     oLocalModel.setProperty("/isReviewFormVisible", false);
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
                     (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(false);
-                    (oView.byId("savedCommentText") as Text)?.setText("🛑 System Log: This digital key contract has been revoked and canceled.");
+                    (oView.byId("savedCommentText") as Text)?.setText(oBundle?.getText("orderManager.log.revoked") || "🛑 System Log: This digital key contract has been revoked and canceled.");
                 } else {
                     oLocalModel.setProperty("/isReviewFormVisible", true);
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", false);
@@ -160,8 +165,6 @@ export default class OrderManager {
     }
 
 
-
-
     public static async submitOrderReview(oController: any, oOrderData: any): Promise<void> {
         const oView = oController.getView();
         if (!oView || !oOrderData) return;
@@ -170,11 +173,13 @@ export default class OrderManager {
         const oTextCtrl = oView.byId("feedbackTextArea") as TextArea | undefined;
         const oODataModel = oView.getModel() as ODataModel;
 
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+
         const iRating = Math.max(1, oRatingCtrl?.getValue() || 5);
         const sComment = oTextCtrl?.getValue()?.trim() || "";
 
         if (!sComment) {
-            MessageBox.warning("Please enter your review text before submitting.");
+            MessageBox.warning(oBundle?.getText("orderManager.message.reviewWarning") || "Please enter your review text before submitting.");
             return;
         }
 
@@ -196,9 +201,9 @@ export default class OrderManager {
 
             OrderManager._toggleReviewUIState(oView, iRating, sComment);
 
-            MessageBox.success("Thank you! Your store review has been successfully submitted and factored into your loyalty profile.");
+            MessageBox.success(oBundle?.getText("orderManager.message.reviewSuccess") || "Thank you! Your store review has been successfully submitted and factored into your loyalty profile.");
         } catch (oError: any) {
-            MessageBox.error(oError?.message || "Failed to save your review.");
+            MessageBox.error(oError?.message || oBundle?.getText("orderManager.message.reviewError") || "Failed to save your review.");
         } finally {
             oView.setBusy(false);
         }
@@ -222,12 +227,14 @@ export default class OrderManager {
 
         if (!oView || !oODataModel || !oBindingContext || !oCancelDialog) return;
 
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+
         const sReason = (oView.byId("reasonInput") as any).getValue().trim();
         const sPlatform = (oView.byId("destinationInput") as any).getValue().trim();
         const sComment = (oView.byId("cancelCommentArea") as any).getValue().trim();
 
         if (!sReason || !sPlatform) {
-            MessageBox.error("Please select both Cancellation Reason and License Platform using Search Helps.");
+            MessageBox.error(oBundle?.getText("orderManager.message.cancelValidation") || "Please select both Cancellation Reason and License Platform using Search Helps.");
             return;
         }
 
@@ -253,12 +260,12 @@ export default class OrderManager {
                 oViewBinding.refresh();
             }
 
-            MessageBox.success("Order has been successfully canceled!");
+            MessageBox.success(oBundle?.getText("orderManager.message.cancelSuccess") || "Order has been successfully canceled!");
 
         } catch (oError: any) {
             oCancelDialog.setBusy(false);
             oView.setBusy(false);
-            MessageBox.error(oError?.message || "Fatal error during order cancellation transaction.");
+             MessageBox.error(oError?.message || oBundle?.getText("orderManager.message.cancelError") || "Fatal error during order cancellation transaction.");
         }
     }
 }

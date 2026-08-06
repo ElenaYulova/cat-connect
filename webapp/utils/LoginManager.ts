@@ -39,23 +39,27 @@ interface UserApiUserInfo {
 export default class LoginManager {
 
     // Cashing
-    private static _saveProfile(oProfile: UserProfile, oRoleModel: JSONModel, sSuccessMsg?: string): void {
-        window.localStorage.setItem("catConnect_userProfile", JSON.stringify(oProfile));
-        oRoleModel.setData(oProfile, false);
-        if (sSuccessMsg) {
-            MessageBox.success(sSuccessMsg);
-        }
+    private static _saveProfile( oProfile: UserProfile, oRoleModel: JSONModel, sSuccessMsg?: string): void {
+    window.localStorage.setItem("catConnect_userProfile", JSON.stringify(oProfile));
+    oRoleModel.setData(oProfile, false);
+    if (sSuccessMsg) {
+        MessageBox.success(sSuccessMsg);
     }
+}
 
     private static _buildProfile(sId: string, sUsername: string, oData?: CustomerData): UserProfile {
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const sGroup = oData?.categoryGroup || "";
         const bIsAdmin = sGroup === "CRMAdmin" || sUsername === "admin";
+
+        const sWelcomePattern = !oData && bIsAdmin ? "loginManager.profile.welcomeFallback" : "loginManager.profile.welcome";
+        const sWelcomeText = oBundle?.getText(sWelcomePattern, [oData?.firstName || sUsername]) || `Welcome, ${oData?.firstName || sUsername}!`;
 
         return {
             isLoggedIn: true,
             id: sId || oData?.ID || "00000000-0000-0000-0000-000000000000",
             username: sUsername,
-            welcomeText: `Welcome, ${oData?.firstName || sUsername}${!oData && bIsAdmin ? " (Fallback Mode)" : ""}!`,
+            welcomeText: sWelcomeText,
             averageRating: oData?.averageRating ? String(oData.averageRating) : "0.00",
             isCustomer: ["Customer", "VIP", "Premium"].includes(sGroup),
             isSalesManager: sGroup === "SalesManager",
@@ -63,6 +67,7 @@ export default class LoginManager {
             isCRMAdmin: bIsAdmin
         };
     }
+
     /**
      * Silent Auto-Login
      */
@@ -143,23 +148,24 @@ export default class LoginManager {
      * Manual login
      */
     public static runLoginDialog(oView: View, oODataModel: ODataModel, oRoleModel: JSONModel): void {
+        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const oInput = new Input({ placeholder: "Enter username" });
 
-        const oDialog = new Dialog({
-            title: "Log In",
-            content: [new Label({ text: "Username", labelFor: oInput.getId() }), oInput],
-            beginButton: new Button({
-                text: "OK",
-                press: () => {
+       const oDialog = new Dialog({
+        title: oBundle?.getText("loginManager.dialog.title") || "Log In",
+        content: [ new Label({ text: oBundle?.getText("loginManager.dialog.usernameLabel") || "Username", labelFor: oInput.getId() }), oInput],
+        beginButton: new Button({
+            text: oBundle?.getText("loginManager.dialog.buttonOk") || "OK",
+            press: () => {
                     const sUser: string = oInput.getValue().trim();
                     oDialog.close();
 
                     if (!sUser) {
-                        MessageBox.error("Username cannot be empty.");
+                        MessageBox.error(oBundle?.getText("loginManager.message.emptyUsername") || "Username cannot be empty.");
                         return;
                     }
                     if (sUser !== "admin") {
-                        MessageBox.error(`Login context for user "${sUser}" is not configured.`);
+                        MessageBox.error(oBundle?.getText("loginManager.message.contextNotConfigured", [sUser]) || `Login context for user "${sUser}" is not configured.`);
                         return;
                     }
 
@@ -170,12 +176,12 @@ export default class LoginManager {
                     oBinding.requestObject()
                         .then((oCustomerData: unknown) => {
                             const oProfile = this._buildProfile(sAdminId, sUser, oCustomerData as CustomerData);
-                            this._saveProfile(oProfile, oRoleModel, `Welcome back, ${sUser}!`);
+                            this._saveProfile(oProfile, oRoleModel, oBundle?.getText("loginManager.message.welcomeBack", [sUser]) || `Welcome back, ${sUser}!`);
                         })
                         .catch((oError: unknown) => {
                             console.error("[AUTODEV ODATA CRASH LOG]:", oError);
                             const oFallbackProfile = this._buildProfile(sAdminId, sUser);
-                            this._saveProfile(oFallbackProfile, oRoleModel, `Welcome back, ${sUser}!`);
+                            this._saveProfile(oFallbackProfile, oRoleModel, oBundle?.getText("loginManager.message.welcomeBack", [sUser]) || `Welcome back, ${sUser}!`);
                         })
                         .finally(() => {
                             oView.setBusy(false);

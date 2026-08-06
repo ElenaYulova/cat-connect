@@ -93,16 +93,17 @@ export default class ProductDetails extends Controller {
         const bIsCRMAdmin = oRolesModel.getProperty("/isCRMAdmin") as boolean;
         const bIsSupplier = oRolesModel.getProperty("/isSupplier") as boolean;
 
-        if (!bIsLoggedIn || (!bIsCRMAdmin && !bIsSupplier)) {
-            MessageToast.show("Access denied. Product editing mode is enabled only for authorized managers or administrators.");
+        const oResourceBundle = (this.getOwnerComponent()?.getModel("i18n") as any)?.getResourceBundle();
+        if (! bIsLoggedIn || (! bIsCRMAdmin && ! bIsSupplier)) {
+            MessageToast.show(oResourceBundle?.getText("productDetails.message.accessDenied") || "");
             return;
         }
-
         oViewModel.setProperty("/isEditMode", true);
-        MessageToast.show("Product editing mode has been successfully enabled.");
+        MessageToast.show(oResourceBundle?.getText("productDetails.message.editEnabled") || "");
     }
 
     public async onSaveChanges(): Promise<void> {
+        const oResourceBundle = (this.getOwnerComponent()?.getModel("i18n") as any)?.getResourceBundle();
         const oView = this.getView();
         if (!oView) return;
 
@@ -112,9 +113,9 @@ export default class ProductDetails extends Controller {
         try {
             await oModel.submitBatch("detailsUpdateGroup");
             oViewModel.setProperty("/isEditMode", false);
-            MessageToast.show("Product updates have been successfully saved to the database!");
+            MessageToast.show(oResourceBundle?.getText("productDetails.message.saveSuccess") || "");
         } catch (oError) {
-            MessageToast.show("Failed to save changes. Please verify database constraints.");
+            MessageToast.show(oResourceBundle?.getText("productDetails.message.saveError") || "");
         }
     }
 
@@ -124,10 +125,11 @@ export default class ProductDetails extends Controller {
         if (!oView || !oViewModel) return;
 
         const oModel = oView.getModel() as any;
+        const oResourceBundle = (this.getOwnerComponent()?.getModel("i18n") as any)?.getResourceBundle();
 
         oModel.resetChanges("detailsUpdateGroup");
         oViewModel.setProperty("/isEditMode", false);
-        MessageToast.show("Changes discarded. Product data reset to previous state.");
+        MessageToast.show(oResourceBundle?.getText("productDetails.message.changesDiscarded") || "");
     }
 
     public onPriceLiveChange(oEvent: Event): void {

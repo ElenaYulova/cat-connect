@@ -4,54 +4,56 @@
     xmlns="sap.m"
     xmlns:form="sap.ui.layout.form">
 
-    <Page id="clientProfilePage" title="Gamer Profile" showNavButton="true" navButtonPress="onNavBack">
+    <Page id="clientProfilePage" title="{i18n>clientProfile.page.title}" showNavButton="true" navButtonPress="onNavBack">
         <headerContent>
-            <Button id="btnEdit" text="Edit" press="onEditPress" visible="{= !\${localView>/isEditMode} }" icon="sap-icon://edit" />
-            <Button id="btnSave" text="Save Changes" press="onSavePress" visible="{localView>/isEditMode}" type="Emphasized" icon="sap-icon://save" />
-            <Button id="btnCancel" text="Cancel" press="onCancelPress" visible="{localView>/isEditMode}" type="Reject" icon="sap-icon://cancel" />
+            <Button id="btnEdit" text="{i18n>clientProfile.button.edit}" press="onEditPress" visible="{= !${localView>/isEditMode} }" icon="sap-icon://edit" />
+            <Button id="btnSave" text="{i18n>clientProfile.button.save}" press="onSavePress" visible="{localView>/isEditMode}" type="Emphasized" icon="sap-icon://save" />
+            <Button id="btnCancel" text="{i18n>clientProfile.button.cancel}" press="onCancelPress" visible="{localView>/isEditMode}" type="Reject" icon="sap-icon://cancel" />
         </headerContent>
+
         <content>
             <IconTabBar id="profileTabBar" expandable="false" class="sapUiResponsiveContentPadding">
                 <items>
                     <!-- Tab 1: Personal Details -->
-                    <IconTabFilter id="tabGeneral" icon="sap-icon://vcard" text="Personal Data">
+                    <IconTabFilter id="tabGeneral" icon="sap-icon://vcard" text="{i18n>clientProfile.tab.personalData}">
 
                         <!-- Customer Insight -->
                         <core:Fragment fragmentName="sap.capire.gameshop.view.fragments.CustomerInsightsForm" type="XML" />
 
                         <!-- Editable Data -->
-                        <form:SimpleForm id="billingForm" title="Contact &amp; Payment Details" editable="true" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
+                        <form:SimpleForm id="billingForm" title="{i18n>clientProfile.form.contactTitle}" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
+
                             <form:content>
-                                <Label id="lblEmail" text="Email Address" required="true" />
-                                <Input id="inEmail" value="{email}" editable="{localView>/isEditMode}" type="Email" placeholder="gamer@domain.com" />
+                                <Label id="lblEmail" text="{i18n>clientProfile.label.email}" required="true" />
+                                <Input id="inEmail" value="{email}" editable="{localView>/isEditMode}" type="Email" placeholder="{i18n>clientProfile.placeholder.email}" />
 
-                                <Label id="lblPhone" text="Phone Number" />
-                                <Input id="inPhone" value="{phone}" editable="{localView>/isEditMode}" type="Tel" placeholder="+000 (...)" />
+                                <Label id="lblPhone" text="{i18n>clientProfile.label.phone}" />
+                                <Input id="inPhone" value="{phone}" editable="{localView>/isEditMode}" type="Tel" placeholder="{i18n>clientProfile.placeholder.phone}" />
 
-                                <Label id="lblCard" text="Payment Card Number" />
-                                <Input id="inCard" value="{creditCardNo}" editable="{localView>/isEditMode}" placeholder="0000-0000-0000-0000" />
+                                <Label id="lblCard" text="{i18n>clientProfile.label.card}" />
+                                <Input id="inCard" value="{creditCardNo}" editable="{localView>/isEditMode}" placeholder="{i18n>clientProfile.placeholder.card}" />
 
-                                <core:Title id="titleAddress" text="Delivery Address" />
+                                <core:Title id="titleAddress" text="{i18n>clientProfile.form.addressTitle}" />
 
-                                <Label id="lblCity" text="City" />
-                                <Input id="inCity" value="{city}" editable="{localView>/isEditMode}" placeholder="New York" />
+                                <Label id="lblCity" text="{i18n>clientProfile.label.city}" />
+                                <Input id="inCity" value="{city}" editable="{localView>/isEditMode}" placeholder="{i18n>clientProfile.placeholder.city}" />
 
-                                <Label id="lblPostCode" text="Zip / Post Code" />
-                                <Input id="inPostCode" value="{postCode}" editable="{localView>/isEditMode}" placeholder="220000" />
+                                <Label id="lblPostCode" text="{i18n>clientProfile.label.postCode}" />
+                                <Input id="inPostCode" value="{postCode}" editable="{localView>/isEditMode}" placeholder="{i18n>clientProfile.placeholder.postCode}" />
 
-                                <Label id="lblStreet" text="Street &amp; Building" />
-                                <Input id="inStreet" value="{streetAddress}" editable="{localView>/isEditMode}" placeholder="1st st., 15-4" />
+                                <Label id="lblStreet" text="{i18n>clientProfile.label.street}" />
+                                <Input id="inStreet" value="{streetAddress}" editable="{localView>/isEditMode}" placeholder="{i18n>clientProfile.placeholder.street}" />
                             </form:content>
                         </form:SimpleForm>
                     </IconTabFilter>
 
                     <!-- TODO: Tab 2: Orders) -->
-                    <IconTabFilter id="tabOrders" icon="sap-icon://documents" text="Orders History">
-                        <MessagePage id="msgOrders" icon="sap-icon://history" text="No orders historical data attached yet." description="This section will link transactional sales data in the next sprints." />
+                    <IconTabFilter id="tabOrders" icon="sap-icon://documents" text="{i18n>clientProfile.tab.ordersHistory}">
+                        <MessagePage id="msgOrders" icon="sap-icon://history" text="{i18n>clientProfile.message.noOrders}" description="{i18n>clientProfile.message.noOrdersDesc}" />
                     </IconTabFilter>
 
                     <!-- TODO: Tab 3: Feedbacks -->
-                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="My Feedbacks">
+                    <IconTabFilter id="tabFeedbacks" icon="sap-icon://comment" text="{i18n>clientProfile.tab.feedbacks}">
 
                     </IconTabFilter>
                 </items>

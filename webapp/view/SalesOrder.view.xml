@@ -9,7 +9,7 @@
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
-                    <Title text="Games Showcase" titleStyle="H5" />
+                    <Title text="{i18n>salesOrder.page.title}" titleStyle="H5" />
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
@@ -18,28 +18,28 @@
             <VBox>
                 <OverflowToolbar class="sapUiSmallMarginBottom">
                     <!-- Filter by Title  -->
-                    <SearchField id="searchTitleField" placeholder="Search by title..." width="230px" search=".onCatalogFiltersTrigger" />
+                    <SearchField id="searchTitleField" placeholder="{i18n>salesOrder.placeholder.search}" width="230px" search=".onCatalogFiltersTrigger" />
 
                     <ToolbarSeparator />
 
                     <!-- Filter by Category -->
-                    <ComboBox id="categorySelect" placeholder="Select Category..." showClearIcon="true" change=".onCatalogFiltersTrigger" width="220px" />
-                    <CheckBox id="parentCategoryCheckBox" text="Include Child Categories" select=".onCatalogFiltersTrigger" enabled="true" />
+                    <ComboBox id="categorySelect" placeholder="{i18n>salesOrder.placeholder.category}" showClearIcon="true" change=".onCatalogFiltersTrigger" width="220px" />
+                    <CheckBox id="parentCategoryCheckBox" text="{i18n>salesOrder.checkbox.childCategories}" select=".onCatalogFiltersTrigger" enabled="true" />
 
                     <ToolbarSeparator />
 
                     <!-- Filter by Stock-->
-                    <Label text="In Stock Only:" />
-                    <Switch id="stockFilterSwitch" state="true" change=".onCatalogFiltersTrigger" tooltip="Show only games with active digital keys currently available" />
+                    <Label text="{i18n>salesOrder.label.inStock}" />
+                    <Switch id="stockFilterSwitch" state="true" change=".onCatalogFiltersTrigger" tooltip="{i18n>salesOrder.tooltip.stockSwitch}" />
 
                     <!-- Filter by Price Range -->
-                    <Label text="Price Limit:" class="sapUiSmallMarginBegin" />
-                    <Select id="priceFilterCombo" change=".onCatalogFiltersTrigger" width="150px" tooltip="Filter digital licenses by maximum retail price tier">
+                    <Label text="{i18n>salesOrder.label.priceLimit}" class="sapUiSmallMarginBegin" />
+                    <Select id="priceFilterCombo" change=".onCatalogFiltersTrigger" width="150px" tooltip="{i18n>salesOrder.tooltip.priceSelect}">
                         <items>
-                            <core:Item key="all" text="All Prices" />
-                            <core:Item key="20" text="Under 20 USD" />
-                            <core:Item key="50" text="Under 50 USD" />
-                            <core:Item key="100" text="Under 100 USD" />
+                            <core:Item key="all" text="{i18n>salesOrder.price.all}" />
+                            <core:Item key="20" text="{i18n>salesOrder.price.under20}" />
+                            <core:Item key="50" text="{i18n>salesOrder.price.under50}" />
+                            <core:Item key="100" text="{i18n>salesOrder.price.under100}" />
                         </items>
                     </Select>
                 </OverflowToolbar>
@@ -51,19 +51,19 @@
                     }">
                     <columns>
                         <Column width="4rem" hAlign="Center">
-                            <Text text="Cover" />
+                            <Text text="{i18n>salesOrder.column.cover}" />
                         </Column>
                         <Column>
-                            <Button text="Game Title" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTitle" />
+                            <Button text="{i18n>salesOrder.column.gameTitle}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTitle" />
                         </Column>
                         <Column minScreenWidth="Tablet" demandPopin="true">
-                            <Text text="Category" />
+                            <Text text="{i18n>salesOrder.column.category}" />
                         </Column>
                         <Column hAlign="End">
-                            <Button text="Retail Price" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortPrice" />
+                            <Button text="{i18n>salesOrder.column.price}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortPrice" />
                         </Column>
                         <Column hAlign="Center" width="6rem">
-                            <Text text="Buy" />
+                            <Text text="{i18n>salesOrder.column.buy}" />
                         </Column>
                     </columns>
 
@@ -76,7 +76,7 @@
                                 <Text text="{genre/name}" />
                                 <ObjectNumber number="{price}" unit="USD" />
                                 <!-- TODO: Add Disabling when out of stock-->
-                                <Button icon="sap-icon://add-product" type="Transparent" tooltip="Quick Add to Cart" enabled="{userRoles>/isLoggedIn}" press=".onQuickAddToCart" />
+                                <Button icon="sap-icon://add-product" type="Transparent" tooltip="{i18n>salesOrder.tooltip.addToCart}" enabled="{userRoles>/isLoggedIn}" press=".onQuickAddToCart" />
                             </cells>
                         </ColumnListItem>
                     </items>

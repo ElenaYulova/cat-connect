@@ -116,7 +116,7 @@ export default class OrderDetails extends Controller {
         if (!oView || !oInput || !oModel) return;
 
         const oSelectDialog = new SelectDialog({
-            title: "Select Cancellation Reason",
+            title: this.getView()?.getModel("i18n")?.getProperty("orderDetails.dialog.cancelReason.title"),
             confirm: (oEvent: any) => {
                 const oSelectedItem = oEvent.getParameter("selectedItem");
                 if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
@@ -141,7 +141,7 @@ export default class OrderDetails extends Controller {
         if (!oView || !oInput || !oModel) return;
 
         const oSelectDialog = new SelectDialog({
-            title: "Select License Platform",
+            title: this.getView()?.getModel("i18n")?.getProperty("orderDetails.dialog.licensePlatform.title"),
             confirm: (oEvent: any) => {
                 const oSelectedItem = oEvent.getParameter("selectedItem");
                 if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
@@ -172,7 +172,8 @@ export default class OrderDetails extends Controller {
         const oBindingContext = oView?.getBindingContext() as ODataContext | undefined;
         if (!oBindingContext) return;
 
-        MessageBox.warning("CRITICAL: Are you sure you want to PERMANENTLY DELETE this order from the system database?", {
+        const oResourceBundle = (this.getOwnerComponent()?.getModel("i18n") as any)?.getResourceBundle();
+        MessageBox.warning(oResourceBundle?.getText("orderDetails.message.deleteConfirm") || "", {
             actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
             emphasizedAction: MessageBox.Action.CANCEL,
             onClose: async (sAction: string | null) => {
@@ -182,12 +183,12 @@ export default class OrderDetails extends Controller {
                     oView!.setBusy(true);
                     await oBindingContext.delete();
                     oView!.setBusy(false);
-                    MessageBox.success("Order has been permanently purged from database.", {
+                    MessageBox.success(oResourceBundle?.getText("orderDetails.message.deleteSuccess") || "", {
                         onClose: () => this.onNavBack()
                     });
                 } catch (oError: any) {
                     oView!.setBusy(false);
-                    MessageBox.error(oError?.message || "Failed to purge database records.");
+                    MessageBox.error(oError?.message || oResourceBundle?.getText("orderDetails.message.deleteError") || "");
                 }
             }
         });

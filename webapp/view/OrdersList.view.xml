@@ -2,39 +2,40 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns="sap.m">
-    <Page id="ordersListPage" title="Order Tracking History" showNavButton="true" navButtonPress="onNavBack">
+    <Page id="ordersListPage" title="{i18n>ordersList.page.title}" showNavButton="true" navButtonPress="onNavBack">
         <content>
             <!-- Filterbar -->
-            <Panel expandable="true" headerText="Search &amp; Filter Options" expanded="true" class="sapUiSmallMarginBottom">
+            <Panel expandable="true" headerText="{i18n>ordersList.panel.header}" expanded="true" class="sapUiSmallMarginBottom">
                 <content>
                     <FlexBox wrap="Wrap" alignItems="End" justifyContent="SpaceBetween">
                         <items>
                             <!-- Filter 1: Order Number & Customer Name Search -->
                             <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="Order Number / Client:" design="Bold" />
-                                <SearchField id="filterOrderNumber" placeholder="Search order or name..." width="14rem" search="onApplyFilters" />
+                                <Label text="{i18n>ordersList.label.search}" design="Bold" />
+                                <SearchField id="filterOrderNumber" placeholder="{i18n>ordersList.placeholder.search}" width="14rem" search="onApplyFilters" />
                             </VBox>
 
                             <!-- Filter 2: Status Selection -->
                             <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="Order Status:" design="Bold" />
+                                <Label text="{i18n>ordersList.label.status}" design="Bold" />
                                 <Select id="filterStatus" width="12rem" change="onApplyFilters">
-                                    <core:Item key="ALL" text="-- Show All Statuses --" />
-                                    <core:Item key="N" text="New Request" />
-                                    <core:Item key="P" text="In Progress" />
-                                    <core:Item key="C" text="Completed" />
-                                    <core:Item key="X" text="Cancelled" />
+                                    <core:Item key="ALL" text="{i18n>ordersList.status.all}" />
+                                    <core:Item key="N" text="{i18n>ordersList.status.new}" />
+                                    <core:Item key="P" text="{i18n>ordersList.status.progress}" />
+                                    <core:Item key="C" text="{i18n>ordersList.status.completed}" />
+                                    <core:Item key="X" text="{i18n>ordersList.status.cancelled}" />
                                 </Select>
                             </VBox>
 
                             <!-- Filter 3: Date Range Selection -->
                             <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="Placement Date Range:" design="Bold" />
+                                <Label text="{i18n>ordersList.label.dateRange}" design="Bold" />
                                 <DateRangeSelection id="filterDateRange" width="18rem" displayFormat="yyyy-MM-dd" change="onApplyFilters" />
                             </VBox>
 
                             <!-- Reset Button -->
-                            <Button icon="sap-icon://clear-filter" text="Reset Filters" type="Transparent" class="sapUiTinyMarginBottom" press="onResetFilters" />
+                            <Button icon="sap-icon://clear-filter" text="{i18n>ordersList.button.reset}" type="Transparent" class="sapUiTinyMarginBottom" press="onResetFilters" />
+
                         </items>
                     </FlexBox>
                 </content>
@@ -49,41 +50,41 @@
                     }
                 }" growing="true" growingThreshold="10" class="sapUiResponsiveMargin">
                 <headerToolbar>
-                    <OverflowToolbar class="sapUiSmallMarginEnd">
-                        <Title text="System Sales Orders" level="H2"/>
+                    <OverflowToolbar>
+                        <Title text="{i18n>ordersList.table.title}"/>
                         <ToolbarSpacer/>
-                        <Button icon="sap-icon://refresh" tooltip="Refresh Data" press="onRefreshOrders"/>
+                        <Button icon="sap-icon://refresh" tooltip="{i18n>ordersList.tooltip.refresh}" press="onRefreshOrders"/>
                     </OverflowToolbar>
                 </headerToolbar>
                 <columns>
                     <!-- 1. Order Reference -->
                     <Column width="16rem">
-                        <Button text="Order Reference" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortOrderNumber" />
+                        <Button text="{i18n>ordersList.column.reference}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortOrderNumber" />
                     </Column>
 
                     <!-- 2. Customer Name -->
                     <Column id="colCustomer" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" width="14rem">
-                        <Text text="Customer Name" />
+                        <Text text="{i18n>ordersList.column.customer}" />
                     </Column>
 
                     <!-- 3. Total sum -->
                     <Column minScreenWidth="Tablet" demandPopin="true" width="8rem">
-                        <Button text="Order sum" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTotalAmount" />
+                        <Button text="{i18n>ordersList.column.sum}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortTotalAmount" />
                     </Column>
 
                     <!-- 4. Games Qty -->
                     <Column minScreenWidth="Tablet" demandPopin="true" width="8rem">
-                        <Text text="Games Qty" />
+                        <Text text="{i18n>ordersList.column.quantity}" />
                     </Column>
 
                     <!-- 5. Placement Date -->
                     <Column minScreenWidth="Desktop" demandPopin="true" width="12rem">
-                        <Button text="Placement Date" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortCreatedAt" />
+                        <Button text="{i18n>ordersList.column.date}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortCreatedAt" />
                     </Column>
 
                     <!-- 6. Status -->
                     <Column width="10rem" hAlign="Center">
-                        <Button text="Status" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortStatus" />
+                        <Button text="{i18n>ordersList.column.status}" type="Transparent" icon="sap-icon://sort" iconFirst="false" press=".onSortStatus" />
                     </Column>
                 </columns>
 
@@ -105,7 +106,7 @@
                             <ObjectNumber number="{totalAmount}" unit="{currency_code}" />
 
                             <!-- 4. Games Qty -->
-                            <Text text="{items/$count} pcs" />
+                            <Text text="{= ${i18n>orderDetails.table.unit.pcs}.replace('{0}', ${items/$count}) }" />
 
                             <!-- 5. Placement Date -->
                             <Text text="{

@@ -5,16 +5,16 @@
     <!-- Read-Only Customer Data -->
     <form:SimpleForm id="customerInsightsForm" editable="false" layout="ResponsiveLayout" labelSpanL="3" labelSpanM="3" emptySpanL="4" emptySpanM="4" columnsL="1" columnsM="1">
         <form:content>
-            <Label id="lblFirstName" text="First Name" />
+            <Label id="lblFirstName" text="{i18n>customerInsights.label.firstName}" />
             <Text id="txtFirstName" text="{firstName}" />
 
-            <Label id="lblLastName" text="Last Name" />
+            <Label id="lblLastName" text="{i18n>customerInsights.label.lastName}" />
             <Text id="txtLastName" text="{lastName}" />
 
-            <Label id="lblAccountCategory" text="Account Category" />
+            <Label id="lblAccountCategory" text="{i18n>customerInsights.label.accountCategory}" />
             <ObjectStatus id="statusCategory" text="{categoryGroup}" state="Success" inverted="true" />
 
-            <Label id="lblCrmRating" text="CRM Average Rating" />
+            <Label id="lblCrmRating" text="{i18n>customerInsights.label.crmRating}" />
             <ObjectNumber id="numAverageRating" number="{averageRating}" unit="★" />
         </form:content>
     </form:SimpleForm>

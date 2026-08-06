@@ -18,7 +18,6 @@ export default class App extends Controller {
         const oODataModel = oView.getModel() as ODataModel | undefined;
         const oRoleModel = oView.getModel("userRoles") as JSONModel | undefined;
 
-        // Метод больше не возвращает промис (void), убран ложный .catch()
         if (oODataModel && oRoleModel) {
             LoginManager.checkSilentLogin(oView, oODataModel, oRoleModel);
         }
@@ -34,6 +33,10 @@ export default class App extends Controller {
 
     public onNavToCart(): void {
         NavigationManager.navTo(this, "Cart");
+    }
+
+    public onNavToProfile(): void {
+        NavigationManager.navTo(this, "ClientProfile");
     }
 
     public onLoginPress(): void {
