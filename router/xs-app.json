@@ -1,7 +1,19 @@
 {
-  "welcomeFile": "/index.html",
+  "welcomeFile": "/fioriSandbox.html",
   "authenticationMethod": "none",
   "routes": [
+    {
+      "source": "^/resources/(.*)$",
+      "target": "/resources/$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/test-resources/(.*)$",
+      "target": "/test-resources/$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "none"
+    },
     {
       "source": "^/odata/v4/(.*)$",
       "target": "/odata/v4/$1",
@@ -15,22 +27,33 @@
       "service": "sap-approuter-userapi"
     },
     {
+      "source": "^/fioriSandbox.html$",
+      "localDir": ".",
+      "authenticationType": "none"
+    },
+    {
       "source": "^/sales_order/(.*)$",
       "target": "$1",
-      "localDir": "sales_order",
+      "localDir": "../webapp",
       "cacheControl": "no-cache",
       "authenticationType": "none"
     },
     {
       "source": "^/crm_customers/(.*)$",
       "target": "$1",
-      "localDir": "crm_customers",
+      "localDir": "../app/crm_customers",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/crm_app/(.*)$",
+      "target": "$1",
+      "localDir": "../app/crm_customers",
       "authenticationType": "none"
     },
     {
       "source": "^/(.*)$",
       "target": "$1",
-      "localDir": "sales_order",
+      "localDir": "../webapp",
       "authenticationType": "none"
     }
   ]

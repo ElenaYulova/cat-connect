@@ -3,6 +3,7 @@ target/
 _out/
 gen/
 dist/
+router/sales_order
 
 .cdsrc-private.json
 default-*.json
@@ -27,3 +28,4 @@ resources/
 # auto generated wildcard
 .env
 @cds-models
+

@@ -1,0 +1,35 @@
+{
+  "applications": {
+    "SalesOrder-display": {
+      "additionalInformation": "SAPUI5.Component=sap.capire.gameshop",
+      "applicationType": "URL",
+      "url": "./",
+      "description": "Manage Sales Orders",
+      "title": "Sales Orders"
+    },
+    "CrmCustomers-display": {
+      "additionalInformation": "SAPUI5.Component=crmcustomers",
+      "applicationType": "URL",
+      "url": "/crm_customers",
+      "description": "Manage CRM Customers",
+      "title": "CRM Customers"
+    }
+  },
+  "services": {
+    "LaunchPage": {
+      "adapter": {
+        "config": {
+          "catalogs": [],
+          "groups": []
+        }
+      }
+    },
+    "ClientSideTargetResolution": {
+      "adapter": {
+        "config": {
+          "inbound": {}
+        }
+      }
+    }
+  }
+}

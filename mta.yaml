@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.72
+version: 1.0.76
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -50,12 +50,6 @@ modules:
       keep-existing-routes: true
       disk-quota: 256M
       memory: 256M
-    build-parameters:
-      before-builder:
-        - rm -rf crm_customers sales_order
-        - mkdir -p crm_customers sales_order
-        - cp -r ../app/crm_customers/. ./crm_customers/ 2>/dev/null || true
-        - cp -r ../dist/. ./sales_order/ 2>/dev/null || true
     requires:
       - name: srv-api
         group: destinations
@@ -63,6 +57,16 @@ modules:
           name: srv-api
           url: ~{srv-url}
           forwardAuthToken: false
+    build-parameters:
+      before-builder:
+        - rm -rf crm_customers sales_order
+        - mkdir -p crm_customers sales_order
+        - cp -r ../app/crm_customers/. ./crm_customers/ 2>/dev/null || true
+      requires:
+        - name: cat-connect-srv
+          artifacts:
+            - dist/*
+          target: ./sales_order
 
 resources:
   # SAP HANA Cloud HDI Container
