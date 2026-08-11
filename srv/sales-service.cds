@@ -1,6 +1,20 @@
 using {sap.capire.gameshop as myApp} from '../db/schema';
 
-service SalesOrderService @(requires: 'authenticated-user') {
+type EligibilityResult {
+    isBulkAvailable     : Boolean;
+    averageRating       : Decimal(3, 2);
+    bulkDiscountPercent : Decimal(3, 2);
+    bulkMinQuantity     : Integer;
+}
+
+type CancelResult {
+    success : Boolean;
+}
+
+@path: 'sales-order'
+service SalesOrderService @(requires: 'authenticated-user',
+// impl    : 'sales-service' - moved to package.json. TODO: delete if it is not necessary
+) {
 
     // Main entities
     @odata.draft.enabled
@@ -22,13 +36,15 @@ service SalesOrderService @(requires: 'authenticated-user') {
                 streetAddress
         };
 
+
     @odata.draft.enabled
     entity Orders           as projection on myApp.salesorder.Orders
         actions {
             function checkBulkEligibility(qty: Integer) returns Boolean;
+            @cds.odata.bindingparameter.name: '_it'
             action   cancelOrder(reasonCode: String(50),
                                  platformCode: String(50),
-                                 comment: LargeString)  returns Boolean;
+                                 comment: LargeString)  returns CancelResult;
         };
 
     entity OrderItems       as projection on myApp.salesorder.OrderItems;
@@ -39,6 +55,11 @@ service SalesOrderService @(requires: 'authenticated-user') {
 
     entity Producers        as projection on myApp.salesorder.Producers;
     entity Categories       as projection on myApp.salesorder.Categories;
+
+    @readonly
+    entity EligibilityContext {
+        key ID : UUID;
+    }
 
 
     // CRM & System Insights (Read-Only in this service)
@@ -59,12 +80,7 @@ service SalesOrderService @(requires: 'authenticated-user') {
     @readonly
     entity OrderStatusCode  as projection on myApp.salesorder.OrderStatusCode;
 
-    function getCartEligibilities(customer_ID: UUID) returns {
-        isBulkAvailable     : Boolean;
-        averageRating       : Decimal(3, 2);
-        bulkDiscountPercent : Decimal(3, 2);
-        bulkMinQuantity     : Integer;
-    };
+    function getCartEligibilities(customer_ID: UUID) returns EligibilityResult;
 }
 
 
@@ -99,7 +115,6 @@ annotate SalesOrderService.Orders with @restrict: [
         to   : 'CRMAdmin'
     }
 ];
-
 
 annotate SalesOrderService.Products with @restrict: [
     {
@@ -152,14 +167,21 @@ annotate SalesOrderService.Feedbacks with @restrict: [
     }
 ];
 
-annotate SalesOrderService.ClientProfile with @restrict: [{
-    grant: [
-        'READ',
-        'UPDATE'
-    ],
-    to   : 'Customer',
-    where: 'ID = $user.id'
-}];
+annotate SalesOrderService.ClientProfile with @restrict: [
+    {
+        grant: [
+            'READ',
+            'UPDATE'
+        ],
+        to   : 'Customer',
+        where: 'ID = $user.id'
+    },
+    {
+        grant: 'READ',
+        to   : 'authenticated-user',
+        where: 'ID = $user.id'
+    }
+];
 
 
 // Actions & Functions
@@ -171,8 +193,25 @@ annotate SalesOrderService.Orders actions {
             'Customer',
             'SalesManager'
         ]
-    }]
+    }];
+    cancelOrder          @restrict: [{
+        grant: 'invoke',
+        to   : [
+            'Customer',
+            'SalesManager',
+            'authenticated-user'
+        ]
+    }];
 };
+
+annotate SalesOrderService.getCartEligibilities @restrict: [{
+    grant: 'invoke',
+    to   : [
+        'Customer',
+        'SalesManager',
+        'authenticated-user'
+    ]
+}];
 
 
 // Annotations
@@ -182,3 +221,9 @@ annotate SalesOrderService.Products with {
 
 // Redirections
 annotate SalesOrderService.ClientProfile with @cds.redirection.target;
+
+
+// TODO: delete when XSUAA switch on
+
+annotate SalesOrderService.getCartEligibilities with @(requires: 'any');
+annotate SalesOrderService.Orders with @(requires: 'any');

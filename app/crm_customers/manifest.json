@@ -24,6 +24,19 @@
           "odataVersion": "4.0"
         }
       }
+    },
+    "crossNavigation": {
+      "inbound": {
+        "GamerCRM-manage": {
+          "semanticObject": "GamerCRM",
+          "action": "manage",
+          "title": "Gamer CRM Dashboard",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
     }
   },
   "sap.ui": {

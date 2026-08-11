@@ -103,10 +103,11 @@ export default class SalesOrderService extends cds.ApplicationService {
         * Cancelling handling
         */
 
-        this.on('cancelOrder', 'Orders', async (req: cds.Request) => {
+       this.on('cancelOrder', Orders, async (req: cds.Request) => {
             const { reasonCode, platformCode, comment } = req.data as { reasonCode: string, platformCode: string, comment: string };
+            const aParams = req.params as Array<{ ID: string }>;
+            const oParamObj = aParams[0];
 
-            const oParamObj = req.params[0] as any;
             const sCleanOrderId = typeof oParamObj === "object" ? oParamObj.ID : oParamObj;
 
             const { OrderItems, Products, Feedbacks } = this.entities;
@@ -173,60 +174,10 @@ export default class SalesOrderService extends cds.ApplicationService {
                     })
                 );
             } catch (oError: any) {
-                console.error("🔒 CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
+                console.error("CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
             }
         });
 
         return super.init();
-    }
-
-    private async _calculateOrderAmounts(
-        customer_ID: string | undefined | null,
-        items: Array<{ game_ID: string, quantity: number }> | undefined | null
-    ) {
-        const { SELECT } = cds.ql;
-        const Products = this.entities.Products;
-
-        const result = { totalAmount: 0, discountValue: 0, netAmount: 0 };
-        if (!items || items.length === 0) return result;
-
-        let totalGross = 0;
-        for (const item of items) {
-
-            if (!item.game_ID) continue;
-
-            const game = await cds.db.run(SELECT.one.from(Products).where({ ID: item.game_ID }));
-            if (game) {
-                totalGross += (game.price * (item.quantity || 1));
-            }
-        }
-
-        result.totalAmount = +totalGross.toFixed(2);
-
-        let fAutoDiscountPercent = 0;
-        if (customer_ID) {
-            const gamerProfile = await cds.db.run(
-                SELECT.one.from('SalesOrderService.CustomerInsights')
-                    .where({ ID: customer_ID })
-                    .columns('averageRating')
-            );
-
-            if (gamerProfile && gamerProfile.averageRating !== undefined && gamerProfile.averageRating !== null) {
-                const fRatingValue = Number(gamerProfile.averageRating);
-                if (!isNaN(fRatingValue)) {
-                    fAutoDiscountPercent = fRatingValue / 100;
-                }
-            }
-        }
-
-        let fCalculatedAmount = totalGross;
-        if (fAutoDiscountPercent > 0) {
-            fCalculatedAmount = fCalculatedAmount * (1 - fAutoDiscountPercent);
-        }
-
-        result.netAmount = +fCalculatedAmount.toFixed(2);
-        result.discountValue = +(result.totalAmount - result.netAmount).toFixed(2);
-
-        return result;
     }
 }

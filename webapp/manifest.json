@@ -5,7 +5,20 @@
         "type": "application",
         "i18n": "i18n/i18n.properties",
         "title": "Game Shop Management",
-        "description": "Freestyle SAPUI5 Application for Sales Order Management"
+        "description": "Freestyle SAPUI5 Application for Sales Order Management",
+            "crossNavigation": {
+                "inbound": {
+                    "SalesOrder-display": {
+                    "semanticObject": "SalesOrder",
+                    "action": "display",
+                    "title": "Game Storefront",
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    }
+                }
+            }
+        }
     },
     "sap.ui": {
         "technology": "UI5",
@@ -62,10 +75,7 @@
                     "synchronizationMode": "None",
                     "operationMode": "Server",
                     "autoExpandSelect": true,
-                    "serviceUrl": "/odata/v4/sales-order/",
-                    "httpHeaders": {
-                        "Authorization": "Basic YWRtaW46"
-                    }
+                    "serviceUrl": "/odata/v4/sales-order/"
                 }
             }
         },

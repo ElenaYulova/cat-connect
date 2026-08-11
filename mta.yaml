@@ -11,8 +11,6 @@ build-parameters:
       commands:
         - npm install --legacy-peer-deps
         - npm run build
-        - mkdir -p router/sales_order
-        - cp -r dist/. router/sales_order/
 
 modules:
   # Node.js CAP Backend Service
@@ -57,6 +55,7 @@ modules:
         - rm -rf crm_customers sales_order
         - mkdir -p crm_customers sales_order
         - cp -r ../app/crm_customers/. ./crm_customers/ 2>/dev/null || true
+        - cp -r ../dist/. ./sales_order/ 2>/dev/null || true
     requires:
       - name: srv-api
         group: destinations

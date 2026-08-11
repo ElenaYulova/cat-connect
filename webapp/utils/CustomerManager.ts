@@ -1,7 +1,6 @@
 import JSONModel from "sap/ui/model/json/JSONModel";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import View from "sap/ui/core/mvc/View";
-import MessageBox from "sap/m/MessageBox";
 
 interface UserApiUserInfo {
     name: string;
