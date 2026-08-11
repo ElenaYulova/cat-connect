@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cat-connect Enterprise Launchpad</title>
+
+    <script>
+        window["sap-ushell-config"] = {
+            defaultRenderer: "fiori2",
+            renderers: {
+                fiori2: {
+                    componentData: {
+                        config: {
+                            search: "false",
+                            enableSpaces: true,
+                            enableDynamicPageTitle: true
+                        }
+                    }
+                }
+            },
+            services: {
+                LaunchPage: { "adapter": { "config": { "catalogs": [], "groups": [] } } },
+                ClientSideTargetResolution: { "adapter": { "config": { "inbound": {} } } },
+                NavTargetResolution: {
+                    config: {
+                        enableDynamicReferences: false,
+                        allowGuestAccess: false,
+                        applications: {
+                            "SalesOrder-display": {
+                                "additionalInformation": "SAPUI5.Component=sap.capire.gameshop",
+                                "applicationType": "URL",
+                                "url": "./",
+                                "description": "Manage Sales Orders",
+                                "title": "Sales Orders"
+                            },
+                            "CrmCustomers-display": {
+                                "additionalInformation": "SAPUI5.Component=crmcustomers",
+                                "applicationType": "URL",
+                                "url": "/crm_customers",
+                                "description": "Gamer CRM Subsystem",
+                                "title": "CRM Customers"
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <script id="sap-ushell-bootstrap"></script>
+    <script id="sap-ui-bootstrap"></script>
+    <script>
+        (function () {
+            const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+            const cdnSandbox = "https://ui5.sap.com/test-resources/sap/ushell/bootstrap/sandbox.js";
+            const cdnCore = "https://ui5.sap.com/resources/sap-ui-core.js";
+
+
+            const sandboxScript = document.getElementById("sap-ushell-bootstrap");
+            sandboxScript.setAttribute("src", cdnSandbox);
+
+            const coreScript = document.getElementById("sap-ui-bootstrap");
+            coreScript.setAttribute("src", cdnCore);
+
+            coreScript.setAttribute("data-sap-ui-theme", "sap_horizon_dark");
+            coreScript.setAttribute("data-sap-ui-libs", "sap.m, sap.ushell, sap.fe.templates");
+            coreScript.setAttribute("data-sap-ui-compatVersion", "edge");
+            coreScript.setAttribute("data-sap-ui-async", "true");
+            coreScript.setAttribute("data-sap-ui-language", "en");
+            coreScript.setAttribute("data-sap-ui-frameOptions", "allow");
+        })();
+    </script>
+
+    <script>
+        window.addEventListener("load", function () {
+            if (typeof sap !== "undefined" && sap.ui) {
+                sap.ui.require(["sap/ui/core/Core", "sap/ushell/Container"], function (Core, Container) {
+                    Core.ready().then(function () {
+                        sap.ushell.Container.createRenderer("fiori2", true)
+                            .then(function (oRenderer) {
+                                oRenderer.placeAt("content");
+                            })
+                            .catch(function (oError) {
+                                console.error("Shell renderer creation failed:", oError);
+                            });
+                    });
+                });
+            } else {
+                console.error("Critical error: SAPUI5 framework failed to load.");
+            }
+        });
+    </script>
+</head>
+
+<body class="sapUiBody" id="content">
+</body>
+
+</html>

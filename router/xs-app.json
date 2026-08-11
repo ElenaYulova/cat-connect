@@ -3,18 +3,6 @@
   "authenticationMethod": "none",
   "routes": [
     {
-      "source": "^/resources/(.*)$",
-      "target": "/resources/$1",
-      "service": "html5-apps-repo-rt",
-      "authenticationType": "none"
-    },
-    {
-      "source": "^/test-resources/(.*)$",
-      "target": "/test-resources/$1",
-      "service": "html5-apps-repo-rt",
-      "authenticationType": "none"
-    },
-    {
       "source": "^/odata/v4/(.*)$",
       "target": "/odata/v4/$1",
       "destination": "srv-api",
@@ -28,13 +16,13 @@
     },
     {
       "source": "^/fioriSandbox.html$",
-      "localDir": ".",
+      "localDir": "../webapp",
       "authenticationType": "none"
     },
     {
       "source": "^/sales_order/(.*)$",
       "target": "$1",
-      "localDir": "../webapp",
+      "localDir": "../webapp/sales_order",
       "cacheControl": "no-cache",
       "authenticationType": "none"
     },
