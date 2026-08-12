@@ -80,6 +80,11 @@ service SalesOrderService @(requires: 'authenticated-user',
     @readonly
     entity OrderStatusCode  as projection on myApp.salesorder.OrderStatusCode;
 
+    // Access Management Entities
+    @readonly
+    entity Users            as projection on myApp.Users;
+
+
     function getCartEligibilities(customer_ID: UUID) returns EligibilityResult;
 }
 
@@ -183,6 +188,22 @@ annotate SalesOrderService.ClientProfile with @restrict: [
     }
 ];
 
+annotate SalesOrderService.Users with @restrict: [
+    {
+        grant: 'READ',
+        to   : [
+            'Customer',
+            'SalesManager',
+            'Supplier',
+            'authenticated-user'
+        ]
+    },
+    {
+        grant: '*',
+        to   : 'CRMAdmin'
+    }
+];
+
 
 // Actions & Functions
 
@@ -221,9 +242,3 @@ annotate SalesOrderService.Products with {
 
 // Redirections
 annotate SalesOrderService.ClientProfile with @cds.redirection.target;
-
-
-// TODO: delete when XSUAA switch on
-
-// annotate SalesOrderService.getCartEligibilities with @(requires: 'any');
-// annotate SalesOrderService.Orders with @(requires: 'any');

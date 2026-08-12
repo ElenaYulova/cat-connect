@@ -22,6 +22,17 @@ aspect Address : {
 // ==========================================
 
 /**
+* Central Identity & Access Management (Shared Layer)
+*/
+
+entity Users : cuid, managed {
+    username   : String(111) @mandatory @title: 'Technical Login / Email';
+    businessId : UUID @title: 'Target Business Entity GUID';
+    userRole   : String(50) @title: 'Primary Application Role';
+    customer   : Association to crm.Customers on customer.ID = businessId;
+}
+
+/**
 * Context: Sales order
 */
 context salesorder {

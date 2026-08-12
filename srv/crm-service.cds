@@ -33,6 +33,9 @@ service CrmService @(requires: 'authenticated-user') {
     @readonly
     entity Producers              as projection on myApp.salesorder.Producers;
 
+    // Access Management Entities
+    entity Users                  as projection on myApp.Users;
+
     // System enums
     @readonly
     entity CustomerStatusCode     as projection on myApp.crm.CustomerStatusCode;
@@ -88,6 +91,24 @@ service CrmService @(requires: 'authenticated-user') {
         {
             grant: 'READ',
             to   : 'SupportAgent'
+        }
+    ];
+
+    annotate CrmService.Users with @restrict: [
+        {
+            grant: '*',
+            to   : 'CRMAdmin'
+        },
+        {
+            grant: [
+                'READ',
+                'UPDATE'
+            ],
+            to   : 'SalesManager'
+        },
+        {
+            grant: 'READ',
+            to   : 'authenticated-user'
         }
     ];
 

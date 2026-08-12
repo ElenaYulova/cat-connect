@@ -6,6 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>cat-connect Enterprise Launchpad</title>
 
+    <!-- USER REDIRECT CONTROLLER: Evaluate cloud XSUAA token scopes on entry -->
+    <script>
+        (function () {
+            fetch('/user-api/attributes')
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('User API offline');
+                })
+                .then(data => {
+                    if (data && data.scopes) {
+                        const scopes = data.scopes;
+
+                        const isCustomer = scopes.some(scope => scope.endsWith('.Customer'));
+                        const isAdminOrManager = scopes.some(scope => scope.endsWith('.CRMAdmin') || scope.endsWith('.SalesManager'));
+
+                        if (isCustomer && !isAdminOrManager) {
+                            window.location.replace("/sales_order/index.html");
+                        }
+                    }
+                })
+                .catch(err => console.log("Local or anonymous run, bypass redirect", err));
+        })();
+    </script>
+
+
     <script>
         window["sap-ushell-config"] = {
             defaultRenderer: "fiori2",

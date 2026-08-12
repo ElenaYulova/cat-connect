@@ -6,9 +6,9 @@
         "i18n": "i18n/i18n.properties",
         "title": "Game Shop Management",
         "description": "Freestyle SAPUI5 Application for Sales Order Management",
-            "crossNavigation": {
-                "inbound": {
-                    "SalesOrder-display": {
+        "crossNavigation": {
+            "inbound": {
+                "SalesOrder-display": {
                     "semanticObject": "SalesOrder",
                     "action": "display",
                     "title": "Game Storefront",
@@ -17,6 +17,12 @@
                         "additionalParameters": "allowed"
                     }
                 }
+            }
+        },
+        "dataSources": {
+            "userApiSource": {
+                "uri": "/user-api/currentUser",
+                "type": "JSON"
             }
         }
     },
@@ -39,14 +45,12 @@
                 }
             ]
         },
-
         "rootView": {
             "viewName": "sap.capire.gameshop.view.App",
             "type": "XML",
             "async": true,
             "id": "App"
         },
-
         "dependencies": {
             "minUI5Version": "1.120.0",
             "libs": {
@@ -65,8 +69,18 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "settings": {
                     "bundleName": "sap.capire.gameshop.i18n.i18n",
-                    "supportedLocales": ["", "ru"],
+                    "supportedLocales": [
+                        "",
+                        "ru"
+                    ],
                     "fallbackLocale": ""
+                }
+            },
+            "userInfo": {
+                "type": "sap.ui.model.json.JSONModel",
+                "dataSource": "userApiSource",
+                "settings": {
+                    "preload": false
                 }
             },
             "": {
@@ -94,22 +108,30 @@
                 {
                     "name": "SalesOrder",
                     "pattern": "",
-                    "target": ["TargetSalesOrder"]
+                    "target": [
+                        "TargetSalesOrder"
+                    ]
                 },
                 {
                     "name": "ProductDetails",
                     "pattern": "Products/{productId}",
-                    "target": ["TargetProductDetails"]
+                    "target": [
+                        "TargetProductDetails"
+                    ]
                 },
                 {
                     "name": "OrdersList",
                     "pattern": "orders",
-                    "target": ["TargetOrdersList"]
+                    "target": [
+                        "TargetOrdersList"
+                    ]
                 },
                 {
                     "name": "OrderDetails",
                     "pattern": "orders/{orderId}",
-                    "target": ["TargetOrderDetails"]
+                    "target": [
+                        "TargetOrderDetails"
+                    ]
                 },
                 {
                     "name": "Cart",
@@ -119,7 +141,9 @@
                 {
                     "name": "ClientProfile",
                     "pattern": "profile",
-                    "target": ["TargetClientProfile"]
+                    "target": [
+                        "TargetClientProfile"
+                    ]
                 }
             ],
             "targets": {

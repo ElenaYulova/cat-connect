@@ -54,6 +54,7 @@ modules:
     # Fix for XSUAA 403 Error
     properties:
       TENANT_HOST_PATTERN: "^(.*)-dev-cat-connect\\.cfapps\\.us10-001\\.hana\\.ondemand\\.com$"
+      SEND_XUSER: true
     requires:
       - name: srv-api
         group: destinations
