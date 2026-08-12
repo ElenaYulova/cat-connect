@@ -1,5 +1,5 @@
 {
-  "welcomeFile": "/fioriSandbox.html",
+  "welcomeFile": "/launchpad.html",
   "authenticationMethod": "none",
   "routes": [
     {
@@ -15,33 +15,34 @@
       "service": "sap-approuter-userapi"
     },
     {
-      "source": "^/fioriSandbox.html$",
-      "localDir": "../webapp",
-      "authenticationType": "none"
-    },
-    {
-      "source": "^/sales_order/(.*)$",
-      "target": "$1",
-      "localDir": "../webapp/sales_order",
-      "cacheControl": "no-cache",
-      "authenticationType": "none"
-    },
-    {
       "source": "^/crm_customers/(.*)$",
       "target": "$1",
-      "localDir": "../app/crm_customers",
+      "localDir": "crm_customers",
       "authenticationType": "none"
     },
     {
       "source": "^/crm_app/(.*)$",
       "target": "$1",
-      "localDir": "../app/crm_customers",
+      "localDir": "crm_customers",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/sales_order/(.*)$",
+      "target": "$1",
+      "localDir": "sales_order",
+      "cacheControl": "no-cache",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/launchpad.html$",
+      "target": "/launchpad.html",
+      "localDir": "sales_order",
       "authenticationType": "none"
     },
     {
       "source": "^/(.*)$",
       "target": "$1",
-      "localDir": "../webapp",
+      "localDir": "sales_order",
       "authenticationType": "none"
     }
   ]

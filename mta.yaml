@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.0.76
+version: 1.1.0
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -59,8 +59,8 @@ modules:
           forwardAuthToken: false
     build-parameters:
       before-builder:
-        - rm -rf crm_customers sales_order
-        - mkdir -p crm_customers sales_order
+        - rm -rf crm_customers
+        - mkdir -p crm_customers
         - cp -r ../app/crm_customers/. ./crm_customers/ 2>/dev/null || true
       requires:
         - name: cat-connect-srv

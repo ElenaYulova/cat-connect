@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.0.76",
+  "version": "1.1.0",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/cds": "^9",
@@ -38,7 +38,7 @@
     "test:sales": "npx jest test/SalesOrderService.test.js --verbose --runInBand",
     "test:cart": "npx jest test/CartManager.test.js --verbose --runInBand",
     "test": "npm run test:crm && npm run test:sales && npm run test:cart",
-    "build": "ui5 build --config ui5.yaml --clean-dest --dest dist && cds build --production",
+    "build": "ui5 build --config ui5.yaml --clean-dest --dest dist && cds build --production && cp webapp/launchpad.html dist/ && mkdir -p router/sales_order && cp -r dist/. router/sales_order/ 2>/dev/null || true",
     "start-so": "ui5 serve --config ui5.yaml --port 8090"
   },
   "private": true,

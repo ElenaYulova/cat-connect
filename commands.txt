@@ -28,3 +28,5 @@ cds watch --in-memory
 
 https://ui5.sap.com/resources/sap-ui-core.js
 https://ui5.sap.com/test-resources/sap/ushell/bootstrap/sandbox.js
+
+cf logs cat-connect --recent > router_error.txt
