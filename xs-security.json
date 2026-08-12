@@ -13,6 +13,14 @@
     {
       "name": "$XSAPPNAME.SupportAgent",
       "description": "SupportAgent"
+    },
+    {
+      "name": "$XSAPPNAME.Customer",
+      "description": "Customer Role for Sales Order Service"
+    },
+    {
+      "name": "$XSAPPNAME.Supplier",
+      "description": "Supplier Role for Sales Order Service"
     }
   ],
   "attributes": [],
@@ -40,15 +48,28 @@
         "$XSAPPNAME.SupportAgent"
       ],
       "attribute-references": []
+    },
+    {
+      "name": "Customer",
+      "description": "Customer Role",
+      "scope-references": [
+        "$XSAPPNAME.Customer"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "Supplier",
+      "description": "Supplier Role",
+      "scope-references": [
+        "$XSAPPNAME.Supplier"
+      ],
+      "attribute-references": []
     }
   ],
   "oauth2-configuration": {
     "redirect-uris": [
-      "https://ondemand.com",
-      "https://ondemand.com**",
-      "https://*.applicationstudio.cloud.sap/**",
-      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/",
-      "https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/**"
+      "https://*://**",
+      "https://*.applicationstudio.cloud.sap/**"
     ]
   }
 }

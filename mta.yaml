@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: cat-connect
-version: 1.1.0
+version: 1.1.11
 description: "Gamer CRM Application built with SAP CAP."
 parameters:
   enable-parallel-deployments: true
@@ -31,6 +31,7 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: cat-connect-db
+      - name: cat-connect-uaa
 
   # HANA Cloud Schema Deployer
   - name: cat-connect-db-deployer
@@ -50,13 +51,17 @@ modules:
       keep-existing-routes: true
       disk-quota: 256M
       memory: 256M
+    # Fix for XSUAA 403 Error
+    properties:
+      TENANT_HOST_PATTERN: "^(.*)-dev-cat-connect\\.cfapps\\.us10-001\\.hana\\.ondemand\\.com$"
     requires:
       - name: srv-api
         group: destinations
         properties:
           name: srv-api
           url: ~{srv-url}
-          forwardAuthToken: false
+          forwardAuthToken: true
+      - name: cat-connect-uaa
     build-parameters:
       before-builder:
         - rm -rf crm_customers
@@ -75,3 +80,10 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+  # SAP XSUAA Security Service
+  - name: cat-connect-uaa
+    type: com.sap.xs.uaa
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application

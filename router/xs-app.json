@@ -1,13 +1,13 @@
 {
   "welcomeFile": "/launchpad.html",
-  "authenticationMethod": "none",
+  "authenticationMethod": "route",
   "routes": [
     {
       "source": "^/odata/v4/(.*)$",
       "target": "/odata/v4/$1",
       "destination": "srv-api",
-      "authenticationType": "none",
-      "csrfProtection": false
+      "authenticationType": "xsuaa",
+      "csrfProtection": true
     },
     {
       "source": "^/user-api(.*)",
@@ -18,32 +18,42 @@
       "source": "^/crm_customers/(.*)$",
       "target": "$1",
       "localDir": "crm_customers",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa",
+      "scope": [
+        "$XSAPPNAME.CRMAdmin",
+        "$XSAPPNAME.SalesManager",
+        "$XSAPPNAME.SupportAgent"
+      ]
     },
     {
       "source": "^/crm_app/(.*)$",
       "target": "$1",
       "localDir": "crm_customers",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa",
+      "scope": [
+        "$XSAPPNAME.CRMAdmin",
+        "$XSAPPNAME.SalesManager",
+        "$XSAPPNAME.SupportAgent"
+      ]
     },
     {
       "source": "^/sales_order/(.*)$",
       "target": "$1",
       "localDir": "sales_order",
       "cacheControl": "no-cache",
-      "authenticationType": "none"
-    },
-    {
-      "source": "^/launchpad.html$",
-      "target": "/launchpad.html",
-      "localDir": "sales_order",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa",
+      "scope": [
+        "$XSAPPNAME.CRMAdmin",
+        "$XSAPPNAME.SalesManager",
+        "$XSAPPNAME.Customer",
+        "$XSAPPNAME.Supplier"
+      ]
     },
     {
       "source": "^/(.*)$",
       "target": "$1",
       "localDir": "sales_order",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa"
     }
   ]
 }

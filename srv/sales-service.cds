@@ -225,5 +225,5 @@ annotate SalesOrderService.ClientProfile with @cds.redirection.target;
 
 // TODO: delete when XSUAA switch on
 
-annotate SalesOrderService.getCartEligibilities with @(requires: 'any');
-annotate SalesOrderService.Orders with @(requires: 'any');
+// annotate SalesOrderService.getCartEligibilities with @(requires: 'any');
+// annotate SalesOrderService.Orders with @(requires: 'any');
