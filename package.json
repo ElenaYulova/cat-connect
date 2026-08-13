@@ -1,6 +1,6 @@
 {
   "name": "cat-connect",
-  "version": "1.1.11",
+  "version": "1.1.13",
   "dependencies": {
     "@cap-js/hana": "^3.0.1",
     "@sap/cds": "^9",
@@ -54,6 +54,15 @@
       "db": {
         "kind": "sqlite"
       },
+      "profiles": {
+        "production": {
+          "services": {
+            "SalesOrderService": {
+              "impl": "./dist/sales-service.js"
+            }
+          }
+        }
+      },
       "folders": {
         "data": "db/test"
       },
@@ -103,11 +112,6 @@
       "[production]": {
         "db": {
           "kind": "hana"
-        }
-      },
-      "SalesOrderService": {
-        "[production]": {
-          "impl": "sales-service"
         }
       }
     }

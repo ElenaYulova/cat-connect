@@ -70,8 +70,7 @@
                 "settings": {
                     "bundleName": "sap.capire.gameshop.i18n.i18n",
                     "supportedLocales": [
-                        "",
-                        "ru"
+                        ""
                     ],
                     "fallbackLocale": ""
                 }

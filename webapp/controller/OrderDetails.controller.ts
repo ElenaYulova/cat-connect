@@ -109,54 +109,25 @@ export default class OrderDetails extends Controller {
     }
 
     public onReasonValueHelp(): void {
-        const oView = this.getView();
-        const oInput = oView?.byId("reasonInput") as Input;
-        const oModel = oView?.getModel("valueHelps");
-
-        if (!oView || !oInput || !oModel) return;
-
-        const oSelectDialog = new SelectDialog({
-            title: this.getView()?.getModel("i18n")?.getProperty("orderDetails.dialog.cancelReason.title"),
-            confirm: (oEvent: any) => {
-                const oSelectedItem = oEvent.getParameter("selectedItem");
-                if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
-            }
-        });
-
-        oSelectDialog.setModel(oModel as any, "valueHelps");
-
-        oSelectDialog.bindAggregation("items", {
-            path: "valueHelps>/cancellationReasons",
-            template: new StandardListItem({ title: "{valueHelps>code}", description: "{valueHelps>text}" })
-        });
-
-        oSelectDialog.open("");
+        const oInput = this.getView()?.byId("reasonInput") as Input;
+        OrderManager.openValueHelp(
+            this,
+            oInput,
+            "orderDetails.dialog.cancelReason.title",
+            "valueHelps>/cancellationReasons"
+        );
     }
 
     public onDestinationValueHelp(): void {
-        const oView = this.getView();
-        const oInput = oView?.byId("destinationInput") as Input;
-        const oModel = oView?.getModel("valueHelps");
-
-        if (!oView || !oInput || !oModel) return;
-
-        const oSelectDialog = new SelectDialog({
-            title: this.getView()?.getModel("i18n")?.getProperty("orderDetails.dialog.licensePlatform.title"),
-            confirm: (oEvent: any) => {
-                const oSelectedItem = oEvent.getParameter("selectedItem");
-                if (oSelectedItem) oInput.setValue(oSelectedItem.getTitle());
-            }
-        });
-
-        oSelectDialog.setModel(oModel as any, "valueHelps");
-
-        oSelectDialog.bindAggregation("items", {
-            path: "valueHelps>/licensePlatforms",
-            template: new StandardListItem({ title: "{valueHelps>code}", description: "{valueHelps>text}" })
-        });
-
-        oSelectDialog.open("");
+        const oInput = this.getView()?.byId("destinationInput") as Input;
+        OrderManager.openValueHelp(
+            this,
+            oInput,
+            "orderDetails.dialog.licensePlatform.title",
+            "valueHelps>/licensePlatforms"
+        );
     }
+
 
     public async onConfirmOrderCancellation(): Promise<void> {
 

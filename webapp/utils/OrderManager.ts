@@ -8,6 +8,9 @@ import MessageBox from "sap/m/MessageBox";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
 import Controller from "sap/ui/core/mvc/Controller";
+import SelectDialog from "sap/m/SelectDialog";
+import StandardListItem from "sap/m/StandardListItem";
+import Input from "sap/m/Input";
 
 export default class OrderManager {
 
@@ -33,7 +36,7 @@ export default class OrderManager {
         const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
 
         if (fSaving > 0) {
-             oDiscountAttr.setText(oBundle?.getText("orderManager.label.loyaltySaving", [fSaving]) || `Your Loyalty Saving: ${fSaving} USD`);
+            oDiscountAttr.setText(oBundle?.getText("orderManager.label.loyaltySaving", [fSaving]) || `Your Loyalty Saving: ${fSaving} USD`);
         } else {
             oDiscountAttr.setText("");
         }
@@ -49,32 +52,36 @@ export default class OrderManager {
     }
 
     public static enforceSecurityShield(oController: Controller, oOrderData: any, oUserRoles: JSONModel | undefined): void {
-        if (!oUserRoles || !oOrderData) return;
-
-        const bIsAdmin = oUserRoles.getProperty("/isAdmin") === true;
-        const bIsCRMAdmin = oUserRoles.getProperty("/isCRMAdmin") === true;
-        const bIsManager = oUserRoles.getProperty("/isSalesManager") === true;
-
-        if (bIsAdmin || bIsCRMAdmin || bIsManager) return;
+        if (!oOrderData) return;
 
         const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
-
         const sSavedUserJson = window.localStorage.getItem("catConnect_userProfile");
+
         if (sSavedUserJson) {
-            const oUserData = JSON.parse(sSavedUserJson) as { id?: string };
-            if (oOrderData.customer_ID !== oUserData.id) {
-                MessageBox.error(oBundle?.getText("orderManager.message.accessDenied") || "Access Denied: You cannot view other customers' orders.", {
-                    onClose: () => {
-                        if (typeof (oController as any).onNavBack === "function") {
-                            (oController as any).onNavBack();
+            try {
+                const oUserData = JSON.parse(sSavedUserJson) as { id?: string, isCRMAdmin?: boolean, isSalesManager?: boolean };
+
+                if (oUserData.isCRMAdmin === true || oUserData.isSalesManager === true) {
+                    return;
+                }
+
+                if (oOrderData.customer_ID !== oUserData.id) {
+                    MessageBox.error(oBundle?.getText("orderManager.message.accessDenied") || "Access Denied: You cannot view other customers' orders.", {
+                        onClose: () => {
+                            if (typeof (oController as any).onNavBack === "function") {
+                                (oController as any).onNavBack();
+                            }
                         }
-                    }
-                });
+                    });
+                }
+            } catch (e) {
+                console.error("[AUTODEV SEC-SHIELD CRASH]: Failed to parse local session token.");
             }
         }
     }
 
-        public static async checkAndPrepareReviewContainer(oController: any, oOrderData: any): Promise<void> {
+
+    public static async checkAndPrepareReviewContainer(oController: any, oOrderData: any): Promise<void> {
         const oView = oController.getView();
         const oLocalModel = oView?.getModel("localView") as JSONModel | undefined;
         if (!oView || !oLocalModel || !oOrderData) return;
@@ -128,10 +135,10 @@ export default class OrderManager {
                     oLocalModel.setProperty("/isReviewFormVisible", false);
                     oLocalModel.setProperty("/isReviewReadOnlyVisible", true);
 
-                const sCleanComment = oSavedReview.comments
-                    .replace("[CANCELED]", oBundle?.getText("orderManager.status.canceled") || "🛑 STATUS: CANCELED |")
-                    .replace(/\[/g, " ")
-                    .replace(/\]/g, " |");
+                    const sCleanComment = oSavedReview.comments
+                        .replace("[CANCELED]", oBundle?.getText("orderManager.status.canceled") || "🛑 STATUS: CANCELED |")
+                        .replace(/\[/g, " ")
+                        .replace(/\]/g, " |");
 
                     (oView.byId("savedRatingIndicator") as RatingIndicator)?.setValue(0);
                     (oView.byId("savedRatingIndicator") as RatingIndicator)?.setVisible(false);
@@ -265,7 +272,56 @@ export default class OrderManager {
         } catch (oError: any) {
             oCancelDialog.setBusy(false);
             oView.setBusy(false);
-             MessageBox.error(oError?.message || oBundle?.getText("orderManager.message.cancelError") || "Fatal error during order cancellation transaction.");
+            MessageBox.error(oError?.message || oBundle?.getText("orderManager.message.cancelError") || "Fatal error during order cancellation transaction.");
         }
+    }
+
+    public static openValueHelp(
+        oController: any,
+        oInput: Input | undefined,
+        sTitleKey: string,
+        sAggregationPath: string
+    ): void {
+        const oView = oController.getView();
+        const oModel = oView?.getModel("valueHelps");
+        const oI18nModel = oView?.getModel("i18n");
+
+        if (!oView || !oInput || !oModel) return;
+
+        const oResourceBundle = (oI18nModel as any)?.getResourceBundle();
+        const sTitle = oResourceBundle?.getText(sTitleKey) || "Select Option";
+
+        const oSelectDialog = new SelectDialog({
+            title: sTitle,
+            confirm: (oEvent: any) => {
+                const oSelectedItem = oEvent.getParameter("selectedItem");
+                if (oSelectedItem) {
+                    oInput.setValue(oSelectedItem.getTitle());
+                }
+            }
+        });
+
+        oSelectDialog.setModel(oModel, "valueHelps");
+
+        oSelectDialog.bindAggregation("items", {
+            path: sAggregationPath,
+            factory: (sId: string, oContext: any) => {
+                const sRawCode = oContext.getProperty("code") || "";
+                const sRawText = oContext.getProperty("text") || "";
+
+                const sCleanCodeKey = sRawCode.replace("{i18n>", "").replace("}", "");
+                const sCleanTextKey = sRawText.replace("{i18n>", "").replace("}", "");
+
+                const sTranslatedTitle = oResourceBundle?.getText(sCleanCodeKey) || sRawCode;
+                const sTranslatedDesc = oResourceBundle?.getText(sCleanTextKey) || sRawText;
+
+                return new StandardListItem(sId, {
+                    title: sTranslatedTitle,
+                    description: sTranslatedDesc
+                });
+            }
+        });
+
+        oSelectDialog.open("");
     }
 }

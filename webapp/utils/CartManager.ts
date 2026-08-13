@@ -4,11 +4,16 @@ import MessageBox from "sap/m/MessageBox";
 import View from "sap/ui/core/mvc/View";
 import ODataModel from "sap/ui/model/odata/v4/ODataModel";
 import NavigationManager from "./NavigationManager";
+import ResourceModel from "sap/ui/model/resource/ResourceModel";
 
 /**
  * @namespace sap.capire.gameshop.utils
  */
 export default class CartManager {
+
+    private static _oBundle = new ResourceModel({
+        bundleName: "sap.capire.gameshop.i18n.i18n"
+    }).getResourceBundle() as any;
 
     public static getQuantityForProduct(oCartModel: JSONModel, sProductId: string): number {
         if (!oCartModel) return 1;
@@ -20,7 +25,8 @@ export default class CartManager {
 
     public static addToCart(oCartModel: JSONModel, sId: string, sTitle: string, fPrice: number, iQtyToAdd: number): void {
         if (!oCartModel) return;
-        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+        const oBundle = (sap.ui as any).core?.Component?.getOwnerComponentFor(sap.ui.getCore().getStaticAreaRef())?.getModel("i18n")?.getResourceBundle()
+            || (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const oCartData = oCartModel.getData();
         const aItems = oCartData.items as any[];
         const oExistingItem = aItems.find(item => item.id === sId);
@@ -37,7 +43,7 @@ export default class CartManager {
         }
 
         this._recalculateTotalsAndRefresh(oCartModel, oCartData, aItems);
-        MessageToast.show(oBundle?.getText("cartManager.message.addedToCart", [iQtyToAdd, sTitle]) || "...");
+         MessageToast.show(this._oBundle?.getText("cartManager.message.addedToCart", [iQtyToAdd, sTitle]) || "...");
     }
 
     public static updateQuantity(oCartModel: JSONModel, sId: string, iNewQty: number): void {
@@ -54,7 +60,8 @@ export default class CartManager {
 
     public static removeFromCart(oCartModel: JSONModel, sId: string): void {
         if (!oCartModel) return;
-        const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
+        const oBundle = (sap.ui as any).core?.Component?.getOwnerComponentFor(sap.ui.getCore().getStaticAreaRef())?.getModel("i18n")?.getResourceBundle()
+            || (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const oCartData = oCartModel.getData();
         const aItems = oCartData.items as any[];
 
@@ -62,7 +69,7 @@ export default class CartManager {
         oCartData.items = aUpdatedItems;
 
         this._recalculateTotalsAndRefresh(oCartModel, oCartData, aUpdatedItems);
-        MessageToast.show(oBundle?.getText("cartManager.message.itemRemoved") || "...");
+        MessageToast.show(this._oBundle?.getText("cartManager.message.itemRemoved") || "...");
     }
 
     public static triggerRefresh(oCartModel: JSONModel): void {
@@ -138,7 +145,7 @@ export default class CartManager {
 
         if (!oOrderContext) {
             oView.setBusy(false);
-             MessageBox.error(oBundle?.getText("cartManager.message.draftContextError") || "Failed to initialize OData context for the new order draft.");
+            MessageBox.error(oBundle?.getText("cartManager.message.draftContextError") || "Failed to initialize OData context for the new order draft.");
             return;
         }
 
@@ -211,12 +218,12 @@ export default class CartManager {
 
         let oUserData: {
             id?: string;
-            isBulkAvailable?: boolean; 
+            isBulkAvailable?: boolean;
             averageRating?: string | number;
             bulkDiscountPercent?: number;
             bulkMinQuantity?: number;
         } = {};
-        
+
         try {
             oUserData = JSON.parse(sSavedUserJson);
         } catch (e) {
