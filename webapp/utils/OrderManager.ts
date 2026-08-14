@@ -65,7 +65,9 @@ export default class OrderManager {
                     return;
                 }
 
-                if (oOrderData.customer_ID !== oUserData.id) {
+                const sOrderCustomerId = oOrderData.customer_ID || oOrderData.customer?.ID;
+
+                if (sOrderCustomerId !== oUserData.id) {
                     MessageBox.error(oBundle?.getText("orderManager.message.accessDenied") || "Access Denied: You cannot view other customers' orders.", {
                         onClose: () => {
                             if (typeof (oController as any).onNavBack === "function") {

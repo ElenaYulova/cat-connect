@@ -35,3 +35,5 @@ cf set-env cat-connect SAP_JWT_TRUST_ACL '[{"clientid":"*", "identityzone":"7ac3
 cf restart cat-connect
 cf set-env cat-connect TENANT_HOST_PATTERN '^(.*)\.cfapps\.us10-001\.hana\.ondemand\.com$'
 cf set-env cat-connect TENANT_HOST_PATTERN '^(.*)-dev-cat-connect\.cfapps\.us10-001\.hana\.ondemand\.com$'
+
+cf logs cat-connect-srv --recent

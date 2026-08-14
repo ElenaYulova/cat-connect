@@ -12,8 +12,9 @@ type CancelResult {
 }
 
 @path: 'sales-order'
-service SalesOrderService @(requires: 'authenticated-user',
-// impl    : 'sales-service' - moved to package.json. TODO: delete if it is not necessary
+service SalesOrderService @(
+    requires: 'authenticated-user',
+    impl    : 'sales-service'
 ) {
 
     // Main entities
@@ -94,14 +95,14 @@ service SalesOrderService @(requires: 'authenticated-user',
 annotate SalesOrderService.Products with @cds.redirection.target;
 
 annotate SalesOrderService.Orders with @restrict: [
+    { grant: 'READ', to: 'Customer' },
     {
         grant: [
-            'READ',
             'CREATE',
             'UPDATE'
         ],
         to   : 'Customer',
-        where: 'customer_id = $user.id'
+        where: 'customer_ID = $user.id'
     },
     {
         grant: [
@@ -208,19 +209,26 @@ annotate SalesOrderService.Users with @restrict: [
 // Actions & Functions
 
 annotate SalesOrderService.Orders actions {
-    checkBulkEligibility @restrict: [{
-        grant: 'invoke',
-        to   : [
-            'Customer',
-            'SalesManager'
-        ]
-    }];
+    checkBulkEligibility @restrict: [
+        {
+            grant: 'invoke',
+            to   : [
+                'Customer',
+                'SalesManager'
+            ]
+        },
+        {
+            grant: '*',
+            to   : 'CRMAdmin'
+        }
+    ];
     cancelOrder          @restrict: [{
         grant: 'invoke',
         to   : [
             'Customer',
             'SalesManager',
-            'authenticated-user'
+            'authenticated-user',
+            'CRMAdmin'
         ]
     }];
 };
@@ -230,7 +238,8 @@ annotate SalesOrderService.getCartEligibilities @restrict: [{
     to   : [
         'Customer',
         'SalesManager',
-        'authenticated-user'
+        'authenticated-user',
+        'CRMAdmin'
     ]
 }];
 

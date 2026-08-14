@@ -50,7 +50,7 @@ export default class LoginManager {
     private static _buildProfile(sId: string, sUsername: string, oData?: CustomerData, sSystemRole?: string): UserProfile {
         const oBundle = (sap.ui.getCore().getModel("i18n") as any)?.getResourceBundle();
         const sGroup = oData?.categoryGroup || "";
-        
+
         const sActualRole = sSystemRole || sGroup || "";
         const bIsAdmin = sActualRole === "CRMAdmin" || sUsername === "admin";
 
@@ -151,10 +151,17 @@ export default class LoginManager {
                     const oUserRow = aContexts[0].getObject();
                     const sBusinessId = oUserRow.businessId;
                     const sRole = oUserRow.userRole || "Customer";
+
+                    if (oODataModel && oODataModel.changeHttpHeaders) {
+                        oODataModel.changeHttpHeaders({
+                            "X-User-Id": sBusinessId
+                        });
+                    }
+
                     if (oUserRow.customer) {
                         this._saveProfile(this._buildProfile(sBusinessId, sUsername, oUserRow.customer as CustomerData, sRole), oRoleModel);
                     } else {
-                        const oMockCustomer: CustomerData = { ID: sBusinessId || "00000000-0000-0000-0000-000000000000", categoryGroup: sRole };
+                        const oMockCustomer: CustomerData = { ID: sBusinessId, categoryGroup: sRole };
                         this._saveProfile(this._buildProfile(oMockCustomer.ID, sUsername, oMockCustomer, sRole), oRoleModel);
                     }
 
@@ -210,11 +217,10 @@ export default class LoginManager {
                                 if (sBusinessId && sRole === "Customer") {
                                     return oODataModel.bindContext(`/CustomerInsights('${sBusinessId}')`).requestObject()
                                         .then((oCustomerData: any) => {
-                                            // Передаем sRole в ручном режиме
                                             this._saveProfile(this._buildProfile(sBusinessId, sUser, oCustomerData, sRole), oRoleModel, oBundle?.getText("loginManager.message.welcomeBack", [sUser]) || `Welcome back, ${sUser}!`);
                                         });
                                 } else {
-                                    const oMockCustomer = { ID: sBusinessId || "00000000-0000-0000-0000-000000000000", categoryGroup: sRole };
+                                    const oMockCustomer = { ID: sBusinessId, categoryGroup: sRole };
                                     this._saveProfile(this._buildProfile(oMockCustomer.ID, sUser, oMockCustomer as any, sRole), oRoleModel, oBundle?.getText("loginManager.message.welcomeBack", [sUser]) || `Welcome back, ${sUser}!`);
                                 }
 

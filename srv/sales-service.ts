@@ -99,11 +99,24 @@ export default class SalesOrderService extends cds.ApplicationService {
             }
         });
 
+        // Customers' order list
+
+        this.on('READ', 'Orders', async (req: any, next) => {
+            const sCustomUserId = req.context?.http?.req?.headers?.['x-user-id']
+                || req.http?.req?.headers?.['x-user-id'];
+
+            if (req.user.is('Customer') && sCustomUserId) {
+                req.query.where({ customer_ID: sCustomUserId });
+            }
+
+            return next();
+        });
+
         /**
         * Cancelling handling
         */
 
-       this.on('cancelOrder', Orders, async (req: cds.Request) => {
+        this.on('cancelOrder', Orders, async (req: cds.Request) => {
             const { reasonCode, platformCode, comment } = req.data as { reasonCode: string, platformCode: string, comment: string };
             const aParams = req.params as Array<{ ID: string }>;
             const oParamObj = aParams[0];
