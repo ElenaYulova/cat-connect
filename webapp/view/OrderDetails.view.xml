@@ -7,7 +7,7 @@
     <Page id="orderDetailsPage" title="{i18n>orderDetails.page.title}" showNavButton="true" navButtonPress="onNavBack">
         <headerContent>
             <Button id="cancelOrderButton" icon="sap-icon://cancel" text="{i18n>orderDetails.button.cancelOrder}" type="Default" press="onCancelOrder" />
-            <Button id="deleteOrderButton" icon="sap-icon://delete" text="{i18n>orderDetails.button.deleteOrder}" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin} || ${userRoles>/isAdmin} }" press="onDeleteOrder" />
+            <Button id="deleteOrderButton" icon="sap-icon://delete" text="{i18n>orderDetails.button.deleteOrder}" type="Reject" visible="{= ${userRoles>/isSalesManager} || ${userRoles>/isCRMAdmin}}" press="onDeleteOrder" />
         </headerContent>
 
         <content>

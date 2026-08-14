@@ -88,6 +88,12 @@
                 "SalesManager"
               ]
             },
+            "user": {
+              "roles": [
+                "authenticated-user",
+                "Customer"
+              ]
+            },
             "agent": {
               "roles": [
                 "authenticated-user",

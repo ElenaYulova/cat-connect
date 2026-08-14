@@ -16,17 +16,19 @@ export default class SalesOrderService extends cds.ApplicationService {
 
         /**
          * Warehouse control with duplicate write-off protection (before UPDATE)
+         * TODO: check for possible bugs
          */
         this.before('UPDATE', Orders, async (req: cds.Request) => {
             const currentOrder = req.data;
-            if (!currentOrder || (currentOrder.status_code !== 'P' && currentOrder.status_code !== 'C')) return;
+            if (!currentOrder || !currentOrder.ID) return;
+            if (currentOrder.status_code !== 'P' && currentOrder.status_code !== 'C') return;
 
             const previousState = await cds.db.run(
-                SELECT.one.from(Orders).where({ id: currentOrder.id }).columns('status_code')
+                SELECT.one.from(Orders).where({ ID: currentOrder.ID }).columns('status_code')
             );
 
             if (previousState && (previousState.status_code === 'P' || previousState.status_code === 'C')) {
-                return;
+                return req.reject(400, 'ORDER_ALREADY_PROCESSED', undefined, [currentOrder.ID]);
             }
         });
 
@@ -100,15 +102,22 @@ export default class SalesOrderService extends cds.ApplicationService {
         });
 
         // Customers' order list
-
         this.on('READ', 'Orders', async (req: any, next) => {
-            const sCustomUserId = req.context?.http?.req?.headers?.['x-user-id']
+            let sCustomUserId = req.context?.http?.req?.headers?.['x-user-id']
                 || req.http?.req?.headers?.['x-user-id'];
 
-            if (req.user.is('Customer') && sCustomUserId) {
-                req.query.where({ customer_ID: sCustomUserId });
+            const bIsDev = cds.env.profiles.includes('development') || !cds.env.profiles.includes('production');
+
+            if (bIsDev && (!sCustomUserId || sCustomUserId === 'undefined') && req.user.id === 'user') {
+                // TODO: delete for final production version:  only for testing on localhost
+                sCustomUserId = '12fa7731-b782-4078-bb3f-588869eb5fe0';
             }
 
+            const bShouldFilter = (req.user.is('Customer') || bIsDev) && sCustomUserId && sCustomUserId !== 'undefined';
+
+            if (bShouldFilter) {
+                req.query.where({ customer_ID: sCustomUserId });
+            }
             return next();
         });
 
