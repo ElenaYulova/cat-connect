@@ -1,0 +1,124 @@
+{
+  "_version": "1.20.0",
+  "sap.app": {
+    "id": "sap.capire.gameshop.mdm",
+    "type": "application",
+    "title": "Master Data Management",
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/mdm/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui5": {
+    "dependencies": {
+      "minUI5Version": "1.108.0",
+      "libs": {
+        "sap.fe.templates": {}
+      }
+    },
+    "models": {
+      "": {
+        "dataSource": "mainService",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "name": "ProductsList",
+          "pattern": ":?query:",
+          "target": "ProductsList"
+        },
+        {
+          "name": "ProductsObjectPage",
+          "pattern": "Products({ProductsKey}):?query:",
+          "target": "ProductsObjectPage"
+        },
+        {
+          "name": "ProducersObjectPage",
+          "pattern": "Producers({ProducersKey}):?query:",
+          "target": "ProducersObjectPage"
+        }
+      ],
+      "targets": {
+        "ProductsList": {
+          "type": "Component",
+          "id": "ProductsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "navigation": {
+                "Products": {
+                  "detail": {
+                    "route": "ProductsObjectPage"
+                  }
+                },
+                "Producers": {
+                  "detail": {
+                    "route": "ProducersObjectPage"
+                  }
+                }
+              },
+              "contextPath": "/Products",
+              "defaultTemplateAnnotationPath": "com.sap.vocabularies.UI.v1.SelectionPresentationVariant#tableView",
+              "views": {
+                "paths": [
+                  {
+                    "key": "tableView",
+                    "annotationPath": "com.sap.vocabularies.UI.v1.SelectionPresentationVariant#tableView"
+                  },
+                  {
+                    "key": "tableView1",
+                    "annotationPath": "com.sap.vocabularies.UI.v1.SelectionPresentationVariant#tableView",
+                    "entitySet": "Producers"
+                  }
+                ]
+              },
+              "controlConfiguration": {
+                "/Producers/@com.sap.vocabularies.UI.v1.LineItem#tableView": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ProductsObjectPage": {
+          "type": "Component",
+          "id": "ProductsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Products",
+              "editableHeaderContent": true
+            }
+          }
+        },
+        "ProducersObjectPage": {
+          "type": "Component",
+          "id": "ProducersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Producers"
+            }
+          }
+        }
+      }
+    }
+  }
+}

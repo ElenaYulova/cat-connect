@@ -34,6 +34,8 @@ server:
             url: http://localhost:4004
           - path: /odata/v4/crm
             url: http://localhost:4004
+          - path: /odata/v4/mdm
+            url: http://localhost:4004
 
     - name: fiori-tools-servestatic
       afterMiddleware: compression
@@ -41,3 +43,5 @@ server:
         paths:
           - path: /crm_customers
             src: app/crm_customers
+          - path: /mdm_app
+            src: app/mdm-management/webapp

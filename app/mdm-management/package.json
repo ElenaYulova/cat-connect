@@ -1,0 +1,13 @@
+{
+  "name": "mdm-management",
+  "version": "1.0.0",
+  "description": "Master Data Management Subsystem",
+  "devDependencies": {
+    "@sap/ux-ui5-tooling": "^1.30.0",
+    "@ui5/cli": "^3.0.0"
+  },
+  "scripts": {
+    "build": "ui5 build --clean-dest"
+  },
+  "sapux": true
+}

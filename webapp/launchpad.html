@@ -66,13 +66,19 @@
                                 "url": "/crm_app",
                                 "description": "Gamer CRM Subsystem",
                                 "title": "CRM Customers"
+                            },
+                            "MasterData-manage": {
+                                "additionalInformation": "SAPUI5.Component=sap.capire.gameshop.mdm",
+                                "applicationType": "URL",
+                                "url": "/mdm_app", 
+                                "description": "Master Data Management Subsystem",
+                                "title": "Master Data Management"
                             }
                         }
-
                     }
                 }
             }
-        };
+        }
     </script>
 
     <script id="sap-ushell-bootstrap"></script>
@@ -90,6 +96,7 @@
 
             const coreScript = document.getElementById("sap-ui-bootstrap");
             coreScript.setAttribute("src", cdnCore);
+            coreScript.setAttribute("data-sap-ui-componentPreload", "off");
 
             coreScript.setAttribute("data-sap-ui-theme", "sap_horizon_dark");
             coreScript.setAttribute("data-sap-ui-libs", "sap.m, sap.ushell, sap.fe.templates");
@@ -105,6 +112,15 @@
             if (typeof sap !== "undefined" && sap.ui) {
                 sap.ui.require(["sap/ui/core/Core", "sap/ushell/Container"], function (Core, Container) {
                     Core.ready().then(function () {
+
+                        if (sap && sap.ui && sap.ui.loader) {
+                            sap.ui.loader.config({
+                                paths: {
+                                    "sap/capire/gameshop/mdm": "/mdm_app"
+                                }
+                            });
+                        }
+
                         sap.ushell.Container.createRenderer("fiori2", true)
                             .then(function (oRenderer) {
                                 oRenderer.placeAt("content");

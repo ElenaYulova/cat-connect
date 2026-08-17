@@ -13,6 +13,13 @@
       "url": "/crm_customers",
       "description": "Manage CRM Customers",
       "title": "CRM Customers"
+    },
+      "MasterData-manage": {
+        "additionalInformation": "SAPUI5.Component=sap.capire.gameshop.mdm",
+        "applicationType": "URL",
+        "url": "/mdm_app", 
+        "description": "Master Data Management Subsystem",
+        "title": "Master Data Management"
     }
   },
   "services": {

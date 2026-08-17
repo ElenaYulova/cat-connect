@@ -47,7 +47,8 @@
   ],
   "sapux": [
     "app/gameshop",
-    "app/crm_customers"
+    "app/crm_customers",
+    "app/mdm-management"
   ],
   "cds": {
     "requires": {

@@ -8,6 +8,39 @@ export default class SalesOrderService extends cds.ApplicationService {
         const Orders = this.entities.Orders!;
 
         /**
+         * Order Number Auto Generation
+         */
+
+        this.before('CREATE', 'Orders', async (req: cds.Request) => {
+        const currentYear = new Date().getFullYear();
+        
+        const OrdersEntity = cds.entities('sap.capire.gameshop.salesorder').Orders as any;
+
+        const lastOrder = await cds.db.run(
+            SELECT.one.from(OrdersEntity)
+            .where({ orderNumber: { 'like': `${currentYear}-%` } })
+            .orderBy('createdAt desc')
+            .columns('orderNumber')
+        ) as { orderNumber?: string } | null;
+
+        let nextSequence = 1;
+
+        if (lastOrder && lastOrder.orderNumber) {
+            const parts = lastOrder.orderNumber.split('-');
+            if (parts.length === 2) {
+            const currentSequence = parseInt(parts[1], 10);
+            if (!isNaN(currentSequence)) {
+                nextSequence = currentSequence + 1;
+            }
+            }
+        }
+
+        const formattedSequence = String(nextSequence).padStart(3, '0');
+
+        req.data.orderNumber = `${currentYear}-${formattedSequence}`;
+        });
+
+        /**
          * Calculator launcher for active orders
          */
         this.before(['CREATE', 'UPDATE'], Orders, async (req: cds.Request) => {

@@ -531,5 +531,6 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
         const configManager = { auth: { username: 'manager', password: '' } };
         await expect(PATCH(sUrl, { price: 99.99 }, configManager)).rejects.toThrow();
     });
+
 });
 

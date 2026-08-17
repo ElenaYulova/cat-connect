@@ -36,6 +36,15 @@
         "$XSAPPNAME.SupportAgent"
       ]
     },
+        {
+      "source": "^/mdm_app/(.*)$",
+      "target": "$1",
+      "localDir": "mdm-management/webapp",
+      "authenticationType": "xsuaa",
+      "scope": [
+        "$XSAPPNAME.CRMAdmin"
+      ]
+    },
     {
       "source": "^/sales_order/(.*)$",
       "target": "$1",
