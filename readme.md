@@ -2,7 +2,8 @@
 
 A robust Full-Stack corporate ecosystem built on the **SAP Cloud Application Model (CAP v9)** and **SAPUI5 Freestyle / Fiori Elements**, deployed directly inside the **SAP BTP** cloud infrastructure utilizing **SAP HANA Cloud** database integration.
 
-The architecture represents a unified monolith comprising two core business context blocks: an interactive customer-facing game catalog web-shop (**Sales Order Subsystem**) and a privileged operational dashboard (**Gamer CRM Subsystem**). The application is engineered in strict compliance with enterprise security frameworks, native runtime execution states (Lean Drafts), and automated deep transaction validations.
+The architecture represents an enterprise-grade ecosystem comprising two core business context blocks: an interactive customer-facing game catalog web-shop (**Sales Order Subsystem**) and a privileged operational dashboard (**Gamer CRM Subsystem**). To eliminate data fragmentation across these domains, the platform integrates a centralized **Master Data Management (MDM)** framework orchestrating core master records—such as Products Catalog metadata—ensuring a single source of truth. The application is engineered in strict compliance with enterprise security frameworks, native runtime execution states (Lean Drafts), dynamic MDM context cross-sync via SAP Service Mesh, and automated deep transaction validations.
+
 
 **Deployed Production Endpoint:** [cat-connect-live-btp](https://7ac3bc9btrial-dev-cat-connect.cfapps.us10-001.hana.ondemand.com/)
 
@@ -20,21 +21,26 @@ This foundational entity alignment guarantees optimal enterprise data consistenc
 
 | Source Entity                  | Target Entity                 | Relation Type             | Brief Description                   |
 | :----------------------------- | :---------------------------- | :------------------------ | :---------------------------------- |
+| **Users**  | crm.Customers                 | Association               | Technical user linked to Customer   |
 | **salesorder.Products**        | salesorder.Producers          | Association               | Linked to a specific Producer       |
 | **salesorder.Products**        | salesorder.Categories         | Association               | Linked to a game genre Category     |
 | **salesorder.Products**        | crm.Feedbacks                 | Association (to-many)     | Has many Feedbacks row links        |
 | **salesorder.Producers**       | salesorder.Products           | Association (to-many)     | Producer hosts multiple Products    |
 | **salesorder.Categories**      | salesorder.Categories         | Association               | References a parent Category        |
 | **salesorder.Categories**      | salesorder.Categories (child) | **Composition (to-many)** | Strictly owns child subcategories   |
+| **salesorder.Categories**      | salesorder.UserCategories     | Association               | Linked to a user gaming segment     |
 | **salesorder.Orders**          | crm.Customers                 | Association               | Order belongs to a Customer         |
+| **salesorder.Orders**          | salesorder.OrderStatusCode    | Association               | Linked to an order status code      |
 | **salesorder.Orders**          | salesorder.OrderItems         | **Composition (to-many)** | Strictly owns Order line items      |
 | **salesorder.OrderItems**      | salesorder.Orders             | Association               | Backlink to parent Order row        |
 | **salesorder.OrderItems**      | salesorder.Products           | Association               | Item links to specific Product      |
 | **salesorder.Carts**           | crm.Customers                 | Association               | Cart belongs to a Customer          |
 | **salesorder.Carts**           | salesorder.CartItems          | **Composition (to-many)** | Strictly owns Cart line items       |
+| **salesorder.CartItems**       | salesorder.Carts              | Association               | Backlink to parent Cart row         |
 | **salesorder.CartItems**       | salesorder.Products           | Association               | Line item links to specific Product |
 | **crm.Customers**              | salesorder.Orders             | Association (to-many)     | Customer places multiple Orders     |
 | **crm.Customers**              | salesorder.Carts              | Association               | Links Customer to their active Cart |
+| **crm.Customers**              | crm.CustomerStatusCode        | Association               | Linked to a customer status code    |
 | **crm.Customers**              | crm.Interactions              | Association (to-many)     | History log of multiple Activities  |
 | **crm.Customers**              | crm.Feedbacks                 | Association (to-many)     | Customer submits multiple Feedbacks |
 | **crm.Customers**              | crm.CustomerNotes             | **Composition (to-many)** | Strictly owns internal Notes        |
@@ -44,6 +50,8 @@ This foundational entity alignment guarantees optimal enterprise data consistenc
 | **crm.CustomersToPreferences** | crm.Preferences               | Association               | Link to specific Preference data    |
 | **crm.Feedbacks**              | crm.Customers                 | Association               | Feedback belongs to a Customer      |
 | **crm.Feedbacks**              | salesorder.Products           | Association               | Feedback belongs to a Product       |
+| **crm.Interactions**           | crm.Customers                 | Association               | Backlink to target Customer row     |
+| **crm.Interactions**           | crm.InteractionMethod         | Association               | Linked to a communication method    |
 | **crm.CustomerNotes**          | crm.Customers                 | Association               | Backlink to owner Customer row      |
 | **Address aspect**             | _Customers / Producers_       | **Aspect (In-line)**      | Reusable fields extending entities  |
 
@@ -80,6 +88,13 @@ Access to the cat-connect ecosystem infrastructure is globally secured and restr
 
 </details>
 
+<details>
+<summary>MDM Subsystem Roles</summary>
+
+* Now is managed only by CRMAdmin, but this list can be expanded
+
+</details>
+
 
 ---
 
@@ -104,9 +119,9 @@ A backend trigger fires whenever a gamer logs an evaluation. The system automati
 
 An automated loyalty monitor scans customer health indicators. If a client's metrics slip below predefined thresholds, the system reassigns their `statusCode` to `at_risk` for immediate account management follow-up.
 
-### 5\. Interaction Logging for Feedback Submissions
+### 5\. Dynamic Cross-Service Mesh Interaction & Timeline Logging
+A zero-duplication event driven architectural pattern. When an operational manager triggers the `cancelOrder` action on the Sales side, the system bypasses strict transactional database silos and routes an instant internal service mesh push to the isolated CRM module. The CRM context logs the data inside the runtime active timeline context without local physical source rows duplication.
 
-A background audit trail recorder is deployed. Submitting any user review automatically prompts the backend to generate and insert a new log row into the `Interactions` log, preserving date metrics and interaction vectors.
 
 ### 6\. Customer Category Calculation
 
@@ -115,6 +130,10 @@ A classification algorithm analyzes customer purchase histories and registered g
 ### 7\. Quick Insights (Top-5 Limitation)
 
 The interface is tailored to present exactly the last 5 activities on a user profile sheet. Leveraging OData v4 presentation metadata annotations (`UI.PresentationVariant`), the system automatically orders rows by timeline data and caps records to 5 items, mitigating database overhead.
+
+### 8\. Live Real-Time Activity Streaming
+To comply with data isolation matrices, the Interaction History table is designed as a hybrid virtual view. Upon every metadata read request (`READ Interactions`), the backend dynamically queries the detached Sales Order subsystem database, maps active purchase headers on-the-fly, synchronizes the strict `@odata.count` layout parameters, and streams a unified customer activity timeline back to the Fiori Elements SmartTable UI.
+
 
 </details>
 
@@ -145,6 +164,20 @@ To minimize database query overhead during frequent interface refreshes, the sto
 
 </details>
 
+<details>
+<summary>MDM Subsystem Business Logic</summary>
+
+### 1. Cross-Context Identity & Access Orchestration (Shared IAM Layer)
+The system deploys a centralized `Users` register operating as an MDM Identity Mapping matrix. Instead of duplicate tenant entries, tech authorization records natively map system logons to clean `crm.Customers` master data UUIDs, ensuring consistent cross-subsystem workspace routing.
+
+### 2. Zero-Duplication MDM Master Records Propagation
+To mitigate multi-system replication lag and database storage bloat, product catalogs and active customer indicators are decoupled from transactional domains. Subsystems interact dynamically via SAP Service Mesh event distribution channels without creating unmanaged source table mirrors.
+
+### 3. Federated Schema Field-Level Governance
+The global master record lifecycle relies on strict declarative `@mandatory` parameters, formatting validation hooks, and relational integrity guards. Any structural changes or modifications inside local subsystem draft sessions are automatically verified against the root enterprise domain definition before final database consolidation.
+
+
+</details>
 
 ---
 
@@ -230,8 +263,22 @@ The project leverages a robust GitHub Actions deployment pipeline (representing 
 
 ```mermaid
 erDiagram
+    USERS {
+        UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
+        String username
+        UUID businessId
+        String userRole
+    }
     PRODUCTS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         String title
         String descr
         String productType
@@ -241,6 +288,10 @@ erDiagram
     }
     PRODUCERS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         String name
         Boolean existing
         String city
@@ -254,6 +305,10 @@ erDiagram
     }
     ORDERS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         String orderNumber
         Decimal totalAmount
         Decimal discountValue
@@ -265,6 +320,10 @@ erDiagram
     }
     CARTS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
     }
     CART_ITEMS {
         UUID ID PK
@@ -272,15 +331,18 @@ erDiagram
     }
     ORDER_STATUS_CODE {
         String code PK
-        String name
+        Integer criticality
     }
     USER_CATEGORIES {
         String code PK
-        String name
     }
 
     CUSTOMERS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         String firstName
         String lastName
         String name
@@ -295,16 +357,28 @@ erDiagram
     }
     CUSTOMER_NOTES {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         LargeString content
     }
     FEEDBACKS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         Integer rating
         String comments
         Date feedbackDate
     }
     INTERACTIONS {
         UUID ID PK
+        DateTime createdAt
+        String createdBy
+        DateTime modifiedAt
+        String modifiedBy
         DateTime date
         String summary
     }
@@ -317,12 +391,17 @@ erDiagram
     }
     CUSTOMER_STATUS_CODE {
         String code PK
-        String name
+        Integer criticality
     }
     INTERACTION_METHOD {
         String code PK
-        String name
+        Integer criticality
     }
+
+    %% Identity Management Links
+    USERS ||--o| CUSTOMERS : "customer (Association)"
+
+    %% Sales Order Subsystem Links
     PRODUCERS ||--o{ PRODUCTS : "hosts (Association)"
     CATEGORIES ||--o{ PRODUCTS : "classifies (Association)"
     CATEGORIES ||--o{ CATEGORIES : "parent_children (Composition to-many)"
@@ -330,25 +409,33 @@ erDiagram
     
     CUSTOMERS ||--o{ ORDERS : "places (Association)"
     ORDERS ||--o{ ORDER_ITEMS : "strictly_owns (Composition to-many)"
+    ORDER_ITEMS ||--o| ORDERS : "parent (Association backlink)"
     PRODUCTS ||--o{ ORDER_ITEMS : "included_in (Association)"
     ORDERS ||--o| ORDER_STATUS_CODE : "status (Association)"
 
     %% Cart Subsystem (Sales Order)
     CUSTOMERS ||--|| CARTS : "has_active (Association)"
     CARTS ||--o{ CART_ITEMS : "strictly_owns (Composition to-many)"
+    CART_ITEMS ||--o| CARTS : "parent (Association backlink)"
     PRODUCTS ||--o{ CART_ITEMS : "added_to (Association)"
 
     %% CRM Subsystem Core
     CUSTOMERS ||--o{ CUSTOMER_NOTES : "strictly_owns (Composition to-many)"
+    CUSTOMER_NOTES ||--o| CUSTOMERS : "customer (Association backlink)"
     CUSTOMERS ||--o{ INTERACTIONS : "logs_history (Association)"
+    INTERACTIONS ||--o| CUSTOMERS : "customer (Association backlink)"
     CUSTOMERS ||--o{ FEEDBACKS : "submits (Association)"
+    FEEDBACKS ||--o| CUSTOMERS : "customer (Association backlink)"
     PRODUCTS ||--o{ FEEDBACKS : "receives (Association to-many)"
+    FEEDBACKS ||--o| PRODUCTS : "product (Association backlink)"
     
     CUSTOMERS ||--o{ CUSTOMERS_TO_PREFERENCES : "preferences (Association to-many)"
+    CUSTOMERS_TO_PREFERENCES ||--o| CUSTOMERS : "customer (Association backlink)"
     PREFERENCES ||--o{ CUSTOMERS_TO_PREFERENCES : "preference (Association)"
+    CUSTOMERS_TO_PREFERENCES ||--o| PREFERENCES : "preference (Association backlink)"
     CATEGORIES ||--o| PREFERENCES : "productCategory (Association)"
     
     CUSTOMERS ||--o| CUSTOMER_STATUS_CODE : "statusCode (Association)"
     INTERACTIONS ||--o| INTERACTION_METHOD : "method (Association)"
-
 ```
+

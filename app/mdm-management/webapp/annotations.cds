@@ -248,7 +248,7 @@ annotate service.Producers with @(
     UI.Facets : [
         {
             $Type : 'UI.ReferenceFacet',
-            Label : 'General information',
+            Label : '{i18n>GeneralInformation1}',
             ID : 'Generalinformation',
             Target : '@UI.FieldGroup#Generalinformation',
         },

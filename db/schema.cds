@@ -26,10 +26,11 @@ aspect Address : {
 */
 
 entity Users : cuid, managed {
-    username   : String(111) @mandatory @title: 'Technical Login / Email';
-    businessId : UUID @title: 'Target Business Entity GUID';
-    userRole   : String(50) @title: 'Primary Application Role';
-    customer   : Association to crm.Customers on customer.ID = businessId;
+    username   : String(111)  @mandatory  @title: 'Technical Login / Email';
+    businessId : UUID         @title: 'Target Business Entity GUID';
+    userRole   : String(50)   @title: 'Primary Application Role';
+    customer   : Association to crm.Customers
+                     on customer.ID = businessId;
 }
 
 /**
@@ -39,7 +40,7 @@ context salesorder {
     entity Products : cuid, managed {
         title          : localized String(111)    @mandatory;
         descr          : localized String(1111);
-        productType    : ProductType              @mandatory;
+        productType    : ProductType;
 
 
         producer       : Association to Producers @mandatory;
@@ -164,7 +165,7 @@ context crm {
         customer     : Association to Customers;
         product      : Association to salesorder.Products;
         rating       : Integer @assert.range: [
-            1,
+            0,
             5
         ];
         comments     : String(1000);

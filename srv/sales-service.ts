@@ -66,6 +66,39 @@ export default class SalesOrderService extends cds.ApplicationService {
         });
 
         /**
+         * Document Number Range Generator (before CREATE & SAVE active entities)
+         * Triggered strictly once upon final draft activation or direct database insertion
+         */
+        this.before(['CREATE', 'SAVE'], 'Orders', async (req: cds.Request) => {
+        if (req.data.orderNumber && req.data.orderNumber.includes('-')) return;
+
+        const currentYear = new Date().getFullYear();
+        const { Orders } = this.entities;
+        
+        const lastOrder = await cds.db.run(
+            SELECT.one.from(Orders)
+            .where({ orderNumber: { 'like': `${currentYear}-%` } })
+            .orderBy('createdAt desc')
+            .columns('orderNumber')
+        ) as { orderNumber?: string } | null;
+
+        let nextSequence = 1;
+
+        if (lastOrder && lastOrder.orderNumber) {
+            const parts = lastOrder.orderNumber.split('-');
+            if (parts.length === 2) {
+            const currentSequence = parseInt(parts[1], 10);
+            if (!isNaN(currentSequence)) {
+                nextSequence = currentSequence + 1;
+            }
+            }
+        }
+
+        const formattedSequence = String(nextSequence).padStart(3, '0');
+        req.data.orderNumber = `${currentYear}-${formattedSequence}`;
+        });
+
+        /**
         * Custom bound function for bulk eligibility check (on action)
         */
         this.on('checkBulkEligibility', 'Orders', async (req: cds.Request) => {
@@ -203,6 +236,14 @@ export default class SalesOrderService extends cds.ApplicationService {
                             product_ID: item.game_ID
                         })
                     );
+
+                    await this._forwardFeedbackToCrm(
+                        oOrder.customer_ID,
+                        item.game_ID,
+                        0,
+                        sPackedComment,
+                        new Date().toISOString().split('T')[0]
+                    );
                 }
 
                 return true;
@@ -212,27 +253,52 @@ export default class SalesOrderService extends cds.ApplicationService {
             }
         });
 
-        /**
-        * Feedbacks BE handling
+               /**
+        * Feedbacks BE handling (With safe system logs bypass)
         */
-        this.after('CREATE', 'Feedbacks', async (data: any, req: cds.Request) => {
-            try {
-                const oRemoteCrmService = await cds.connect.to('CRMService');
+        this.after('CREATE', 'Feedbacks', async (data: any) => {
+            if (data.comments && data.comments.includes('[CANCELED]')) return;
 
-                await oRemoteCrmService.run(
-                    INSERT.into('sap.capire.gameshop.crm.Feedbacks').entries({
-                        customer_ID: data.customer_ID,
-                        product_ID: data.product_ID,
-                        rating: data.rating,
-                        comments: data.comments,
-                        feedbackDate: data.feedbackDate
-                    })
-                );
-            } catch (oError: any) {
-                console.error("CRM Service Mesh Failure: Cannot forward review to remote container ->", oError.message);
-            }
+            await this._forwardFeedbackToCrm(
+                data.customer_ID,
+                data.product_ID,
+                data.rating,
+                data.comments,
+                data.feedbackDate
+            );
         });
+
 
         return super.init();
     }
+
+    /**
+     * Internal helper to forward feedback and log interaction directly to local CrmService
+     */
+       private async _forwardFeedbackToCrm(customer_ID: string, product_ID: string, rating: number, comments: string, feedbackDate: any): Promise<void> {
+        try {
+            const oCrmService = await cds.connect.to('CrmService');
+            const sCleanDate = Array.isArray(feedbackDate) ? feedbackDate : feedbackDate;
+
+            await oCrmService.run(INSERT.into('Feedbacks').entries({
+                customer_ID,
+                product_ID,
+                rating,
+                comments,
+                feedbackDate: sCleanDate
+            }));
+            const sStrictDateTime = new Date().toISOString().replace('Z', '').split('.')[0];
+
+            await oCrmService.run(INSERT.into('Interactions').entries({
+                customer_ID,
+                date: sStrictDateTime,
+                method_code: 'F',
+                summary: `System Log: Order Canceled. ${comments.substring(0, 50)}`
+            }));
+
+        } catch (oError: any) {
+            console.error("CRM Service Mesh Local Integration Failure:", oError.message);
+        }
+    }
+
 }

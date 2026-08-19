@@ -63,6 +63,15 @@
           "webapp"
         ]
       },
+      "CRMService": {
+        "kind": "odata-v4",
+        "model": "srv/crm-service",
+        "[development]": {
+          "credentials": {
+            "url": "http://localhost:4004/odata/v4/crm"
+          }
+        }
+      },
       "cds-plugin-ui5": {
         "modules": {
           "sales_order": {

@@ -16,6 +16,18 @@ import Formatter from "../model/formatter";
 export default class OrdersList extends Controller {
 
     public formatter: typeof Formatter = Formatter;
+
+    public onInit(): void {
+
+        const oRouter = (this.getOwnerComponent() as any).getRouter();
+
+        oRouter.getRoute("OrdersList")?.attachPatternMatched(this._onRouteMatched, this);
+    }
+
+    private _onRouteMatched(): void {
+        this.onRefreshOrders();
+    }
+
     /**
      * Forcibly triggers OData v4 model context synchronization reload
      */

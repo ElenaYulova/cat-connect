@@ -48,7 +48,7 @@
                         $orderby: 'createdAt desc',
                         $expand: 'customer'
                     }
-                }" growing="true" growingThreshold="10" class="sapUiResponsiveMargin">
+                }" growing="true" growingThreshold="10">
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>ordersList.table.title}"/>

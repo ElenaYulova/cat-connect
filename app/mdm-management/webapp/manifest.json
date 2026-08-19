@@ -103,7 +103,7 @@
             "settings": {
               "navigation": {},
               "contextPath": "/Products",
-              "editableHeaderContent": true
+              "editableHeaderContent": false
             }
           }
         },

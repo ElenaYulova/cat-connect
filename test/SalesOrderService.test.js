@@ -301,10 +301,10 @@ describe('Sales Order Service: Showcase & Stock Validation', () => {
 
         expect(interactionsResponse.status).toBe(200);
         const aLogs = interactionsResponse.data.value;
-        const oTargetLog = aLogs.find(log => log.customer_ID === targetCustomerId && log.method_code === 'feedback');
+        const oTargetLog = aLogs.find(log => log.customer_ID === targetCustomerId && log.method_code === 'F');
 
         expect(oTargetLog).toBeDefined();
-        expect(oTargetLog.summary).toContain('Rating: 1');
+        expect(oTargetLog.summary).toContain('Review logged. Rating: 1');
     });
 
     /**
